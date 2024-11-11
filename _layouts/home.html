@@ -1,0 +1,143 @@
+---
+layout: default
+title: Your Name - Academic Portfolio
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        
+        nav {
+            margin: 20px 0;
+            padding: 10px 0;
+            border-bottom: 2px solid #eee;
+        }
+        
+        nav a {
+            margin-right: 20px;
+            color: #444;
+            text-decoration: none;
+        }
+        
+        nav a:hover {
+            color: #000;
+            border-bottom: 2px solid #000;
+        }
+        
+        .profile {
+            display: flex;
+            align-items: start;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .profile img {
+            width: 200px;
+            border-radius: 5px;
+        }
+        
+        .research-item {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .publication {
+            margin: 20px 0;
+            padding-left: 20px;
+            border-left: 3px solid #ddd;
+        }
+        
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: center;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#about">About</a>
+        <a href="#research">Research</a>
+        <a href="#publications">Publications</a>
+        <a href="#cv">CV</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <section id="about" class="profile">
+        <img src="/api/placeholder/200/200" alt="Your Photo">
+        <div>
+            <h1>Your Name</h1>
+            <p>PhD Candidate</p>
+            <p>Department of [Your Field]</p>
+            <p>University Name</p>
+            <p>My research focuses on [brief description of your research interests and goals].</p>
+        </div>
+    </section>
+
+    <section id="research">
+        <h2>Current Research Projects</h2>
+        
+        <div class="research-item">
+            <h3>Project Title 1</h3>
+            <p>Description of your first research project. Include the problem you're addressing, 
+            your approach, and any preliminary results.</p>
+        </div>
+
+        <div class="research-item">
+            <h3>Project Title 2</h3>
+            <p>Description of your second research project.</p>
+        </div>
+    </section>
+
+    <section id="publications">
+        <h2>Publications</h2>
+        
+        <div class="publication">
+            <p>Author(s). (Year). Title of the paper. Journal Name, Volume(Issue), Pages.</p>
+            <p>Brief description of the paper and its contributions.</p>
+        </div>
+    </section>
+
+    <section id="cv">
+        <h2>Curriculum Vitae</h2>
+        <p>Download my full CV <a href="path-to-your-cv.pdf">here</a></p>
+        
+        <h3>Education</h3>
+        <ul>
+            <li>PhD in [Field], University Name (Expected [Year])</li>
+            <li>MS in [Field], University Name (Year)</li>
+            <li>BS in [Field], University Name (Year)</li>
+        </ul>
+    </section>
+
+    <section id="contact">
+        <h2>Contact</h2>
+        <p>Email: your.email@university.edu</p>
+        <p>Office: Building Name, Room Number</p>
+        <p>
+            <a href="https://github.com/yourusername">GitHub</a> |
+            <a href="https://scholar.google.com/citations?user=YOUR_ID">Google Scholar</a>
+        </p>
+    </section>
+
+    <footer>
+        <p>Last updated: [Month Year]</p>
+    </footer>
+</body>
+</html>
