@@ -88,3 +88,30 @@ kramdown:
   math_engine: mathjax
   syntax_highlighter: rouge
 
+
+
+
+# Scholar settings
+scholar:
+  style: apa
+  locale: en
+  sort_by: year,month
+  order: descending
+  group_by: none
+  bibliography_list_tag: ul
+  source: _bibliography
+  bibliography: references.bib
+
+# Collections for projects
+collections:
+  projects:
+    output: true
+    permalink: /projects/:path/
+
+# Default layouts
+defaults:
+  - scope:
+      path: ""
+      type: "projects"
+    values:
+      layout: project

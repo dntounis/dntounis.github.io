@@ -1,0 +1,29 @@
+<div class="publications-container">
+  {% for paper in site.data.publications %}
+  <div class="publication-item">
+    <h3>{{ paper.title }}</h3>
+    <p class="authors">{{ paper.authors }}</p>
+    <p class="venue">{{ paper.venue }} ({{ paper.year }})</p>
+    
+    <div class="publication-links">
+      {% if paper.pdf %}
+      <a href="{{ paper.pdf }}" target="_blank">
+        <i class="fas fa-file-pdf"></i> PDF
+      </a>
+      {% endif %}
+      
+      {% if paper.code %}
+      <a href="{{ paper.code }}" target="_blank">
+        <i class="fas fa-code"></i> Code
+      </a>
+      {% endif %}
+      
+      {% if paper.doi %}
+      <a href="https://doi.org/{{ paper.doi }}" target="_blank">
+        <i class="fas fa-external-link-alt"></i> DOI
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>

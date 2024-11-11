@@ -1,0 +1,14 @@
+- title: "Paper Title"
+  authors: "Ntounis, D., et al."
+  venue: "Conference/Journal Name"
+  year: 2024
+  pdf: "/assets/papers/paper.pdf"
+  code: "https://github.com/..."
+  doi: "10.1234/example"
+
+- title: "Another Paper"
+  authors: "Ntounis, D., et al."
+  venue: "Another Venue"
+  year: 2023
+  pdf: "/assets/papers/paper2.pdf"
+  doi: "10.1234/example2"
