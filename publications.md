@@ -65,3 +65,5 @@ function toggleBibtex(key) {
 
 
 {% include publication-list.html %}
+{% include metrics-display.html %}
+

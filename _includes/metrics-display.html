@@ -1,20 +1,51 @@
 <div class="metrics-container">
-  <div class="citation-metrics">
-    <div class="metric-item">
-      <h4>Citations</h4>
-      <p>{{ site.data.scholar_metrics.citations }}</p>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <h3>Total Citations</h3>
+      <p class="metric-value">{{ site.data.scholar_metrics.citations }}</p>
     </div>
-    <div class="metric-item">
-      <h4>h-index</h4>
-      <p>{{ site.data.scholar_metrics.h_index }}</p>
+    
+    <div class="metric-card">
+      <h3>h-index</h3>
+      <p class="metric-value">{{ site.data.scholar_metrics.h_index }}</p>
     </div>
-    <div class="metric-item">
-      <h4>i10-index</h4>
-      <p>{{ site.data.scholar_metrics.i10_index }}</p>
+    
+    <div class="metric-card">
+      <h3>i10-index</h3>
+      <p class="metric-value">{{ site.data.scholar_metrics.i10_index }}</p>
     </div>
   </div>
-  
-  <div class="citations-graph">
-    <!-- Add your graph here using Chart.js or other library -->
+
+  <div class="citations-chart">
+    <canvas id="citationsPerYear"></canvas>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('citationsPerYear').getContext('2d');
+  const data = {{ site.data.scholar_metrics.citations_per_year | jsonify }};
+  
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Object.keys(data).reverse(),
+      datasets: [{
+        label: 'Citations per Year',
+        data: Object.values(data).reverse(),
+        borderColor: '#0366d6',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+});
+</script>

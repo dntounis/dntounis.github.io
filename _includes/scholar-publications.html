@@ -1,0 +1,65 @@
+<div class="scholar-metrics">
+  <div class="metric-box">
+    <h3>Citations</h3>
+    <p>{{ site.data.scholar_metrics.citations }}</p>
+  </div>
+  <div class="metric-box">
+    <h3>h-index</h3>
+    <p>{{ site.data.scholar_metrics.h_index }}</p>
+  </div>
+  <div class="metric-box">
+    <h3>i10-index</h3>
+    <p>{{ site.data.scholar_metrics.i10_index }}</p>
+  </div>
+</div>
+
+<div class="citation-graph">
+  <canvas id="citationChart"></canvas>
+</div>
+
+<div class="publications-list">
+  {% for pub in site.data.scholar_publications %}
+    <div class="publication-card">
+      <h3>{{ pub.title }}</h3>
+      <p class="authors">{{ pub.authors | join: ", " }}</p>
+      <p class="venue">{{ pub.venue }} ({{ pub.year }})</p>
+      <p class="citations">Citations: {{ pub.citations }}</p>
+      
+      <div class="pub-links">
+        {% if pub.url %}
+          <a href="{{ pub.url }}" target="_blank">Paper</a>
+        {% endif %}
+        <a href="{{ pub.scholar_url }}" target="_blank">Google Scholar</a>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('citationChart').getContext('2d');
+  const citationData = {{ site.data.citation_history | jsonify }};
+  
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: citationData.map(d => d.year),
+      datasets: [{
+        label: 'Citations per Year',
+        data: citationData.map(d => d.citations),
+        borderColor: '#0366d6',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+});
+</script>
