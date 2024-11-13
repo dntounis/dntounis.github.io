@@ -14,7 +14,8 @@ gem "webrick"
 gem "bibtex-ruby"
 gem "citeproc-ruby"
 gem "csl-styles"
-
+gem "observer"
+gem "faraday-retry"
 
 
 

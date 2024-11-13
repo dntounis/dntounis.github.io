@@ -6,12 +6,13 @@ permalink: /about/
 
 # About Me
 
-I am a PhD Student at [Your University] in [Your Department]. My research focuses on [Your Research Areas].
+I am a PhD Candidate in the Physics Department at Stanford University. I also hold an appointment at SLAC National Accelerator Laboratory. My research field is Particle Physics, which revolves around the study of the elementary constituents of the Universe, with the purpose of understanding Nature at its most fundamental level. 
 
 ## Education
-- PhD in [Field], [University Name], [Expected Year]
-- MSc in [Field], [University Name], [Year]
-- BSc in [Field], [University Name], [Year]
+- PhD in Physics, Stanford University, *in progress*
+- PhD Minor in Computer Science, Stanford University, *in progress*
+- MSc in Physics, Stanford University, 2024
+- BSc in Physics, National and Kapodistrian University of Athens, 2021
 
 ## Research Interests
 - Interest 1 with brief explanation
@@ -19,6 +20,6 @@ I am a PhD Student at [Your University] in [Your Department]. My research focuse
 - Interest 3 with brief explanation
 
 ## Contact
-- Email: your.email@university.edu
-- Office: [Building and Room Number]
+- Email: dntounis@stanford.edu, dntounis@slac.stanford.edu, dimitrios.ntounis@cern.ch
+- Office: 
 - GitHub: [@dntounis](https://github.com/dntounis)

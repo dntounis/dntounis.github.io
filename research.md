@@ -2,6 +2,11 @@
 layout: page
 title: Research
 permalink: /research/
+submenu:
+  - title: Current Projects
+    url: /research/current-projects
+  - title: Past Projects
+    url: /research/past-projects
 ---
 
 ## Current Projects

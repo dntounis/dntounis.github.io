@@ -115,3 +115,14 @@ defaults:
       type: "projects"
     values:
       layout: project
+
+
+
+# Navigation
+header_pages:
+  - about.md
+  - research.md
+  - publications.md
+  - projects.md
+  - cv.md
+  - contact.md
