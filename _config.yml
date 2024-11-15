@@ -126,3 +126,24 @@ header_pages:
   - projects.md
   - cv.md
   - contact.md
+
+
+navigation:
+  - title: About
+    url: /about/
+  - title: Research
+    url: /research/
+    submenu:
+      - title: Current Projects
+        url: /research/current/
+      - title: Completed Projects
+        url: /research/completed/
+  - title: Projects
+    url: /projects/
+    submenu:
+      - title: Current Projects
+        url: /projects/current/
+      - title: Completed Projects
+        url: /projects/completed/
+  - title: Publications
+    url: /publications/
