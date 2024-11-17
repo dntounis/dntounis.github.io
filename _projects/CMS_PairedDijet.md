@@ -2,7 +2,7 @@
 title: "Paired dijet search with the CMS experiment at the CERN LHC"
 description: >-
   Search for resonant and nonresonant production of pairs of dijet resonances 
-  in proton-proton collisions at \(\sqrt{s}=13\) TeV
+  in proton-proton collisions at \\(\sqrt{s}=13\\) TeV
 status: "past" 
 order: 1
 image: "/assets/images/paired_dijet_event_display.png"

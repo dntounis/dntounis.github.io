@@ -2,7 +2,7 @@
 title: >-
   Search for Boosted Higgs Bosons in the fully hadronic \(VH(b\bar{b})\) channel with ATLAS
 description: >-
-  Study of High-Transverse-Momentum Higgs Boson Production in Association with a Vector Boson in the \(q\bar{q}b\bar{b}\) Final State with the ATLAS Detector
+  Study of High-Transverse-Momentum Higgs Boson Production in Association with a Vector Boson in the \\(q\bar{q}b\bar{b}\\) Final State with the ATLAS Detector
 status: "past"  # or "completed"
 order: 2
 image: "/assets/images/VH_fit_Run2.png"

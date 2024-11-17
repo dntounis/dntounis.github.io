@@ -1,81 +1,116 @@
-{% comment %}
-This template handles both individual category views and the main projects page.
-It includes proper handling of math rendering and toggle functionality.
-{% endcomment %}
-
 <div class="projects-grid">
   {% assign sorted_projects = site.projects | sort: "order" | reverse %}
   
   {% if include.category %}
     <h2>{{ include.category | capitalize }} Projects</h2>
     {% assign filtered_projects = sorted_projects | where: "status", include.category %}
-    {% for project in filtered_projects %}
-      <div class="project-card">
-        {% include project-card-content.html %}
-      </div>
-    {% endfor %}
-  
   {% else %}
-    {% comment %} Current Projects Section {% endcomment %}
     {% assign current_projects = sorted_projects | where: "status", "current" %}
     {% if current_projects.size > 0 %}
       <h2>Current Projects</h2>
-      {% for project in current_projects %}
-        <div class="project-card" data-category="current">
-          {% include project-card-content.html %}
-        </div>
-      {% endfor %}
+      <div class="projects-list">
+        {% for project in current_projects %}
+          <div class="project-card" data-category="current">
+            {% include project-card-content.html %}
+          </div>
+        {% endfor %}
+      </div>
     {% endif %}
 
-    {% comment %} Past Projects Section {% endcomment %}
     {% assign past_projects = sorted_projects | where: "status", "past" %}
     {% if past_projects.size > 0 %}
       <h2>Past Projects</h2>
-      {% for project in past_projects %}
-        <div class="project-card" data-category="past">
-          {% include project-card-content.html %}
-        </div>
-      {% endfor %}
+      <div class="projects-list">
+        {% for project in past_projects %}
+          <div class="project-card" data-category="past">
+            {% include project-card-content.html %}
+          </div>
+        {% endfor %}
+      </div>
     {% endif %}
   {% endif %}
 
-  {% for project in filtered_projects %}
-  <div id="{{ project.title | slugify }}-details" class="project-details-modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>{{ project.title | markdownify }}</h2>
-        <button onclick="closeProjectDetails('{{ project.title | slugify }}')">&times;</button>
-      </div>
-      <div class="modal-body">
-        {{ project.content | markdownify }}
+  <!-- Modal container for project details -->
+  {% for project in site.projects %}
+    <div id="{{ project.title | slugify }}-details" class="project-details-modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>{{ project.title | markdownify }}</h2>
+          <button onclick="closeProjectDetails('{{ project.title | slugify }}')" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          {{ project.content | markdownify }}
+        </div>
       </div>
     </div>
-  </div>
-{% endfor %}
-
-
-
+  {% endfor %}
 </div>
 
-{% if include.content == "card" %}
-  {{ project_card_content }}
-{% endif %}
-
 <script>
-  function showProjectDetails(projectId, event) {
-      event.preventDefault();
-      const detailsElement = document.getElementById(`${projectId}-details`);
-      if (detailsElement) {
-          detailsElement.style.display = 'block';
-          document.body.style.overflow = 'hidden';
-      }
-  }
-  
-  function closeProjectDetails(projectId) {
-      const detailsElement = document.getElementById(`${projectId}-details`);
-      if (detailsElement) {
-          detailsElement.style.display = 'none';
-          document.body.style.overflow = 'auto';
-      }
-  }
-  </script>
+function showProjectDetails(projectId, event) {
+    event.preventDefault();
+    const detailsElement = document.getElementById(`${projectId}-details`);
+    if (detailsElement) {
+        detailsElement.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Trigger MathJax to render math in the modal
+        if (window.MathJax) {
+            MathJax.typesetPromise([detailsElement]).catch((err) => console.log('MathJax error:', err));
+        }
+    }
+}
+
+function closeProjectDetails(projectId) {
+    const detailsElement = document.getElementById(`${projectId}-details`);
+    if (detailsElement) {
+        detailsElement.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Initialize MathJax rendering for the initial page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.MathJax) {
+        MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
+    }
+});
+</script>
+
+<style>
+.project-details-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    margin: 60px auto;
+    padding: 2rem;
+    max-width: 800px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.modal-close:hover {
+    color: #000;
+}
+</style>

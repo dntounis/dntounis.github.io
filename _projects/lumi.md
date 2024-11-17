@@ -1,6 +1,6 @@
 ---
 title: >-
-   Luminosity Studies for the Cool Copper Collider (C\(^3\)) 
+   Luminosity Studies for the Cool Copper Collider (C\\(^3\\)) 
 description: "Luminosity and beam-induced background studies for the Cool Copper Collider"
 status: "past"  # or "completed"
 order: 4

@@ -156,10 +156,14 @@ navigation:
   - title: Research
     url: /research/
     submenu:
+      #- title: Current Projects
+      #  url: /research/current/
+      #- title: Completed Projects
+      #  url: /research/completed/
       - title: Current Projects
-        url: /research/current/
-      - title: Completed Projects
-        url: /research/completed/
+        url: /projects#current-projects
+      - title: Past Projects
+        url: /projects#past-projects
   - title: Projects
     url: /projects/
     submenu:

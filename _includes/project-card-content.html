@@ -4,43 +4,41 @@ It's designed to be reusable and maintainable.
 {% endcomment %}
 
 
-
-
-
-<div class="project-image-container">
-  {% if project.image %}
+<div class="project-card-content"></div>
+    {% if project.image %}
+    <div class="project-image-container">
     <img src="{{ project.image }}" 
-         alt="{{ project.title | strip_html }}" 
-         class="project-image"
-         loading="lazy">
-  {% endif %}
-</div>
+        alt="{{ project.title | strip_html }}" 
+        class="project-image">
+    </div>
+    {% endif %}
 
-<div class="project-content">
-    <h3 class="project-title">
-        <a href="#" class="project-title-link" onclick="showProjectDetails('{{ project.title | slugify }}', event)">
-          {% capture project_title %}{{ project.title }}{% endcapture %}
-          {{ project_title | markdownify | remove: '<p>' | remove: '</p>' }}
-        </a>
-      </h3>
+    <div class="project-content">
+        <h3 class="project-title">
+          <a href="#" class="project-title-link" onclick="showProjectDetails('{{ project.title | slugify }}', event)">
+            {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
+          </a>
+        </h3>
       
-      <div class="project-description">
-        {{ project.description | markdownify }}
-      </div>
+        <div class="project-description">
+            {{ project.description | markdownify }}
+        </div>
   
+ <!--
   <div class="project-details" 
        aria-expanded="false" 
        data-state="collapsed">
     {{ project.content | markdownify }}
   </div>
-  
-  {% if project.tags %}
-    <div class="project-tags" role="list">
+-->       
+
+    {% if project.tags %}
+    <div class="project-tags">
       {% for tag in project.tags %}
-        <span class="tag" role="listitem">{{ tag }}</span>
+        <span class="tag">{{ tag }}</span>
       {% endfor %}
     </div>
-  {% endif %}
+    {% endif %}
   
   <div class="project-links">
     {% if project.demo %}
