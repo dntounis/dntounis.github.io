@@ -358,6 +358,7 @@ DEPENDENCIES
   jekyll-feed (~> 0.12)
   jekyll-scholar
   jekyll-seo-tag
+  jekyll-sitemap
   minima (~> 2.5)
   observer
   tzinfo (>= 1, < 3)

@@ -1,0 +1,10 @@
+{% for paper in site.papers %}
+<div class="publication" itemscope itemtype="http://schema.org/ScholarlyArticle">
+    <span itemprop="name">{{ paper.title }}</span>
+    <span itemprop="author">{{ paper.authors | join: ", " }}</span>
+    <cite itemprop="isPartOf">{{ paper.journal }}</cite>
+    {% if paper.doi %}
+    <a href="https://doi.org/{{ paper.doi }}" itemprop="url">DOI</a>
+    {% endif %}
+</div>
+{% endfor %}

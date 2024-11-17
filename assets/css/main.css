@@ -1,24 +1,40 @@
-/* Base styles */
+/* ==========================================================================
+   1. CSS Variables and Theme Settings
+   ========================================================================== */
 
-:root {
-    --primary-color: #333;
-    --accent-color: #0366d6;
-    --background-color: #fff;
-    --text-color: #333;
+   :root {
+    /* Colors */
+    --primary-color: #0366d6;
+    --secondary-color: #6c757d;
+    --background-color: #ffffff;
+    --text-color: #24292e;
+    --accent-color: #f9826c;
+    --border-color: #e1e4e8;
+    
+    /* Spacing */
     --nav-height: 60px;
+    --content-width: 1200px;
+    
+    /* Border Radius */
+    --border-radius: 8px;
+    
+    /* Transitions */
+    --transition-speed: 0.3s;
 }
 
-
-/*
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+/* Dark theme variables */
+[data-theme="dark"] {
+    --primary-color: #58a6ff;
+    --secondary-color: #8b949e;
+    --background-color: #0d1117;
+    --text-color: #c9d1d9;
+    --accent-color: #f78166;
+    --border-color: #30363d;
 }
-*/
 
+/* ==========================================================================
+   2. Base Styles
+   ========================================================================== */
 
 body {
     margin: 0;
@@ -26,36 +42,13 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     color: var(--text-color);
+    background-color: var(--background-color);
 }
 
+/* ==========================================================================
+   3. Header and Navigation
+   ========================================================================== */
 
-/* Project styles */
-.project-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
-
-.tag {
-    display: inline-block;
-    padding: 0.2em 0.6em;
-    margin: 0.2em;
-    background: #f0f0f0;
-    border-radius: 3px;
-}
-
-/* Publication styles */
-.publication-item {
-    margin: 1.5em 0;
-    padding: 1em;
-    border-left: 4px solid #0366d6;
-    background: #f6f8fa;
-}
-
-/* Add any other styles you need */
-
-
-/* Header and Navigation */
 .site-header {
     background: var(--background-color);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -66,7 +59,7 @@ body {
 }
 
 .site-nav {
-    max-width: 1200px;
+    max-width: var(--content-width);
     margin: 0 auto;
     padding: 0 20px;
     height: var(--nav-height);
@@ -97,15 +90,12 @@ body {
     text-decoration: none;
     padding: 0.5rem 1rem;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: color var(--transition-speed);
 }
 
-.page-link:hover {
-    color: var(--accent-color);
-}
-
-.current {
-    color: var(--accent-color);
+.page-link:hover,
+.page-link.current {
+    color: var(--primary-color);
 }
 
 /* Dropdown Menu */
@@ -114,17 +104,16 @@ body {
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background: white;
+    background: var(--background-color);
     min-width: 200px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: all var(--transition-speed);
     z-index: 1000;
 }
 
-/* Show dropdown on hover */
 .nav-item:hover .dropdown {
     opacity: 1;
     visibility: visible;
@@ -136,15 +125,193 @@ body {
     padding: 12px 20px;
     color: var(--text-color);
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all var(--transition-speed);
 }
 
 .dropdown a:hover {
     background: rgba(0,0,0,0.05);
-    color: #0366d6;
+    color: var(--primary-color);
 }
 
-/* Animation */
+/* ==========================================================================
+   4. Project Grid and Cards
+   ========================================================================== */
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+    margin-top: var(--nav-height);
+}
+
+.project-card {
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: box-shadow var(--transition-speed);
+}
+
+.project-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.project-image-container {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.project-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-speed);
+}
+
+.project-content {
+    padding: 1.5rem;
+}
+
+.project-title {
+    cursor: pointer;
+    margin: 0 0 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--primary-color);
+}
+
+.expand-icon {
+    font-size: 0.8em;
+    transition: transform var(--transition-speed);
+}
+
+.project-details {
+    height: 0;
+    overflow: hidden;
+    transition: height var(--transition-speed);
+    border-top: 1px solid var(--border-color);
+}
+
+.project-details.expanded {
+    height: auto;
+    padding: 1rem 0;
+    margin-top: 1rem;
+}
+
+/* ==========================================================================
+   5. Project Tags and Links
+   ========================================================================== */
+
+   .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.tag {
+    background: #f1f8ff;
+    color: var(--primary-color);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    transition: background-color var(--transition-speed);
+}
+
+.project-links {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.project-link {
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all var(--transition-speed);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.project-link:not(.paper-link) {
+    background: #f6f8fa;
+    color: var(--text-color);
+}
+
+.paper-link {
+    background: #dc3545;
+    color: white;
+}
+
+.project-link:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ==========================================================================
+   6. Publications Styling
+   ========================================================================== */
+
+.publication-item {
+    margin: 1.5em 0;
+    padding: 1em;
+    border-left: 4px solid var(--primary-color);
+    background: #f6f8fa;
+    transition: transform var(--transition-speed);
+}
+
+.publication-item:hover {
+    transform: translateX(5px);
+}
+
+.pub-title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.pub-authors {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.pub-links {
+    margin-top: 0.5rem;
+}
+
+/* ==========================================================================
+   7. Math Rendering
+   ========================================================================== */
+
+.math-display {
+    overflow-x: auto;
+    margin: 1em 0;
+    padding: 1em;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+}
+
+.MathJax {
+    outline: none;
+}
+
+.katex {
+    font-size: 1em !important;
+}
+
+.project-title .katex {
+    font-size: 0.9em !important;
+}
+
+/* ==========================================================================
+   8. Animations
+   ========================================================================== */
+
 @keyframes slideDown {
     0% {
         opacity: 0;
@@ -156,57 +323,39 @@ body {
     }
 }
 
-.nav-item:hover .dropdown {
-    animation: slideDown 0.3s ease forwards;
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }
 
-/* Current page indicator */
-.page-link.current {
-    color: #0366d6;
-}
+/* ==========================================================================
+   9. Responsive Design
+   ========================================================================== */
 
-/* Add subtle arrow for items with dropdowns */
-.nav-item:has(.dropdown) .page-link::after {
-    content: '▾';
-    display: inline-block;
-    margin-left: 4px;
-    font-size: 0.8em;
-}
-
-
-
-
-
-/* Mobile Menu Toggle */
-.menu-toggle {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.menu-toggle span {
-    display: block;
-    width: 25px;
-    height: 2px;
-    background: var(--text-color);
-    transition: transform 0.3s;
-}
-
-/* Main Content */
-.page-content {
-    max-width: 1200px;
-    margin: var(--nav-height) auto 0;
-    padding: 20px;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
+    /* Navigation */
     .menu-toggle {
         display: flex;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .menu-toggle span {
+        display: block;
+        width: 25px;
+        height: 2px;
+        background: var(--text-color);
+        transition: transform var(--transition-speed);
     }
 
     .nav-links {
@@ -229,6 +378,7 @@ body {
         position: static;
         box-shadow: none;
         margin-left: 1rem;
+        transform: none;
     }
 
     .nav-item {
@@ -239,500 +389,35 @@ body {
         display: block;
         padding: 0.5rem 0;
     }
+
+    /* Projects Grid */
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Project Cards */
+    .project-image-container {
+        height: 150px;
+    }
 }
 
+/* ==========================================================================
+   10. Utility Classes
+   ========================================================================== */
 
-
-
-
-<style>
-.home-content {
-    max-width: 800px;
-    margin: 0 auto;
+.page-content {
+    max-width: var(--content-width);
+    margin: var(--nav-height) auto 0;
     padding: 20px;
 }
 
-.profile {
-    display: flex;
-    align-items: start;
-    gap: 2rem;
-    margin: 3rem 0;
-}
-
-.profile-image {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.profile-info h1 {
-    margin-bottom: 0.5rem;
-}
-
-.section {
-    margin: 4rem 0;
-}
-
-.research-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.research-item {
-    padding: 1.5rem;
-    background: #f9f9f9;
-    border-radius: 8px;
-    transition: transform 0.2s;
-}
-
-.research-item:hover {
-    transform: translateY(-5px);
-}
-
-.publication {
-    margin: 1.5rem 0;
-    padding-left: 1rem;
-    border-left: 3px solid #0366d6;
-}
-
-.pub-title {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.pub-authors {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.pub-links {
-    margin-top: 0.5rem;
-}
-
-.pub-link {
-    margin-right: 1rem;
-    color: #0366d6;
-    text-decoration: none;
-}
-
-.social-links {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.social-link {
-    padding: 0.5rem 1rem;
-    background: #f5f5f5;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #333;
-    transition: background 0.2s;
-}
-
-.social-link:hover {
-    background: #e5e5e5;
-}
-
-.view-all {
-    display: inline-block;
-    margin-top: 1rem;
-    color: #0366d6;
-    text-decoration: none;
-}
-
-@media (max-width: 768px) {
-    .profile {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .profile-image {
-        margin: 0 auto;
-    }
-}
-</style>
-
-
-
-
-
-
-/* Custom Properties */
-:root {
-    --primary-color: #0366d6;
-    --secondary-color: #6c757d;
-    --background-color: #ffffff;
-    --text-color: #24292e;
-    --accent-color: #f9826c;
-    --border-radius: 8px;
-    --transition-speed: 0.3s;
-}
-
-/* Theme Toggle */
-[data-theme="dark"] {
-    --primary-color: #58a6ff;
-    --secondary-color: #8b949e;
-    --background-color: #0d1117;
-    --text-color: #c9d1d9;
-    --accent-color: #f78166;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
-}
-
-/* Enhanced Components */
-.research-item {
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.project-details {
+.visually-hidden {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 1rem;
-    transform: translateY(100%);
-    transition: transform var(--transition-speed);
-}
-
-.research-item:hover .project-details {
-    transform: translateY(0);
-}
-
-.publication-card {
-    border: 1px solid #e1e4e8;
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: transform var(--transition-speed);
-}
-
-.publication-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* Stats Section */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
-}
-
-.stat-card {
-    text-align: center;
-    padding: 1.5rem;
-    background: var(--background-color);
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-/* Timeline */
-.timeline {
-    position: relative;
-    max-width: 800px;
-    margin: 2rem auto;
-}
-
-.timeline::after {
-    content: '';
-    position: absolute;
-    width: 2px;
-    background: var(--secondary-color);
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    margin-left: -1px;
-}
-
-.timeline-item {
-    padding: 1rem 2rem;
-    position: relative;
-    width: calc(50% - 2rem);
-    margin-bottom: 2rem;
-}
-
-.timeline-item:nth-child(odd) {
-    left: 0;
-}
-
-.timeline-item:nth-child(even) {
-    left: 50%;
-}
-
-
-
-
-/* Project grid layout */
-.projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 1rem;
-}
-
-
-/* Project card styling */
-.project-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.project-image-container {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-}
-
-.project-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Adjust the projects grid layout */
-
-
-/* Style for project content */
-.project-content {
-    padding: 20px;
-}
-
-
-
-.project-title {
-    cursor: pointer;
-    padding: 1rem;
-    margin: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.project-title:hover {
-    color: #024ea4;
-}
-
-.project-title .expand-icon {
-    transition: transform 0.3s ease;
-}
-
-
-/* Fix math rendering */
-.katex {
-    font-size: 1em !important;
-}
-
-.katex-display {
-    margin: 0.5em 0 !important;
-}
-
-.expand-icon {
-    font-size: 0.8em;
-    transition: transform 0.3s ease;
-}
-
-.project-brief {
-    margin-bottom: 15px;
-}
-
-.project-details {
-    padding: 1rem;
-    border-top: 1px solid #eee;
-}
-
-
-
-
-
-.project-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 15px 0;
-}
-
-.tag {
-    background: #f1f8ff;
-    color: #0366d6;
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-size: 0.9em;
-}
-
-.project-links {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.project-link {
-    padding: 6px 12px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.9em;
-    transition: all 0.2s ease;
-}
-
-.project-link:not(.paper-link) {
-    background: #f6f8fa;
-    color: #24292e;
-}
-
-.paper-link {
-    background: #dc3545;
-    color: white;
-}
-
-.project-link:hover {
-    transform: translateY(-2px);
-    text-decoration: none;
-}
-
-.project-link i {
-    margin-right: 5px;
-}
-
-.expanded {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-
-
-/* Basic link styling */
-a {
-    color: #0366d6;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-a:hover {
-    color: #024ea4;
-    text-decoration: underline;
-}
-
-/* Button-style links */
-.button-link {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #0366d6;
-    color: white;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
-
-.button-link:hover {
-    background-color: #024ea4;
-    text-decoration: none;
-}
-
-/* Social media links */
-.social-links {
-    display: flex;
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-.social-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #f6f8fa;
-    border-radius: 4px;
-    color: #24292e;
-    text-decoration: none;
-    transition: background 0.3s ease;
-}
-
-.social-link:hover {
-    background: #e1e4e8;
-    text-decoration: none;
-}
-
-
-
-.cv-button {
-    display: inline-block;
-    padding: 12px 24px;
-    background-color: #0366d6;
-    color: white;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.cv-button:hover {
-    background-color: #024ea4;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    text-decoration: none;
-    color: white;
-}
-
-.cv-button i {
-    margin-left: 8px;
-    font-size: 0.9em;
-}
-
-.math-display {
-    overflow-x: auto;
-    margin: 1em 0;
-    padding: 1em;
-    background: #f8f9fa;
-    border-radius: 4px;
-}
-
-.MathJax {
-    outline: none;
-}
-
-
-
-.project-details {
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-    max-height: 0;
-}
-
-.project-details.show-details {
-    max-height: 2000px; /* Adjust based on your content */
-}
-
-.expand-icon {
-    transition: transform 0.3s ease;
-}
-
-.show-details + .expand-icon {
-    transform: rotate(180deg);
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }

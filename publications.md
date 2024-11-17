@@ -4,6 +4,10 @@ title: Publications
 permalink: /publications/
 ---
 
+{% include publications-list.html %}
+
+
+
 ## Journal Articles
 
 1. Author(s) (Year). "Paper Title." *Journal Name*, Volume(Issue), Pages.

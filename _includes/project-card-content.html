@@ -1,0 +1,125 @@
+{% comment %}
+This partial template contains the content structure for each project card.
+It's designed to be reusable and maintainable.
+{% endcomment %}
+
+<article class="project-card" itemscope itemtype="http://schema.org/ResearchProject">
+    <h3 itemprop="name">{{ project.title }}</h3>
+    <p itemprop="description">{{ project.description }}</p>
+    {% if project.tags %}
+    <div itemprop="keywords">
+        {% for tag in project.tags %}
+        <span class="tag">{{ tag }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+</article>
+
+
+
+<div class="project-image-container">
+  {% if project.image %}
+    <img src="{{ project.image }}" 
+         alt="{{ project.title | strip_html }}" 
+         class="project-image"
+         loading="lazy">
+  {% endif %}
+</div>
+
+<div class="project-content">
+  <h3 class="project-title" onclick="toggleProject(this)">
+    <span class="title-text">
+      {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
+    </span>
+    <span class="expand-icon" aria-hidden="true" role="img" aria-label="Toggle project details">▼</span>
+  </h3>
+  
+  <div class="project-description">
+    {{ project.description | markdownify }}
+  </div>
+  
+  <div class="project-details" 
+       aria-expanded="false" 
+       data-state="collapsed">
+    {{ project.content | markdownify }}
+  </div>
+  
+  {% if project.tags %}
+    <div class="project-tags" role="list">
+      {% for tag in project.tags %}
+        <span class="tag" role="listitem">{{ tag }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+  
+  <div class="project-links">
+    {% if project.demo %}
+      <a href="{{ project.demo }}" 
+         class="project-link demo-link" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         aria-label="View project demo">
+        <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+        <span>Demo</span>
+      </a>
+    {% endif %}
+    
+    {% if project.code %}
+      <a href="{{ project.code }}" 
+         class="project-link code-link" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         aria-label="View project code">
+        <i class="fas fa-code" aria-hidden="true"></i>
+        <span>Code</span>
+      </a>
+    {% endif %}
+    
+    {% if project.Paper %}
+      <a href="{{ project.Paper }}" 
+         class="project-link paper-link" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         aria-label="Read research paper">
+        <i class="fas fa-file-pdf" aria-hidden="true"></i>
+        <span>Paper</span>
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% comment %}
+Add some error handling for missing content
+{% endcomment %}
+{% unless project.title and project.description %}
+  <div class="project-error" hidden>
+    <p>Error: Missing required project information.</p>
+  </div>
+{% endunless %}
+
+{% comment %}
+Add schema.org metadata for better SEO
+{% endcomment %}
+<script type="application/ld+json">
+{
+"@context": "http://schema.org",
+"@type": "ResearchProject",
+"name": "{{ project.title }}",
+"description": "{{ project.description }}",
+"author": {
+"@type": "Person",
+"name": "{{ site.author.name }}",
+"affiliation": {
+    "@type": "Organization",
+    "name": "{{ site.author.institution }}"
+}
+},
+{% if project.Paper %}
+"publication": {
+"@type": "ScholarlyArticle",
+"url": "{{ project.Paper }}"
+},
+{% endif %}
+"keywords": {{ project.tags | jsonify }}
+}
+</script>
