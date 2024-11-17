@@ -78,11 +78,11 @@
     <header class="site-header">
         <nav class="site-nav">
             <a href="{{ '/' | relative_url }}" class="site-title">Dimitris Ntounis</a>
-            <button class="menu-toggle" aria-label="Toggle menu">
+            <!-- <button class="menu-toggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
                 <span></span>
-            </button>
+            </button> -->
             <div class="nav-links">
                 {%- for path in site.header_pages -%}
                     {%- assign my_page = site.pages | where: "path", path | first -%}
@@ -116,7 +116,14 @@
     </main>
 
     <footer class="site-footer">
-        <p>&copy; {{ site.time | date: '%Y' }} {{ site.title }}</p>
+        <div class="footer-content">
+            <div class="footer-text">
+                © {{ site.time | date: '%Y' }} {{ site.author.name }}, Powered by Jekyll
+            </div>
+            <div class="footer-update">
+                Site last updated {{ site.time | date: '%Y-%m-%d' }}
+            </div>
+        </div>
     </footer>
 
     <script>
