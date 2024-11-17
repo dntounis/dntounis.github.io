@@ -240,6 +240,15 @@ body {
    4. Project Grid and Cards
    ========================================================================== */
 
+.projects-grid h2 {
+color: #8C1515;  /* Stanford cardinal red */
+margin-bottom: 2rem;  /* Space between title and cards */
+width: 100%;  /* Full width to ensure proper alignment */
+font-size: 2rem;
+}
+
+
+/*
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -247,7 +256,17 @@ body {
     padding: 1rem;
     margin-top: var(--nav-height);
 }
+*/
 
+
+.projects-grid {
+    display: flex;
+    flex-direction: column;  /* Stack items vertically */
+    width: 100%;
+    gap: 2rem;
+}
+
+/*
 .project-card {
     background: var(--background-color);
     border-radius: var(--border-radius);
@@ -255,10 +274,19 @@ body {
     overflow: hidden;
     transition: box-shadow var(--transition-speed);
 }
+*/
 
+.project-card {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+/*
 .project-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+*/
+
 
 .project-image-container {
     width: 100%;
@@ -277,6 +305,43 @@ body {
     padding: 1.5rem;
 }
 
+.project-details-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: white;
+    margin: 60px auto;
+    padding: 2rem;
+    max-width: 800px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.modal-header button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+
+/*
 .project-title {
     cursor: pointer;
     margin: 0 0 1rem 0;
@@ -284,6 +349,17 @@ body {
     justify-content: space-between;
     align-items: center;
     color: var(--primary-color);
+}
+*/
+
+.project-title a {
+    color: #8C1515;  /* Stanford red */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.project-title a:hover {
+    color: #B83A4B;
 }
 
 .expand-icon {

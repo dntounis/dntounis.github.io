@@ -38,123 +38,44 @@ It includes proper handling of math rendering and toggle functionality.
       {% endfor %}
     {% endif %}
   {% endif %}
-</div>
 
-{% comment %}
-Create a new file _includes/project-card-content.html with the following content:
-{% endcomment %}
-
-{% capture project_card_content %}
-  {% if project.image %}
-    <div class="project-image-container">
-      <img src="{{ project.image }}" 
-           alt="{{ project.title }}" 
-           class="project-image"
-           loading="lazy">
-    </div>
-  {% endif %}
-  
-  <div class="project-content">
-    <h3 class="project-title" onclick="toggleProject(this)">
-      {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
-      <span class="expand-icon" aria-hidden="true">▼</span>
-    </h3>
-    
-    <div class="project-description">
-      {{ project.description | markdownify }}
-    </div>
-    
-    <div class="project-details" aria-expanded="false">
-      {{ project.content | markdownify }}
-    </div>
-    
-    {% if project.tags %}
-      <div class="project-tags">
-        {% for tag in project.tags %}
-          <span class="tag">{{ tag }}</span>
-        {% endfor %}
+  {% for project in filtered_projects %}
+  <div id="{{ project.title | slugify }}-details" class="project-details-modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>{{ project.title | markdownify }}</h2>
+        <button onclick="closeProjectDetails('{{ project.title | slugify }}')">&times;</button>
       </div>
-    {% endif %}
-    
-    <div class="project-links">
-      {% if project.demo %}
-        <a href="{{ project.demo }}" 
-           class="project-link" 
-           target="_blank" 
-           rel="noopener noreferrer">
-          <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-          Demo
-        </a>
-      {% endif %}
-      
-      {% if project.code %}
-        <a href="{{ project.code }}" 
-           class="project-link" 
-           target="_blank" 
-           rel="noopener noreferrer">
-          <i class="fas fa-code" aria-hidden="true"></i>
-          Code
-        </a>
-      {% endif %}
-      
-      {% if project.Paper %}
-        <a href="{{ project.Paper }}" 
-           class="project-link paper-link" 
-           target="_blank" 
-           rel="noopener noreferrer">
-          <i class="fas fa-file-pdf" aria-hidden="true"></i>
-          Paper
-        </a>
-      {% endif %}
+      <div class="modal-body">
+        {{ project.content | markdownify }}
+      </div>
     </div>
   </div>
-{% endcapture %}
+{% endfor %}
+
+
+
+</div>
 
 {% if include.content == "card" %}
   {{ project_card_content }}
 {% endif %}
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize all project details
-  document.querySelectorAll('.project-details').forEach(details => {
-    details.style.height = '0';
-  });
-});
-
-function toggleProject(element) {
-  const card = element.closest('.project-card');
-  const details = card.querySelector('.project-details');
-  const icon = element.querySelector('.expand-icon');
-  
-  if (!details || !icon) return;
-  
-  const isExpanded = details.getAttribute('aria-expanded') === 'true';
-  
-  if (!isExpanded) {
-    // Expand
-    details.style.height = 'auto';
-    const height = details.scrollHeight;
-    details.style.height = '0';
-    // Force reflow
-    details.offsetHeight;
-    details.style.height = height + 'px';
-    details.setAttribute('aria-expanded', 'true');
-    icon.style.transform = 'rotate(180deg)';
-    
-    // After animation completes, set height to auto
-    setTimeout(() => {
-      details.style.height = 'auto';
-    }, 300);
-  } else {
-    // Collapse
-    const height = details.scrollHeight;
-    details.style.height = height + 'px';
-    // Force reflow
-    details.offsetHeight;
-    details.style.height = '0';
-    details.setAttribute('aria-expanded', 'false');
-    icon.style.transform = 'rotate(0)';
+  function showProjectDetails(projectId, event) {
+      event.preventDefault();
+      const detailsElement = document.getElementById(`${projectId}-details`);
+      if (detailsElement) {
+          detailsElement.style.display = 'block';
+          document.body.style.overflow = 'hidden';
+      }
   }
-}
-</script>
+  
+  function closeProjectDetails(projectId) {
+      const detailsElement = document.getElementById(`${projectId}-details`);
+      if (detailsElement) {
+          detailsElement.style.display = 'none';
+          document.body.style.overflow = 'auto';
+      }
+  }
+  </script>

@@ -3,17 +3,7 @@ This partial template contains the content structure for each project card.
 It's designed to be reusable and maintainable.
 {% endcomment %}
 
-<article class="project-card" itemscope itemtype="http://schema.org/ResearchProject">
-    <h3 itemprop="name">{{ project.title }}</h3>
-    <p itemprop="description">{{ project.description }}</p>
-    {% if project.tags %}
-    <div itemprop="keywords">
-        {% for tag in project.tags %}
-        <span class="tag">{{ tag }}</span>
-        {% endfor %}
-    </div>
-    {% endif %}
-</article>
+
 
 
 
@@ -27,16 +17,16 @@ It's designed to be reusable and maintainable.
 </div>
 
 <div class="project-content">
-  <h3 class="project-title" onclick="toggleProject(this)">
-    <span class="title-text">
-      {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
-    </span>
-    <span class="expand-icon" aria-hidden="true" role="img" aria-label="Toggle project details">▼</span>
-  </h3>
-  
-  <div class="project-description">
-    {{ project.description | markdownify }}
-  </div>
+    <h3 class="project-title">
+        <a href="#" class="project-title-link" onclick="showProjectDetails('{{ project.title | slugify }}', event)">
+          {% capture project_title %}{{ project.title }}{% endcapture %}
+          {{ project_title | markdownify | remove: '<p>' | remove: '</p>' }}
+        </a>
+      </h3>
+      
+      <div class="project-description">
+        {{ project.description | markdownify }}
+      </div>
   
   <div class="project-details" 
        aria-expanded="false" 
