@@ -49,6 +49,7 @@ body {
    3. Header and Navigation
    ========================================================================== */
 
+/*   
 .site-header {
     background: var(--background-color);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -75,6 +76,12 @@ body {
     color: var(--primary-color);
 }
 
+
+
+
+
+
+
 .nav-links {
     display: flex;
     gap: 2rem;
@@ -97,8 +104,64 @@ body {
 .page-link.current {
     color: var(--primary-color);
 }
+*/
+
+/* Header/Navigation Bar Styling */
+.site-header {
+    background-color: #f5f5f5;  /* Light grey - you can adjust this */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);  /* Subtle shadow */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.site-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-title {
+    color: #8C1515;  /* Stanford Cardinal Red */
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.site-title:hover {
+    color: #B83A4B;  /* Lighter red on hover */
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.page-link {
+    color: #424242;  /* Dark grey for default state */
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.page-link:hover {
+    color: #8C1515;  /* Stanford Red on hover */
+}
+
+.page-link.current {
+    color: #8C1515;  /* Stanford Red for current page */
+}
+
+
+
 
 /* Dropdown Menu */
+/*
 .dropdown {
     position: absolute;
     top: 100%;
@@ -132,6 +195,46 @@ body {
     background: rgba(0,0,0,0.05);
     color: var(--primary-color);
 }
+*/
+.nav-item {
+    position: relative;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;  /* Align with left edge of parent */
+    min-width: 200px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.nav-item:hover .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown items styling */
+.dropdown a {
+    display: block;
+    padding: 0.8rem 1rem;
+    color: #424242;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.dropdown a:hover {
+    background-color: #f5f5f5;
+    color: #8C1515;  /* Stanford Red on hover */
+}
+
+
 
 /* ==========================================================================
    4. Project Grid and Cards
@@ -374,17 +477,21 @@ body {
         display: flex;
     }
 
+    /*
     .dropdown {
         position: static;
         box-shadow: none;
         margin-left: 1rem;
         transform: none;
     }
+    */
 
+    
     .nav-item {
         width: 100%;
     }
 
+    
     .page-link {
         display: block;
         padding: 0.5rem 0;
@@ -421,3 +528,30 @@ body {
     clip: rect(0, 0, 0, 0);
     border: 0;
 }
+
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .home-content {
+    margin-bottom: 2rem;
+  }
+  
+  .latest-news {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+  
+  .news-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .news-date {
+    font-weight: bold;
+    color: #666;
+  }

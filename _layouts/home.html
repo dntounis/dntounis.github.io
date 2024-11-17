@@ -2,180 +2,263 @@
 layout: default
 ---
 
-<div class="home-content">
-    <!-- Profile/About Section -->
-    <section id="about" class="profile">
-        <img src="/assets/images/IMG_1186_crop.png" alt="Dimitris Ntounis" class="profile-image">
-        <div class="profile-info">
-            <h1>Dimitris Ntounis</h1>
-            <p class="title">PhD Candidate</p>
-            <p class="department">Department of Physics</p>
-            <p class="university">Stanford University</p>
-            <p class="research-focus">
-                Particle Physics 
-            </p>
-        </div>
-    </section>
+<div class="wrapper">
+  <!-- Left Sidebar - Now truly fixed -->
+  <aside class="sidebar">
+    <div class="sidebar-content">
+      {% if site.avatar %}
+      <div class="author-avatar">
+        <img src="{{ site.avatar }}" class="author-avatar-img" alt="{{ site.author.name }}">
+      </div>
+      {% endif %}
 
-    <!-- Research Highlights Section -->
-    <section id="research-highlights" class="section">
-        <h2>Research Highlights</h2>
-        
-        <div class="research-grid">
-            <div class="research-item">
-                <h3>Project Title 1</h3>
-                <p>Brief description of your first research project.</p>
-                <a href="/research#project1" class="read-more">Read More →</a>
-            </div>
+      <div class="author-info">
+        <h2 class="author-name">{{ site.author.name }}</h2>
+        <p class="author-bio">{{ site.author.bio }}</p>
+      </div>
 
-            <div class="research-item">
-                <h3>Project Title 2</h3>
-                <p>Brief description of your second research project.</p>
-                <a href="/research#project2" class="read-more">Read More →</a>
-            </div>
+      <div class="author-links">
+        <!-- Location -->
+        {% if site.author.location %}
+        <div class="author-link">
+          <i class="fas fa-map-marker-alt fa-fw"></i>
+          <span>{{ site.author.location }}</span>
         </div>
-    </section>
+        {% endif %}
 
-    <!-- Recent Publications Section -->
-    <section id="recent-publications" class="section">
-        <h2>Recent Publications</h2>
-        <div class="publications-preview">
-            {% for publication in site.data.publications limit:3 %}
-            <div class="publication">
-                <p class="pub-title">{{ publication.title }}</p>
-                <p class="pub-authors">{{ publication.authors }}</p>
-                <p class="pub-venue">{{ publication.venue }} ({{ publication.year }})</p>
-                <div class="pub-links">
-                    {% if publication.pdf %}
-                    <a href="{{ publication.pdf }}" class="pub-link">PDF</a>
-                    {% endif %}
-                    {% if publication.doi %}
-                    <a href="https://doi.org/{{ publication.doi }}" class="pub-link">DOI</a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
+        <!-- Institution -->
+        {% if site.author.institution %}
+        <div class="author-link">
+          <i class="fas fa-university fa-fw"></i>
+          <span>{{ site.author.institution }}</span>
         </div>
-        <a href="/publications" class="view-all">View All Publications →</a>
-    </section>
+        {% endif %}
 
-    <!-- Contact Preview Section -->
-    <section id="contact-preview" class="section">
-        <h2>Contact</h2>
-        <div class="contact-info">
-            <p><strong>Email:</strong> your.email@university.edu</p>
-            <p><strong>Office:</strong> Building Name, Room Number</p>
-            <div class="social-links">
-                <a href="https://github.com/yourusername" class="social-link">GitHub</a>
-                <a href="https://scholar.google.com/citations?user=YOUR_ID" class="social-link">Google Scholar</a>
-                <a href="/cv" class="social-link">CV</a>
-            </div>
+        <!-- Email -->
+        {% if site.author.email %}
+        <div class="author-link">
+          <i class="fas fa-envelope fa-fw"></i>
+          <a href="mailto:{{ site.author.email }}">Email</a>
         </div>
+        {% endif %}
+
+        <!-- Google Scholar -->
+        {% if site.author.google_scholar %}
+        <div class="author-link">
+          <i class="ai ai-google-scholar ai-fw"></i>
+          <a href="{{ site.author.google_scholar }}" target="_blank" rel="noopener">Google Scholar</a>
+        </div>
+        {% endif %}
+
+        <!-- ORCID -->
+        {% if site.author.orcid %}
+        <div class="author-link">
+          <i class="ai ai-orcid ai-fw"></i>
+          <a href="https://orcid.org/{{ site.author.orcid }}" target="_blank" rel="noopener">ORCID</a>
+        </div>
+        {% endif %}
+
+        <!-- GitHub -->
+        {% if site.author.github %}
+        <div class="author-link">
+          <i class="fab fa-github fa-fw"></i>
+          <a href="https://github.com/{{ site.author.github }}" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        {% endif %}
+
+        <!-- LinkedIn -->
+        {% if site.author.linkedin %}
+        <div class="author-link">
+          <i class="fab fa-linkedin fa-fw"></i>
+          <a href="https://www.linkedin.com/in/{{ site.author.linkedin }}" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+        {% endif %}
+
+        <!-- Twitter -->
+        {% if site.author.twitter %}
+        <div class="author-link">
+          <i class="fab fa-twitter fa-fw"></i>
+          <a href="https://twitter.com/{{ site.author.twitter }}" target="_blank" rel="noopener">Twitter</a>
+        </div>
+        {% endif %}
+
+        <!-- PubMed -->
+        {% if site.author.pubmed %}
+        <div class="author-link">
+          <i class="ai ai-pubmed ai-fw"></i>
+          <a href="{{ site.author.pubmed }}" target="_blank" rel="noopener">PubMed</a>
+        </div>
+        {% endif %}
+
+        <!-- ResearchGate -->
+        {% if site.author.researchgate %}
+        <div class="author-link">
+          <i class="ai ai-researchgate ai-fw"></i>
+          <a href="{{ site.author.researchgate }}" target="_blank" rel="noopener">ResearchGate</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </aside>
+
+ 
+  <!-- Main Content -->
+   <!--
+  <main class="main-content">
+    {% if site.data.news %}
+    <section class="news-section">
+      <h2>Latest News</h2>
+      {% for news in site.data.news limit:5 %}
+      <div class="news-item">
+        <span class="news-date">{{ news.date | date: "%b %-d, %Y" }}</span>
+        <span class="news-content">{{ news.content }}</span>
+      </div>
+      {% endfor %}
     </section>
+    {% endif %}
+  </main>
+</div>
+-->
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Your index.md content will appear here -->
+    <div class="home-content">
+      {{ content }}
+    </div>
+
+    <!-- Latest News Section -->
+    {% if site.data.news %}
+    <div class="latest-news">
+      <h2>Latest News</h2>
+      {% for news in site.data.news limit:5 %}
+      <div class="news-item">
+        <span class="news-date">{{ news.date | date: "%b %-d, %Y" }}</span>
+        <span class="news-content">{{ news.content }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
 </div>
 
+<style>
+/* Layout */
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+}
 
+/* Sidebar Styles */
+.sidebar {
+  width: 300px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-600px); /* Half of max-width */
+  height: 100vh;
+  overflow-y: auto;
+  background: #f8f9fa;
+  padding: 2rem;
+  box-sizing: border-box;
+}
 
+.sidebar-content {
+  padding-top: 60px; /* Account for fixed header */
+}
 
-<!-- Research Impact -->
-<section id="impact" class="section animate-on-scroll">
-    <h2>Research Impact</h2>
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number animate-number" data-target="1000">0</div>
-            <div class="stat-label">Citations</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number animate-number" data-target="15">0</div>
-            <div class="stat-label">Publications</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number animate-number" data-target="5">0</div>
-            <div class="stat-label">Projects</div>
-        </div>
-    </div>
-</section>
+.author-avatar {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
 
-<!-- Latest News -->
-<section id="news" class="section animate-on-scroll">
-    <h2>Latest News</h2>
-    <div class="news-ticker">
-        {% for news in site.data.news limit:5 %}
-        <div class="news-item">
-            <span class="news-date">{{ news.date | date: "%b %d, %Y" }}</span>
-            <p class="news-content">{{ news.content }}</p>
-        </div>
-        {% endfor %}
-    </div>
-</section>
+.author-avatar-img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-<!-- Research Timeline -->
-<section id="timeline" class="section animate-on-scroll">
-    <h2>Research Journey</h2>
-    <div class="timeline">
-        {% for milestone in site.data.timeline %}
-        <div class="timeline-item">
-            <div class="timeline-content">
-                <h3>{{ milestone.year }}</h3>
-                <p>{{ milestone.description }}</p>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
+.author-info {
+  margin-bottom: 2rem;
+}
 
-<!-- Teaching & Supervision -->
-<section id="teaching" class="section animate-on-scroll">
-    <h2>Teaching & Supervision</h2>
-    <div class="teaching-grid">
-        {% for course in site.data.teaching %}
-        <div class="course-card">
-            <h3>{{ course.title }}</h3>
-            <p class="course-role">{{ course.role }}</p>
-            <p class="course-period">{{ course.period }}</p>
-        </div>
-        {% endfor %}
-    </div>
-</section>
+.author-name {
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
 
-<!-- Awards & Recognition -->
-<section id="awards" class="section animate-on-scroll">
-    <h2>Awards & Recognition</h2>
-    <div class="awards-list">
-        {% for award in site.data.awards %}
-        <div class="award-item">
-            <div class="award-year">{{ award.year }}</div>
-            <div class="award-details">
-                <h3>{{ award.title }}</h3>
-                <p>{{ award.description }}</p>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
+.author-bio {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
 
+.author-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
 
+.author-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.95rem;
+  padding: 0.3rem 0;
+}
 
+.author-link i {
+  width: 16px;
+  color: #666;
+}
 
+.author-link a {
+  color: #0366d6;
+  text-decoration: none;
+}
 
+.author-link a:hover {
+  text-decoration: underline;
+}
 
-<!-- Research Metrics Visualizations -->
-<section id="metrics" class="section">
-    <!-- Citation Graph -->
-    <div class="visualization-card">
-        <h3>Citations Over Time</h3>
-        <canvas id="citationsChart"></canvas>
-    </div>
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  margin-left: 300px;
+  padding: 2rem;
+  padding-top: 80px; /* Account for fixed header */
+  min-height: 100vh;
+}
 
-    <!-- Research Topics Distribution -->
-    <div class="visualization-card">
-        <h3>Research Areas</h3>
-        <div id="topicsChart" class="bubble-chart"></div>
-    </div>
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .sidebar {
+    left: 0;
+    transform: none;
+  }
+}
 
-    <!-- Collaboration Network -->
-    <div class="visualization-card">
-        <h3>Collaboration Network</h3>
-        <div id="networkGraph"></div>
-    </div>
-</section>
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 1rem;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+</style>
