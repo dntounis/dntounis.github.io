@@ -276,10 +276,15 @@ font-size: 2rem;
 }
 */
 
+/* Card content layout */
 .project-card-content {
     display: flex;
-    align-items: start;
-    gap: 2rem;
+    align-items: flex-start;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 2rem;
 }
 
 .project-card {
@@ -298,21 +303,31 @@ font-size: 2rem;
 
 
 .project-image-container {
-    flex: 0 0 300px; /* Fixed width */
-    height: 400px;
-    overflow: hidden;
+    width: 500px;  /* Fixed width */
+    height: 350px;  /* Fixed height */
+    background: #f5f5f5;  /* Light background for empty space */
+    margin-right: 4rem;  /* Space between image and text */
+    flex-shrink: 0;  /* Prevent image from shrinking */
+    display: flex;           /* Add this to center */
+    justify-content: center; /* Add this to center */
+    align-items: center;     /* Add this to center */
 }
 
+/* Image styles */
+
 .project-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Changed from cover */
-    background: #f5f5f5;
+    width: auto;            /* Change from 100% to auto */
+    height: auto;           /* Change from 100% to auto */
+    max-width: 100%;        /* Add this */
+    max-height: 100%;       /* Add this */
+    object-fit: contain;
+    padding: 20px;
 }
+
 
 .project-content {
     flex: 1;
-    padding: 1.5rem;
+    min-width: 0;  /* Prevents text from overflowing */
 }
 
 .project-details-modal {
@@ -568,6 +583,91 @@ font-size: 2rem;
     margin-top: 0.5rem;
 }
 
+
+/* ==========================================================================
+   6.5 Publications Styling
+   ========================================================================== */
+
+
+.teaching-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.teaching-section h2 {
+    color: #8C1515;  /* Stanford red */
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+.teaching-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.teaching-section li {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.teaching-section li::before {
+    content: "•";
+    color: #8C1515;
+    position: absolute;
+    left: 0;
+}
+
+.teaching-section li strong {
+    display: block;
+    font-size: 1.1em;
+}
+
+.teaching-section li em {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.cv-link {
+    margin-top: 3rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.cv-link a {
+    color: #8C1515;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.cv-link a:hover {
+    text-decoration: underline;
+}
+
+.cv-link i {
+    font-size: 0.8em;
+    margin-left: 4px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ==========================================================================
    7. Math Rendering
    ========================================================================== */
@@ -692,9 +792,11 @@ font-size: 2rem;
         flex-direction: column;
     }
 
+
     .project-image-container {
         width: 100%;
-        flex: none;
+        margin-right: 0;
+        margin-bottom: 1rem;
     }
 
 
