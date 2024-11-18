@@ -184,8 +184,8 @@ academic_links:
   research_gate: true
   orcid: true    
 
-cv_pdf: /assets/files/Dimitris_Ntounis_academic_CV_November2024.pdf  # Update this path to your CV's location
-
+#cv_pdf: /assets/files/Dimitris_Ntounis_academic_CV_November2024.pdf  # Update this path to your CV's location
+cv_pdf: /assets/files/DN_CV_18Nov2024.pdf
 
 
 
