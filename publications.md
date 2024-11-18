@@ -9,9 +9,13 @@ permalink: /publications/
     <div class="scholar-section">
         <div class="scholar-profile">
             <h2>Publications</h2>
-            <p>For a complete list of publications and citations, please visit my 
+            <p class="pub-profile-links">
                 <a href="{{ site.author.google_scholar }}" target="_blank" class="scholar-link">
-                    <i class="ai ai-google-scholar"></i> Google Scholar Profile
+                    <i class="ai ai-google-scholar"></i> Google Scholar
+                </a>
+                |
+                <a href="{{ site.author.inspire }}" target="_blank" class="scholar-link">
+                    <i class="ai ai-inspire"></i> INSPIRE-HEP
                 </a>
             </p>
         </div>
@@ -32,8 +36,9 @@ permalink: /publications/
     </div>
     <!-- Recent Publications -->
     <div class="recent-publications">
-        <h3>Recent Publications</h3>
-        {% for publication in site.data.publications limit:5 %}
+        <h3>Publication Highlights</h3>
+        {% for publication in site.data.publications %}
+        {% unless publication.profiles %}
         <div class="publication-item">
             <div class="pub-title">{{ publication.title }}</div>
             <div class="pub-authors">{{ publication.authors }}</div>
@@ -44,6 +49,11 @@ permalink: /publications/
                     <i class="fas fa-external-link-alt"></i> DOI
                 </a>
                 {% endif %}
+                {% if publication.arxiv %}
+                <a href="https://arxiv.org/abs/{{ publication.arxiv }}" target="_blank" class="pub-link">
+                    <i class="fas fa-archive"></i> arXiv
+                </a>
+                {% endif %}
                 {% if publication.pdf %}
                 <a href="{{ publication.pdf }}" target="_blank" class="pub-link">
                     <i class="fas fa-file-pdf"></i> PDF
@@ -51,6 +61,7 @@ permalink: /publications/
                 {% endif %}
             </div>
         </div>
+        {% endunless %}
         {% endfor %}
     </div>
 </div>

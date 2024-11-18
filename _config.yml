@@ -28,7 +28,7 @@ description: >-
 author:
   name: Dimitris Ntounis
   bio: PhD Researcher in Particle Physics and Machine Learning at Stanford University
-  email: dntounis[AT]stanford[DOT]edu
+  email: dntounis@stanford.edu
   institution: Stanford University
   department: Physics
   linkedin_username: dimitris-ntounis-76645b269
@@ -40,6 +40,8 @@ author:
   github:  dntounis
   google_scholar: https://scholar.google.com/citations?user=5vCzegYAAAAJ&hl=en
   orcid: 0009-0008-1063-5620
+  inspire: "https://inspirehep.net/authors/2649182"
+
 
 baseurl: "" 
 url: "https://dntounis.github.io"
@@ -183,3 +185,8 @@ academic_links:
   orcid: true    
 
 cv_pdf: /assets/files/Dimitris_Ntounis_academic_CV_November2024.pdf  # Update this path to your CV's location
+
+
+
+
+

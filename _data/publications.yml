@@ -1,21 +1,20 @@
-# Recent Publications
+---
 - title: "Study of High-Transverse-Momentum Higgs Boson Production in Association with a Vector Boson in the qqbb Final State with the ATLAS Detector"
   authors: "ATLAS Collaboration"
-  venue: "Physical Review Letters"
+  venue: "Phys. Rev. Lett."
   year: 2024
+  volume: "132"
+  pages: "131802"
   doi: "10.1103/PhysRevLett.132.131802"
   arxiv: "2312.07605"
   pdf: "https://arxiv.org/pdf/2312.07605.pdf"
 
 - title: "Search for resonant and nonresonant production of pairs of dijet resonances in proton-proton collisions at √s = 13 TeV"
   authors: "CMS Collaboration"
-  venue: "Journal of High Energy Physics"
+  venue: "JHEP"
   year: 2023
+  volume: "07"
+  pages: "161"
   doi: "10.1007/JHEP07(2023)161"
   arxiv: "2206.09997"
   pdf: "https://arxiv.org/pdf/2206.09997.pdf"
-
-# Profile Links
-profiles:
-  google_scholar: "https://scholar.google.com/citations?user=5vCzegYAAAAJ"
-  inspire: "https://inspirehep.net/authors/2649182"
