@@ -49,6 +49,7 @@ body {
    3. Header and Navigation
    ========================================================================== */
 
+/*   
 .site-header {
     background: var(--background-color);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -75,6 +76,12 @@ body {
     color: var(--primary-color);
 }
 
+
+
+
+
+
+
 .nav-links {
     display: flex;
     gap: 2rem;
@@ -97,8 +104,71 @@ body {
 .page-link.current {
     color: var(--primary-color);
 }
+*/
+
+/* Header/Navigation Bar Styling */
+.site-header {
+    background-color: #f5f5f5;  /* Light grey - you can adjust this */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);  /* Subtle shadow */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.cardinal-red-title {
+    color: #8C1515;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+
+.site-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-title {
+    color: #8C1515;  /* Stanford Cardinal Red */
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.site-title:hover {
+    color: #B83A4B;  /* Lighter red on hover */
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.page-link {
+    color: #424242;  /* Dark grey for default state */
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.page-link:hover {
+    color: #8C1515;  /* Stanford Red on hover */
+}
+
+.page-link.current {
+    color: #8C1515;  /* Stanford Red for current page */
+}
+
+
+
 
 /* Dropdown Menu */
+/*
 .dropdown {
     position: absolute;
     top: 100%;
@@ -132,11 +202,60 @@ body {
     background: rgba(0,0,0,0.05);
     color: var(--primary-color);
 }
+*/
+.nav-item {
+    position: relative;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;  /* Align with left edge of parent */
+    min-width: 200px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.nav-item:hover .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown items styling */
+.dropdown a {
+    display: block;
+    padding: 0.8rem 1rem;
+    color: #424242;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.dropdown a:hover {
+    background-color: #f5f5f5;
+    color: #8C1515;  /* Stanford Red on hover */
+}
+
+
 
 /* ==========================================================================
    4. Project Grid and Cards
    ========================================================================== */
 
+.projects-grid h2 {
+color: #8C1515;  /* Stanford cardinal red */
+margin-bottom: 2rem;  /* Space between title and cards */
+width: 100%;  /* Full width to ensure proper alignment */
+font-size: 2rem;
+}
+
+
+/*
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -144,7 +263,17 @@ body {
     padding: 1rem;
     margin-top: var(--nav-height);
 }
+*/
 
+
+.projects-grid {
+    display: flex;
+    flex-direction: column;  /* Stack items vertically */
+    width: 100%;
+    gap: 2rem;
+}
+
+/*
 .project-card {
     background: var(--background-color);
     border-radius: var(--border-radius);
@@ -152,28 +281,99 @@ body {
     overflow: hidden;
     transition: box-shadow var(--transition-speed);
 }
+*/
 
+/* Card content layout */
+.project-card-content {
+    display: flex;
+    align-items: flex-start;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 2rem;
+}
+
+.project-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+/*
 .project-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+*/
+
 
 .project-image-container {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
+    width: 500px;  /* Fixed width */
+    height: 350px;  /* Fixed height */
+    background: #f5f5f5;  /* Light background for empty space */
+    margin-right: 4rem;  /* Space between image and text */
+    flex-shrink: 0;  /* Prevent image from shrinking */
+    display: flex;           /* Add this to center */
+    justify-content: center; /* Add this to center */
+    align-items: center;     /* Add this to center */
 }
+
+/* Image styles */
 
 .project-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform var(--transition-speed);
+    width: auto;            /* Change from 100% to auto */
+    height: auto;           /* Change from 100% to auto */
+    max-width: 100%;        /* Add this */
+    max-height: 100%;       /* Add this */
+    object-fit: contain;
+    padding: 20px;
 }
+
 
 .project-content {
-    padding: 1.5rem;
+    flex: 1;
+    min-width: 0;  /* Prevents text from overflowing */
 }
 
+.project-details-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: white;
+    margin: 60px auto;
+    padding: 2rem;
+    max-width: 800px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.modal-header button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+
+/*
 .project-title {
     cursor: pointer;
     margin: 0 0 1rem 0;
@@ -181,6 +381,34 @@ body {
     justify-content: space-between;
     align-items: center;
     color: var(--primary-color);
+}
+*/
+
+/* Project Title */
+.project-title {
+    margin: 0 0 1rem 0;
+}
+
+.project-title-link {
+    color: #8C1515;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.project-title-link:hover {
+    color: #B83A4B;
+}
+
+
+.project-title a {
+    color: #8C1515;  /* Stanford red */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.project-title a:hover {
+    color: #B83A4B;
 }
 
 .expand-icon {
@@ -223,66 +451,332 @@ body {
 
 .project-links {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1rem;
 }
 
 .project-link {
-    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
     border-radius: 4px;
     text-decoration: none;
     font-size: 0.9em;
-    transition: all var(--transition-speed);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    transition: all 0.2s ease;
 }
 
-.project-link:not(.paper-link) {
-    background: #f6f8fa;
-    color: var(--text-color);
-}
-
+/* Different link types */
 .paper-link {
     background: #dc3545;
     color: white;
 }
 
+.talk-link {
+    /*background: #28a745;  /* Green background */ 
+    /* or */
+    background: #794BC4;  /* Purple background, similar to Indico */
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.talk-link:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.talk-link i {
+    font-size: 1em;
+}
+
+.code-link {
+    background: #333;
+    color: white;
+}
+
+.link-link {
+    background: #0366d6;
+    color: white;
+}
+
+/* Add to your existing project link styles */
+.news-link {
+    background: #4A90E2;  /* News-like blue */
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.news-link:hover {
+    background: #357ABD;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Optional: Add a specific hover effect for news links */
+.news-link:hover i {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+
+/*
+.project-link:not(.paper-link) {
+    background: #f6f8fa;
+    color: var(--text-color);
+}
+*/
+
+
+/* Hover effects */
 .project-link:hover {
     transform: translateY(-2px);
-    text-decoration: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    opacity: 0.9;
+}
+
+/* Icon styling */
+.project-link i {
+    font-size: 1em;
 }
 
 /* ==========================================================================
    6. Publications Styling
    ========================================================================== */
-
-.publication-item {
-    margin: 1.5em 0;
-    padding: 1em;
-    border-left: 4px solid var(--primary-color);
-    background: #f6f8fa;
-    transition: transform var(--transition-speed);
+/* Publications Page Styles */
+.publications-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 0;
 }
 
-.publication-item:hover {
-    transform: translateX(5px);
+.scholar-profile {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.scholar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #4285f4;  /* Google Blue */
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.scholar-link:hover {
+    background: #3367d6;
+    text-decoration: none;
+    color: white;
+}
+
+.publication-item {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
 }
 
 .pub-title {
-    font-weight: bold;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #8C1515;  /* Stanford red */
     margin-bottom: 0.5rem;
 }
 
 .pub-authors {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 0.5rem;
+}
+
+.pub-venue {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 1rem;
 }
 
 .pub-links {
-    margin-top: 0.5rem;
+    display: flex;
+    gap: 1rem;
 }
+
+.pub-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    color: #666;
+    background: #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.pub-link:hover {
+    background: #e0e0e0;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.profile-links {
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+
+/* Scholar Metrics Styles */
+.scholar-section {
+    margin-bottom: 3rem;
+}
+
+.scholar-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.metric-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #8C1515;  /* Stanford red */
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+
+/* ==========================================================================
+   6.5 Teaching Styling
+   ========================================================================== */
+
+
+.teaching-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.teaching-section h2 {
+    color: #8C1515;  /* Stanford red */
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+.teaching-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.teaching-section li {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.teaching-section li::before {
+    content: "•";
+    color: #8C1515;
+    position: absolute;
+    left: 0;
+}
+
+.teaching-section li strong {
+    display: block;
+    font-size: 1.1em;
+}
+
+.teaching-section li em {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.cv-link {
+    margin-top: 3rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.cv-link a {
+    color: #8C1515;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.cv-link a:hover {
+    text-decoration: underline;
+}
+
+.cv-link i {
+    font-size: 0.8em;
+    margin-left: 4px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ==========================================================================
    7. Math Rendering
@@ -350,6 +844,7 @@ body {
         padding: 5px;
     }
 
+
     .menu-toggle span {
         display: block;
         width: 25px;
@@ -374,17 +869,21 @@ body {
         display: flex;
     }
 
+    /*
     .dropdown {
         position: static;
         box-shadow: none;
         margin-left: 1rem;
         transform: none;
     }
+    */
+
 
     .nav-item {
         width: 100%;
     }
 
+    
     .page-link {
         display: block;
         padding: 0.5rem 0;
@@ -399,6 +898,23 @@ body {
     .project-image-container {
         height: 150px;
     }
+
+    .project-card-content {
+        flex-direction: column;
+    }
+
+
+    .project-image-container {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .scholar-metrics {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
 }
 
 /* ==========================================================================
@@ -421,3 +937,78 @@ body {
     clip: rect(0, 0, 0, 0);
     border: 0;
 }
+
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .home-content {
+    margin-bottom: 2rem;
+  }
+  
+  .latest-news {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+  
+  .news-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .news-date {
+    font-weight: bold;
+    color: #666;
+  }
+
+
+  .site-footer {
+    background-color: #f5f5f5;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.footer-text {
+    margin-bottom: 0.5rem;
+}
+
+.footer-update {
+    font-size: 0.8rem;
+}  
+
+
+
+
+/* Smooth scrolling for the whole page */
+html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Highlight effect when scrolling to a project */
+  @keyframes highlightFade {
+    0% { background-color: rgba(140, 21, 21, 0.1); }  /* Stanford red with opacity */
+    100% { background-color: transparent; }
+  }
+  
+  .highlight {
+    animation: highlightFade 2s ease-out;
+  }
+  
+  /* Ensure proper positioning for anchor links with fixed header */
+  .project-card-content {
+    scroll-margin-top: 80px; /* Should match header height */
+  }

@@ -1,51 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 {% include head.html %}
+
+
+
 <head>
     <meta charset="utf-8">
     <title>{{ page.title }} - {{ site.title }}</title>
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.2/css/academicons.min.css">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/favicon/apple-touch-icon.png' | relative_url }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ '/assets/favicon/favicon-96x96.png' | relative_url }}">
+    <link rel="icon" type="image/svg+xml"  href="{{ '/assets/favicon/favicon.svg' | relative_url }}">
+    <link rel="manifest" href="{{ '/assets/favicon/site.webmanifest' | relative_url }}">
+    <link rel="shortcut icon" href="{{ '/assets/favicon/favicon.ico' | relative_url }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+
 
     <script type="text/javascript" id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
     <script>
-    MathJax = {
+    window.MathJax = {
         tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
             displayMath: [['$$', '$$'], ['\\[', '\\]']],
-            processEscapes: true
+            processEscapes: true,
+            processEnvironments: true
         },
         options: {
             skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        },
+        startup: {
+            pageReady: () => {
+                return MathJax.startup.defaultPageReady().then(() => {
+                    document.querySelectorAll('.project-title-link').forEach(el => {
+                        MathJax.typesetPromise([el]);
+                    });
+                });
+            }
         }
     };
-    </script>
+    </script>   
     <script type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
     <script src="{{ '/assets/js/toggle.js' | relative_url }}"></script>
 </head>
+
+<!-- <header class="site-header">
+    <nav class="site-nav">
+        <a href="{{ '/' | relative_url }}" class="site-title">Dimitris Ntounis</a>
+        <button class="menu-toggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-links">
+            {%- for path in site.header_pages -%}
+                {%- assign my_page = site.pages | where: "path", path | first -%}
+                {%- if my_page.title -%}
+                <div class="nav-item">
+                    {% if my_page.title == "CV" %}
+                        <a class="page-link {% if page.url == my_page.url %}current{% endif %}" 
+                           href="{{ site.cv_pdf }}" target="_blank">{{ my_page.title }}</a>
+                    {% else %}
+                        <a class="page-link {% if page.url == my_page.url %}current{% endif %}" 
+                           href="{{ my_page.url | relative_url }}">{{ my_page.title }}</a>
+                    {% endif %}
+                    {% if my_page.submenu %}
+                    <div class="dropdown">
+                        {% for item in my_page.submenu %}
+                        <a href="{{ item.url }}">{{ item.title }}</a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+    </nav>
+</header> -->
 <body>
     <header class="site-header">
         <nav class="site-nav">
             <a href="{{ '/' | relative_url }}" class="site-title">Dimitris Ntounis</a>
-            <button class="menu-toggle" aria-label="Toggle menu">
+            <!-- <button class="menu-toggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
                 <span></span>
-            </button>
+            </button> -->
             <div class="nav-links">
                 {%- for path in site.header_pages -%}
                     {%- assign my_page = site.pages | where: "path", path | first -%}
                     {%- if my_page.title -%}
                     <div class="nav-item">
+                        {% if my_page.title == "CV" %}
+                        <!-- <a class="page-link {% if page.url == my_page.url %}current{% endif %}" 
+                        href="{{ my_page.url | relative_url }}">{{ my_page.title }}</a> -->
+                        <a class="page-link {% if page.url == my_page.url %}current{% endif %}" 
+                           href="{{ site.cv_pdf }}" target="_blank">{{ my_page.title }}</a>
+                        {% else %}
                         <a class="page-link {% if page.url == my_page.url %}current{% endif %}" 
                            href="{{ my_page.url | relative_url }}">{{ my_page.title }}</a>
+                        {% endif %}
                         {% if my_page.submenu %}
                         <div class="dropdown">
                             {% for item in my_page.submenu %}
@@ -65,7 +131,14 @@
     </main>
 
     <footer class="site-footer">
-        <p>&copy; {{ site.time | date: '%Y' }} {{ site.title }}</p>
+        <div class="footer-content">
+            <div class="footer-text">
+                © {{ site.time | date: '%Y' }} {{ site.author.name }}, Powered by Jekyll
+            </div>
+            <div class="footer-update">
+                Site last updated {{ site.time | date: '%Y-%m-%d' }}
+            </div>
+        </div>
     </footer>
 
     <script>

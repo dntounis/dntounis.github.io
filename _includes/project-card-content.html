@@ -3,89 +3,70 @@ This partial template contains the content structure for each project card.
 It's designed to be reusable and maintainable.
 {% endcomment %}
 
-<article class="project-card" itemscope itemtype="http://schema.org/ResearchProject">
-    <h3 itemprop="name">{{ project.title }}</h3>
-    <p itemprop="description">{{ project.description }}</p>
-    {% if project.tags %}
-    <div itemprop="keywords">
-        {% for tag in project.tags %}
-        <span class="tag">{{ tag }}</span>
-        {% endfor %}
+<div class="project-card-content" id="{{ project.id | default: project.title | slugify }}">
+    {% if project.image %}
+    <div class="project-image-container">
+    <img src="{{ project.image }}" 
+        alt="{{ project.title | strip_html }}" 
+        class="project-image">
     </div>
     {% endif %}
-</article>
 
-
-
-<div class="project-image-container">
-  {% if project.image %}
-    <img src="{{ project.image }}" 
-         alt="{{ project.title | strip_html }}" 
-         class="project-image"
-         loading="lazy">
-  {% endif %}
-</div>
-
-<div class="project-content">
-  <h3 class="project-title" onclick="toggleProject(this)">
-    <span class="title-text">
-      {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
-    </span>
-    <span class="expand-icon" aria-hidden="true" role="img" aria-label="Toggle project details">▼</span>
-  </h3>
+    <div class="project-content">
+        <h3 class="project-title">
+          <a href="#" class="project-title-link" onclick="showProjectDetails('{{ project.title | slugify }}', event)">
+            {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
+          </a>
+        </h3>
+      
+        <div class="project-description">
+            {{ project.description | markdownify }}
+        </div>
   
-  <div class="project-description">
-    {{ project.description | markdownify }}
-  </div>
-  
+ <!--
   <div class="project-details" 
        aria-expanded="false" 
        data-state="collapsed">
     {{ project.content | markdownify }}
   </div>
-  
-  {% if project.tags %}
-    <div class="project-tags" role="list">
+-->       
+
+    {% if project.tags %}
+    <div class="project-tags">
       {% for tag in project.tags %}
-        <span class="tag" role="listitem">{{ tag }}</span>
+        <span class="tag">{{ tag }}</span>
       {% endfor %}
     </div>
-  {% endif %}
+    {% endif %}
   
-  <div class="project-links">
-    {% if project.demo %}
-      <a href="{{ project.demo }}" 
-         class="project-link demo-link" 
-         target="_blank" 
-         rel="noopener noreferrer"
-         aria-label="View project demo">
-        <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-        <span>Demo</span>
-      </a>
-    {% endif %}
-    
-    {% if project.code %}
-      <a href="{{ project.code }}" 
-         class="project-link code-link" 
-         target="_blank" 
-         rel="noopener noreferrer"
-         aria-label="View project code">
-        <i class="fas fa-code" aria-hidden="true"></i>
-        <span>Code</span>
-      </a>
-    {% endif %}
-    
-    {% if project.Paper %}
-      <a href="{{ project.Paper }}" 
-         class="project-link paper-link" 
-         target="_blank" 
-         rel="noopener noreferrer"
-         aria-label="Read research paper">
-        <i class="fas fa-file-pdf" aria-hidden="true"></i>
-        <span>Paper</span>
-      </a>
-    {% endif %}
-  </div>
+    <div class="project-links">
+        {% if project.links %}
+          {% for link in project.links %}
+            <a href="{{ link.url }}" 
+               class="project-link {{ link.type }}-link" 
+               target="_blank" 
+               rel="noopener noreferrer">
+              {% case link.type %}
+                {% when 'paper' %}
+                  <i class="fas fa-file-pdf"></i>
+                {% when 'talk' %}
+                  <!-- <i class="fas fa-presentation"></i> -->
+                  <i class="fas fa-chalkboard-teacher"></i>                  
+                {% when 'code' %}
+                  <i class="fas fa-code"></i>
+                {% when 'link' %}
+                  <i class="fas fa-external-link-alt"></i>
+                  {% when 'news' %}
+                  <i class="fas fa-newspaper"></i>                  
+              {% endcase %}
+              {{ link.text }}
+            </a>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+
+
 </div>
 
 {% comment %}

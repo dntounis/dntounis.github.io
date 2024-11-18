@@ -27,16 +27,27 @@ description: >-
   Research interests: High Energy Physics, Higgs Boson, Future Colliders, Machine Learning, Data Analysis
 author:
   name: Dimitris Ntounis
+  bio: PhD Researcher in Particle Physics and Machine Learning at Stanford University
+  email: dntounis@stanford.edu
   institution: Stanford University
   department: Physics
   linkedin_username: dimitris-ntounis-76645b269
-  google_scholar: 5vCzegYAAAAJ
+  linkedin: dimitris-ntounis-76645b269
+  #google_scholar: 5vCzegYAAAAJ
   twitter_username: dimntounis  # if you have one
+  twitter: dimntounis  # if you have one
   github_username:  dntounis
+  github:  dntounis
+  google_scholar: https://scholar.google.com/citations?user=5vCzegYAAAAJ&hl=en
+  orcid: 0009-0008-1063-5620
+  inspire: "https://inspirehep.net/authors/2649182"
+
 
 baseurl: "" 
 url: "https://dntounis.github.io"
 
+# Avatar (optional)
+avatar: /assets/images/IMG_1186_crop.png
 
 # You can add more social links:
 
@@ -88,6 +99,8 @@ plugins:
 
 include:
   - _includes
+  - _data
+
 
 lsi: false
 safe: true
@@ -116,7 +129,7 @@ scholar:
 # Collections for projects
 collections:
   projects:
-    output: true
+    output: false
     permalink: /projects/:path/
     permalink: /projects/:title/
 
@@ -133,13 +146,13 @@ defaults:
 
 # Navigation
 header_pages:
-  - about.md
-  - research.md
-  - publications.md
   - projects.md
+  - publications.md
+  - teaching.md
   - cv.md
-  - contact.md
-
+#  - about.md
+#  - research.md
+#  - contact.md
 
 navigation:
   - title: About
@@ -147,10 +160,14 @@ navigation:
   - title: Research
     url: /research/
     submenu:
+      #- title: Current Projects
+      #  url: /research/current/
+      #- title: Completed Projects
+      #  url: /research/completed/
       - title: Current Projects
-        url: /research/current/
-      - title: Completed Projects
-        url: /research/completed/
+        url: /projects#current-projects
+      - title: Past Projects
+        url: /projects#past-projects
   - title: Projects
     url: /projects/
     submenu:
@@ -166,3 +183,10 @@ academic_links:
   google_scholar: true
   research_gate: true
   orcid: true    
+
+cv_pdf: /assets/files/Dimitris_Ntounis_academic_CV_November2024.pdf  # Update this path to your CV's location
+
+
+
+
+
