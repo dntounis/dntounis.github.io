@@ -33,5 +33,5 @@ Throughout my undergraduate and graduate education, I've been passionate about P
 ---
 
 <div class="cv-link">
-    <p>You can find more information on my teaching experience in my <a href="cv_pdf" target="_blank">CV <i class="fas fa-external-link-alt"></i></a>.</p>
+    <p>You can find more information on my teaching experience in my <a href="{{ site.cv_pdf }}" target="_blank">CV <i class="fas fa-external-link-alt"></i></a>.</p>
 </div>
