@@ -6,24 +6,39 @@ status: "past"  # or "completed"
 order: 3
 image: "/assets/images/sustainability_weighted_carbon_footprint_total.png"
 tags: ["Future Colliders","Sustainability"]
-Paper: "https://journals.aps.org/prxenergy/abstract/10.1103/PRXEnergy.2.047001"
+links:
+  - type: "paper"
+    text: "Paper"
+    url: "https://journals.aps.org/prxenergy/abstract/10.1103/PRXEnergy.2.047001"
+  - type: "paper"
+    text: "arXiv"
+    url: "https://arxiv.org/abs/2307.04084"
+  - type: "talk"
+    text: "ICHEP2024 Talk"
+    url: "https://indico.cern.ch/event/1291157/contributions/5900411/#preview:5085769"
+  - type: "news"
+    text: "News"
+    url: "https://physicsworld.com/a/cool-copper-collider-most-environmentally-friendly-among-higgs-factory-designs-finds-study/"
 ---
 
+# Environmental Impact Analysis of Future Particle Colliders
 
-As we plan the next generation of particle colliders, environmental considerations have become increasingly crucial. My research focuses on evaluating the environmental impact of the Cool Copper Collider (C³), a proposed electron-positron collider designed for detailed studies of the Higgs boson.
+## Research Context
+In this study we evaluated the environmental impact of next-generation particle physics facilities, focusing on the Cool Copper Collider (C³) proposal, addressing a critical challenge in modern physics: balancing scientific advancement with environmental responsibility.
 
-The study addresses several key aspects:
-- Comprehensive analysis of carbon emissions from both construction and operation phases
-- Development of innovative strategies to minimize environmental impact
-- Creation of a new metric for comparing different Higgs factory proposals, incorporating:
- - Physics research potential
- - Energy consumption
- - Construction and operational carbon footprint
-- Assessment of C³'s unique features that reduce environmental impact:
- - Compact 8 km footprint (compared to >20 km for other proposals)
- - Cut-and-cover construction technique reducing embodied carbon
- - Advanced energy efficiency technologies
+## Key Findings and Impact
+The study demonstrated several significant advantages of the C³ design:
+- Compact 8-kilometer footprint significantly reduces embodied carbon
+- Cut-and-cover construction method offers substantial environmental benefits compared to deep tunneling
 
-Our research demonstrates how modern accelerator design can balance scientific ambition with environmental responsibility. The framework developed in this study provides a quantitative basis for evaluating and comparing different collider proposals from a sustainability perspective, while maintaining focus on their primary physics goals.
+We also developed a new metric for comparing different collider proposals based on:
+- Physics research potential
+- Energy consumption requirements
+- Carbon footprint from construction
+- Operational environmental impact
+
+## Future Implications
 
 This work contributes to the broader discussion of sustainability in big science projects and helps establish environmental impact as a key metric in future accelerator design decisions.
+
+Our research demonstrates how modern accelerator design can balance scientific ambition with environmental responsibility. The framework developed in this study provides a quantitative basis for evaluating and comparing different collider proposals from a sustainability perspective, while maintaining focus on their primary physics goals.

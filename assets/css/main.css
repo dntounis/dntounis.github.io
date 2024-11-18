@@ -429,35 +429,113 @@ font-size: 2rem;
 
 .project-links {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1rem;
 }
 
 .project-link {
-    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
     border-radius: 4px;
     text-decoration: none;
     font-size: 0.9em;
-    transition: all var(--transition-speed);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    transition: all 0.2s ease;
 }
 
-.project-link:not(.paper-link) {
-    background: #f6f8fa;
-    color: var(--text-color);
-}
-
+/* Different link types */
 .paper-link {
     background: #dc3545;
     color: white;
 }
 
+.talk-link {
+    /*background: #28a745;  /* Green background */ 
+    /* or */
+    background: #794BC4;  /* Purple background, similar to Indico */
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.talk-link:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.talk-link i {
+    font-size: 1em;
+}
+
+.code-link {
+    background: #333;
+    color: white;
+}
+
+.link-link {
+    background: #0366d6;
+    color: white;
+}
+
+/* Add to your existing project link styles */
+.news-link {
+    background: #4A90E2;  /* News-like blue */
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.news-link:hover {
+    background: #357ABD;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Optional: Add a specific hover effect for news links */
+.news-link:hover i {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+
+/*
+.project-link:not(.paper-link) {
+    background: #f6f8fa;
+    color: var(--text-color);
+}
+*/
+
+
+/* Hover effects */
 .project-link:hover {
     transform: translateY(-2px);
-    text-decoration: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    opacity: 0.9;
+}
+
+/* Icon styling */
+.project-link i {
+    font-size: 1em;
 }
 
 /* ==========================================================================
@@ -694,3 +772,26 @@ font-size: 2rem;
 .footer-update {
     font-size: 0.8rem;
 }  
+
+
+
+
+/* Smooth scrolling for the whole page */
+html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Highlight effect when scrolling to a project */
+  @keyframes highlightFade {
+    0% { background-color: rgba(140, 21, 21, 0.1); }  /* Stanford red with opacity */
+    100% { background-color: transparent; }
+  }
+  
+  .highlight {
+    animation: highlightFade 2s ease-out;
+  }
+  
+  /* Ensure proper positioning for anchor links with fixed header */
+  .project-card-content {
+    scroll-margin-top: 80px; /* Should match header height */
+  }

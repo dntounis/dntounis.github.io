@@ -125,7 +125,7 @@ scholar:
 # Collections for projects
 collections:
   projects:
-    output: true
+    output: false
     permalink: /projects/:path/
     permalink: /projects/:title/
 
