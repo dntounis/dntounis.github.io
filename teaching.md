@@ -26,12 +26,12 @@ Throughout my undergraduate and graduate education, I've been passionate about P
   *Summer 2024 (04/2024 - 08/2024)*  
   Mentored a Stanford Physics sophomore student conducting research at SLAC through the Summer Undergraduate Research Program
 
-- **Graduate Mentor**, Stanford University Physics Society (SUPS)  
+- **Graduate Mentor**, Stanford University Physics Society (SUPS) Graduate Mentoring Program   
   *Fall 2024 - Present (10/2024 - ongoing)*  
-  Participating in the SUPS Graduate Mentoring Program
+  Mentoring a Stanford freshman student interested in pursuing  a Major in Physics.
 
 ---
 
 <div class="cv-link">
-    <p>You can find more information on my teaching experience in my <a href="/assets/files/Dimitris_Ntounis_academic_CV_November2024.pdf" target="_blank">CV <i class="fas fa-external-link-alt"></i></a>.</p>
+    <p>You can find more information on my teaching experience in my <a href="cv_pdf" target="_blank">CV <i class="fas fa-external-link-alt"></i></a>.</p>
 </div>
