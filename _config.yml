@@ -38,7 +38,7 @@ author:
   twitter: dimntounis  # if you have one
   github_username:  dntounis
   github:  dntounis
-  google_scholar: https://scholar.google.com/citations?user=5vCzegYAAAAJ&hl=el
+  google_scholar: https://scholar.google.com/citations?user=5vCzegYAAAAJ&hl=en
   orcid: 0009-0008-1063-5620
 
 baseurl: "" 
@@ -97,6 +97,8 @@ plugins:
 
 include:
   - _includes
+  - _data
+
 
 lsi: false
 safe: true

@@ -556,36 +556,133 @@ font-size: 2rem;
 /* ==========================================================================
    6. Publications Styling
    ========================================================================== */
-
-.publication-item {
-    margin: 1.5em 0;
-    padding: 1em;
-    border-left: 4px solid var(--primary-color);
-    background: #f6f8fa;
-    transition: transform var(--transition-speed);
+/* Publications Page Styles */
+.publications-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 0;
 }
 
-.publication-item:hover {
-    transform: translateX(5px);
+.scholar-profile {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.scholar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #4285f4;  /* Google Blue */
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.scholar-link:hover {
+    background: #3367d6;
+    text-decoration: none;
+    color: white;
+}
+
+.publication-item {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
 }
 
 .pub-title {
-    font-weight: bold;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #8C1515;  /* Stanford red */
     margin-bottom: 0.5rem;
 }
 
 .pub-authors {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 0.5rem;
+}
+
+.pub-venue {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 1rem;
 }
 
 .pub-links {
-    margin-top: 0.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.pub-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    color: #666;
+    background: #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.pub-link:hover {
+    background: #e0e0e0;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+/* Scholar Metrics Styles */
+.scholar-section {
+    margin-bottom: 3rem;
+}
+
+.scholar-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.metric-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #8C1515;  /* Stanford red */
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 
+
 /* ==========================================================================
-   6.5 Publications Styling
+   6.5 Teaching Styling
    ========================================================================== */
 
 
@@ -734,6 +831,7 @@ font-size: 2rem;
         padding: 5px;
     }
 
+
     .menu-toggle span {
         display: block;
         width: 25px;
@@ -799,6 +897,10 @@ font-size: 2rem;
         margin-bottom: 1rem;
     }
 
+    .scholar-metrics {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 
 }
 
