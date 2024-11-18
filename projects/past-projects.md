@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Past Projects
+title: Completed Projects
 permalink: /projects/past-projects/
 ---
 
