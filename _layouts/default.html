@@ -54,6 +54,10 @@
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
     <script src="{{ '/assets/js/toggle.js' | relative_url }}"></script>
+
+    {% if site.google_analytics %}
+    	{% include analytics.html %}
+    {% endif %}	
 </head>
 
 <!-- <header class="site-header">
