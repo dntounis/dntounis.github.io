@@ -28,7 +28,11 @@ Throughout my undergraduate and graduate education, I've been passionate about P
 
 - **Graduate Mentor**, Stanford University Physics Society (SUPS) Graduate Mentoring Program   
   *Fall 2024 - Present (10/2024 - ongoing)*  
-  Mentoring a Stanford freshman student interested in pursuing  a Major in Physics.
+  Mentoring a Stanford freshman student interested in pursuing a Major in Physics.
+
+- **Graduate Mentor**, Stanford Physics inaugural Directed Reading in Physics (DRP) Program  
+  *Spring 2025*  
+  Mentored two Stanford freshmen students on the topic of "Illuminating the Higgs Boson with the CERN LHC" — held weekly meetings, assigned readings from journal articles, and helped prepare final presentations.
 
 ---
 
