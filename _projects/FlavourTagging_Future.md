@@ -5,7 +5,7 @@ description: >-
     Investigating jet tagging capabilities for different detector options
 status: "current"  # or "completed"
 order: 3
-image: "/assets/images/stagging_test_test_test.pdf"
+image: "/assets/images/stagging_test_test_test.png"
 tags: ["Future Colliders","Machine Learning", "Higgs Boson", "Jets" ]
 links:
   - type: "talk"
