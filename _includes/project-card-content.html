@@ -1,73 +1,65 @@
 {% comment %}
 This partial template contains the content structure for each project card.
-It's designed to be reusable and maintainable.
+Vertical card layout with image on top, inspired by ozamram.github.io
 {% endcomment %}
 
-<div class="project-card-content" id="{{ project.id | default: project.title | slugify }}">
+<a href="#" class="project-card-link" onclick="showProjectDialog('{{ project.title | slugify }}', event)">
     {% if project.image %}
-    <div class="project-image-container">
-    <img src="{{ project.image }}" 
-        alt="{{ project.title | strip_html }}" 
-        class="project-image">
+    <div class="project-card-image">
+        <img src="{{ project.image }}"
+            alt="{{ project.title | strip_html }}"
+            loading="lazy">
+    </div>
+    {% else %}
+    <div class="project-card-image project-card-image-placeholder">
+        <i class="fas fa-flask"></i>
     </div>
     {% endif %}
 
-    <div class="project-content">
-        <h3 class="project-title">
-          <a href="#" class="project-title-link" onclick="showProjectDetails('{{ project.title | slugify }}', event)">
+    <div class="project-card-body">
+        <h3 class="project-card-title">
             {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
-          </a>
         </h3>
-      
-        <div class="project-description">
-            {{ project.description | markdownify }}
+
+        <p class="project-card-description">
+            {{ project.description | strip_html | truncate: 150 }}
+        </p>
+
+        {% if project.tags %}
+        <div class="project-card-tags">
+            {% for tag in project.tags %}
+            <span class="project-tag">{{ tag }}</span>
+            {% endfor %}
         </div>
-  
- <!--
-  <div class="project-details" 
-       aria-expanded="false" 
-       data-state="collapsed">
-    {{ project.content | markdownify }}
-  </div>
--->       
-
-    {% if project.tags %}
-    <div class="project-tags">
-      {% for tag in project.tags %}
-        <span class="tag">{{ tag }}</span>
-      {% endfor %}
-    </div>
-    {% endif %}
-  
-    <div class="project-links">
-        {% if project.links %}
-          {% for link in project.links %}
-            <a href="{{ link.url }}" 
-               class="project-link {{ link.type }}-link" 
-               target="_blank" 
-               rel="noopener noreferrer">
-              {% case link.type %}
-                {% when 'paper' %}
-                  <i class="fas fa-file-pdf"></i>
-                {% when 'talk' %}
-                  <!-- <i class="fas fa-presentation"></i> -->
-                  <i class="fas fa-chalkboard-teacher"></i>                  
-                {% when 'code' %}
-                  <i class="fas fa-code"></i>
-                {% when 'link' %}
-                  <i class="fas fa-external-link-alt"></i>
-                  {% when 'news' %}
-                  <i class="fas fa-newspaper"></i>                  
-              {% endcase %}
-              {{ link.text }}
-            </a>
-          {% endfor %}
         {% endif %}
-      </div>
+    </div>
+</a>
 
-
-
+{% if project.links %}
+<div class="project-card-footer">
+    {% for link in project.links %}
+    <a href="{{ link.url }}"
+       class="project-footer-link"
+       target="_blank"
+       rel="noopener noreferrer"
+       onclick="event.stopPropagation();">
+        {% case link.type %}
+        {% when 'paper' %}
+        <i class="fas fa-file-pdf"></i>
+        {% when 'talk' %}
+        <i class="fas fa-chalkboard-teacher"></i>
+        {% when 'code' %}
+        <i class="fab fa-github"></i>
+        {% when 'link' %}
+        <i class="fas fa-external-link-alt"></i>
+        {% when 'news' %}
+        <i class="fas fa-newspaper"></i>
+        {% endcase %}
+        {{ link.text }}
+    </a>
+    {% endfor %}
 </div>
+{% endif %}
 
 {% comment %}
 Add some error handling for missing content

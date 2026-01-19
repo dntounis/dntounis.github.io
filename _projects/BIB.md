@@ -1,57 +1,60 @@
 ---
 title: >-
-  Beam-Induced Background Studies for future \\(e^{+}e^{-} \\) colliders
+  Beam-Beam Backgrounds for the Cool Copper Collider
 description: >-
-    Evaluating impact of background flux on detector performance for future colliders
-status: "current"  # or "completed"
-order: 1
+    Comprehensive study of beam-beam backgrounds and detector compatibility for C³
+status: "past"
+order: 5
 image: "/assets/images/SiD_hits_550.png"
-tags: ["Future Colliders", "Beam-Induced Background"]
+tags: ["Future Colliders", "Beam-Induced Background", "C³"]
 links:
+  - type: "paper"
+    text: "arXiv"
+    url: "https://arxiv.org/abs/2511.01075"
+  - type: "github"
+    text: "GitHub"
+    url: "https://github.com/dntounis/Beam_Beam_Backgrounds"
   - type: "talk"
     text: "LCWS2024 Talk"
     url: "https://agenda.linearcollider.org/event/10134/contributions/54713/"
 ---
 
+## Overview
 
-# Beam-Induced Background Studies for Future Electron-Positron Colliders
+This study presents a comprehensive analysis of beam-beam backgrounds for the Cool Copper Collider (C³), a proposed electron-positron linear collider targeting precision Higgs physics at center-of-mass energies of 250 and 550 GeV. The work validates the compatibility of existing detector concepts with C³ beam parameters and provides a reusable simulation framework for future collider studies.
 
-## Project Overview
-This ongoing study aims to evaluate the impact of beam-induced backgrounds on detector performance for future electron-positron colliders, with particular focus on validating the Silicon Detector (SiD) concept's compatibility with the Cool Copper Collider (C³) beam parameters.
+**Paper**: [arXiv:2511.01075](https://arxiv.org/abs/2511.01075) *(accepted for publication in JINST)*
 
-## Technical Approach
-In this analysis, we implement the following simulation chain:
+**Code**: [GitHub Repository](https://github.com/dntounis/Beam_Beam_Backgrounds)
 
-### Background Generation
-- Simulation of electron-positron pair production using the GUINEA-PIG PIC simulator
-- Modeling of photoproduced hadrons from beam-beam interactions with a dedicated generator
-- Full characterization of background particle distributions and kinematics
+## Key Findings
 
-### Detector Simulation
-- Detailed modeling of the SiD detector geometry and response using the Key4HEP software stack
-- Tracking the simulated background particles trough the SiD detector and registering energy deposits (or "hits") in the various detector subsystems.
+### Detector Compatibility
+- Evaluated the Silicon Detector (SiD) concept across three C³ operational scenarios: baseline, power-efficiency, and high-luminosity modes
+- **The SiD detector remains compatible with C³ operations without requiring substantial design modifications**
+- Quantified occupancy levels from incoherent pair production and hadron photoproduction backgrounds in all detector subsystems
 
-### Performance Evaluation
-- Quantification of hit densities and occupancy levels in:
-  - Vertex detector
-  - Silicon tracker
-  - Electromagnetic and hadronic calorimeters
-- Assessment of timing distributions of background hits
-- Analysis of background energy deposition patterns
+### Background Characterization
+- Full simulation of beam-beam interactions using the GUINEA-PIG PIC simulator
+- Detailed modeling of photoproduced hadrons from beam-beam interactions
+- Comprehensive tracking of background particles through the SiD detector using the Key4hep software stack
+- Assessment of hit densities and timing distributions in the vertex detector, silicon tracker, and calorimeters
 
-## Key Objectives
-The study aims to:
-- Validate the compatibility of the SiD detector, originally developed for the International Linear Collider (ILC),  with the beam parameters envisaged for C³.
-- Evaluate timing requirements for background rejection
-- Assess impact on trigger and readout systems
-- Guide detector design optimizations
+## Modular Simulation Framework
 
-## Expected Outcomes
-With this work nearing completion, we eventually aim to provide: 
+A key contribution of this work is the development of a **modular simulation framework** built on the Key4hep ecosystem. This framework provides:
 
-- Quantitative assessment of background levels throughout SiD
-- Validation of detector technologies for C³ conditions
-- Guidelines for detector timing and readout specifications
-- Input for future detector optimization studies
+- A versatile toolkit adaptable to different collider proposals and beam parameter configurations
+- Standardized analysis methodology for background studies
+- Easy integration with various detector geometries and simulation tools
+- Reusable components for the broader future collider community
 
-The results will be crucial for demonstrating the feasibility of the SiD concept for future electron-positron colliders and guiding potential design modifications.
+The framework is publicly available on [GitHub](https://github.com/dntounis/Beam_Beam_Backgrounds) and can be adapted for background studies at other proposed electron-positron colliders such as ILC, CLIC, or FCC-ee.
+
+## Impact
+
+This study provides essential input for:
+- Validating detector technologies for C³ conditions
+- Guiding detector timing and readout specifications
+- Supporting the physics case for C³ as a viable Higgs factory option
+- Enabling similar studies at other future collider proposals through the modular framework

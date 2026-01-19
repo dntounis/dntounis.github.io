@@ -1,0 +1,98 @@
+# Talks and Presentations Data
+# Organized by category and year
+
+conference_talks:
+  - year: 2024
+    month: 10
+    conference: "Third ECFA Workshop on e+e- Higgs/EW/Top Factories"
+    conference_url: "https://indico.in2p3.fr/event/32629/overview"
+    talks:
+      - title: "Evaluating strange-tagging performance for SiD fast- and full-simulation"
+        url: "https://indico.in2p3.fr/event/32629/contributions/143002/"
+        type: parallel
+      - title: "Bunch Structure Studies at C3"
+        url: "https://indico.in2p3.fr/event/32629/contributions/143001/"
+        type: parallel
+
+  - year: 2024
+    month: 7
+    conference: "42nd International Conference on High Energy Physics (ICHEP 2024)"
+    conference_url: "https://ichep2024.org/"
+    talks:
+      - title: "Sustainability Strategy for the Cool Copper Collider"
+        url: "https://indico.cern.ch/event/1291157/contributions/5900411/"
+        type: parallel
+
+  - year: 2024
+    month: 7
+    conference: "2024 International Workshop on Future Linear Colliders (LCWS2024)"
+    conference_url: "https://agenda.linearcollider.org/event/10134/"
+    talks:
+      - title: "Luminosity Studies for the Cool Copper Collider"
+        url: "https://agenda.linearcollider.org/event/10134/contributions/54659/"
+        type: parallel
+      - title: "Beam-Induced Backgrounds at the Cool Copper Collider"
+        url: "https://agenda.linearcollider.org/event/10134/contributions/54713/"
+        type: parallel
+    other:
+      - title: "Co-convener of the Early-Career-Researcher (ECR) Panel"
+        url: "https://agenda.linearcollider.org/event/10134/sessions/5596/#20240711"
+        type: panel
+
+  - year: 2023
+    month: 10
+    conference: "Second ECFA Workshop on e+e- Higgs/EW/Top Factories"
+    conference_url: "https://agenda.infn.it/event/34841/"
+    talks:
+      - title: "Beam-induced background simulation studies for C3"
+        url: "https://agenda.infn.it/event/34841/contributions/207749/"
+        type: parallel
+
+  - year: 2023
+    month: 5
+    conference: "2023 International Workshop on Future Linear Colliders (LCWS2023)"
+    conference_url: "https://indico.slac.stanford.edu/event/7467/"
+    talks:
+      - title: "Muon Backgrounds from Beam Interactions with the Accelerator Structure at C3"
+        url: "https://indico.slac.stanford.edu/event/7467/contributions/6056/"
+        type: parallel
+      - title: "Simulation of Beam- and Machine-induced Backgrounds for the Cool Copper Collider"
+        url: "https://indico.slac.stanford.edu/event/7467/contributions/6192/attachments/2760/7832/poster_C_3_LCWS_2023-1.pdf"
+        type: poster
+
+invited_talks:
+  - year: 2024
+    month: 6
+    title: "Sustainability Strategy for the Cool Copper Collider"
+    venue: "Sustainable HEP 2024 - 3rd edition workshop"
+    url: "https://indico.cern.ch/event/1355767/contributions/5967015/"
+
+  - year: 2024
+    month: 3
+    title: "Simulation of Beam-Related Backgrounds at Higgs Factories"
+    venue: "Open Meeting of the ILC International Development Team (IDT-WG3-Phys Working Group)"
+    url: "https://agenda.linearcollider.org/event/10257/#3-simulation-of-beam-related-b"
+
+  - year: 2024
+    month: 2
+    title: "Activities/plans from C3 event generators"
+    venue: "Meeting on Event Generator for Linear Colliders"
+    url: "https://agenda.linearcollider.org/event/10301/#3-activities-plans-from-c3-eve"
+
+  - year: 2024
+    month: 2
+    title: "Luminosity Studies"
+    venue: "SLAC Cool Copper Collider Workshop"
+    url: "https://indico.slac.stanford.edu/event/8577/contributions/8462/"
+
+  - year: 2024
+    month: 1
+    title: "Beam-beam simulations for e+e- Higgs factories"
+    venue: "SLAC Multi-TeV Beam-Beam meeting"
+    url: "https://indico.slac.stanford.edu/event/8597/#6-beam-beam-simulations-for-ee"
+
+  - year: 2023
+    month: 2
+    title: "Overview of beam- and machine-induced background studies for C3"
+    venue: "2nd general meeting of the ILC-Japan Physics Working Group"
+    url: "https://agenda.linearcollider.org/event/9924/#9-overview-of-beam-and-machine"

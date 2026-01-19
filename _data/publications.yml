@@ -1,4 +1,101 @@
 ---
+# 2026 Publications
+- title: "Beam-Beam Backgrounds for the Cool Copper Collider"
+  authors: "D. Ntounis, L. Gordon, L. Gray, E. Mettner, T. Barklow, E. A. Nanni, C. Vernieri"
+  venue: "JINST"
+  year: 2026
+  arxiv: "2511.01075"
+  pdf: "https://arxiv.org/pdf/2511.01075.pdf"
+  first_author: true
+  note: "Accepted for publication in JINST"
+
+# 2025 Publications (ordered newest to oldest)
+
+- title: "ECFA Higgs, electroweak, and top Factory Study"
+  authors: "J. Altmann et al."
+  venue: "CERN Yellow Reports: Monographs"
+  year: 2025
+  volume: "5/2025"
+  doi: "10.23731/CYRM-2025-005"
+  arxiv: "2506.15390"
+  pdf: "https://arxiv.org/pdf/2506.15390.pdf"
+
+- title: "Update of the Higgs Self-coupling Projections from Di-Higgs Production in Detailed Simulation of the ILD Concept"
+  authors: "M. Berggren, B. Bliewert, J. List, D. Ntounis, T. Suehara, J. Tian, J. M. Torndal, C. Vernieri"
+  venue: "arXiv preprint"
+  year: 2025
+  arxiv: "2509.14148"
+  pdf: "https://arxiv.org/pdf/2509.14148.pdf"
+
+- title: "Emittance preservation in the C³ main linear accelerator"
+  authors: "W.-H. Tan, G. White, D. Ntounis, Z. Li, D. Kim, H. Xu, E. Simakov, E. A. Nanni"
+  venue: "Nucl. Instrum. Meth. A"
+  year: 2025
+  volume: "1080"
+  pages: "170660"
+  doi: "10.1016/j.nima.2025.170660"
+
+- title: "Higgs Self-coupling Strategy at Linear e+e- Colliders"
+  authors: "J. List, B. Bliewert, D. Ntounis, J. Tian, C. Vernieri, J. M. Torndal"
+  venue: "PoS ICHEP2024"
+  year: 2025
+  pages: "079"
+  doi: "10.22323/1.476.0079"
+  arxiv: "2411.01507"
+  pdf: "https://arxiv.org/pdf/2411.01507.pdf"
+
+- title: "The Linear Collider Facility (LCF) at CERN"
+  authors: "H. Abramowicz et al. (Linear Collider)"
+  venue: "arXiv preprint"
+  year: 2025
+  arxiv: "2503.24049"
+  pdf: "https://arxiv.org/pdf/2503.24049.pdf"
+
+- title: "C³ within the Linear Collider Vision"
+  authors: "M. B. Andorf et al."
+  venue: "arXiv preprint"
+  year: 2025
+  arxiv: "2503.20829"
+  pdf: "https://arxiv.org/pdf/2503.20829.pdf"
+
+- title: "A Linear Collider Vision for the Future of Particle Physics"
+  authors: "H. Abramowicz et al. (Linear Collider Vision)"
+  venue: "arXiv preprint"
+  year: 2025
+  arxiv: "2503.19983"
+  pdf: "https://arxiv.org/pdf/2503.19983.pdf"
+
+- title: "Evaluating the Impact of Detector Design on Jet Flavor Tagging for Future Colliders"
+  authors: "D. Ntounis, L. Gouskos, C. Vernieri"
+  venue: "arXiv preprint"
+  year: 2025
+  arxiv: "2501.16584"
+  pdf: "https://arxiv.org/pdf/2501.16584.pdf"
+  first_author: true
+
+# 2024 Publications (ordered newest to oldest)
+- title: "Towards an update of the ILD ZHH analysis"
+  authors: "B. Bliewert, C. Vernieri, D. Ntounis, J. List, J. M. Torndal, J. Tian"
+  venue: "EPJ Web Conf."
+  year: 2024
+  volume: "315"
+  pages: "01010"
+  doi: "10.1051/epjconf/202431501010"
+  arxiv: "2410.15323"
+  pdf: "https://arxiv.org/pdf/2410.15323.pdf"
+
+- title: "Luminosity and beam-induced background studies for the Cool Copper Collider"
+  authors: "D. Ntounis, E. A. Nanni, C. Vernieri"
+  venue: "Phys. Rev. Accel. Beams"
+  year: 2024
+  volume: "27"
+  number: "6"
+  pages: "061001"
+  doi: "10.1103/PhysRevAccelBeams.27.061001"
+  arxiv: "2403.07093"
+  pdf: "https://arxiv.org/pdf/2403.07093.pdf"
+  first_author: true
+
 - title: "Study of High-Transverse-Momentum Higgs Boson Production in Association with a Vector Boson in the qqbb Final State with the ATLAS Detector"
   authors: "ATLAS Collaboration"
   venue: "Phys. Rev. Lett."
@@ -8,6 +105,38 @@
   doi: "10.1103/PhysRevLett.132.131802"
   arxiv: "2312.07605"
   pdf: "https://arxiv.org/pdf/2312.07605.pdf"
+  main_contributor: true
+
+- title: "Higgs self-coupling measurement at future e+e- colliders"
+  authors: "J. M. Torndal, J. List, D. Ntounis, C. Vernieri"
+  venue: "PoS EPS-HEP2023"
+  year: 2024
+  pages: "406"
+  doi: "10.22323/1.449.0406"
+  arxiv: "2311.16774"
+  pdf: "https://arxiv.org/pdf/2311.16774.pdf"
+
+# 2023 Publications (ordered newest to oldest)
+- title: "Sustainability Strategy for the Cool Copper Collider"
+  authors: "M. Breidenbach, B. Bullard, E. A. Nanni, D. Ntounis, C. Vernieri"
+  venue: "PRX Energy"
+  year: 2023
+  volume: "2"
+  number: "4"
+  pages: "047001"
+  doi: "10.1103/PRXEnergy.2.047001"
+  arxiv: "2307.04084"
+  pdf: "https://arxiv.org/pdf/2307.04084.pdf"
+  note: "Erratum: PRX Energy 4, 029901 (2025)"
+  main_contributor: true
+
+- title: "A 'Cool' route to the Higgs boson and beyond. The Cool Copper Collider"
+  authors: "C. Vernieri, E. A. Nanni, S. Dasu, M. E. Peskin, T. Barklow, R. Bartoldus, P. C. Bhat, K. Black, J. E. Brau, M. Breidenbach et al."
+  venue: "JINST"
+  year: 2023
+  volume: "18"
+  pages: "P07053"
+  doi: "10.1088/1748-0221/18/07/P07053"
 
 - title: "Search for resonant and nonresonant production of pairs of dijet resonances in proton-proton collisions at √s = 13 TeV"
   authors: "CMS Collaboration"
@@ -18,3 +147,4 @@
   doi: "10.1007/JHEP07(2023)161"
   arxiv: "2206.09997"
   pdf: "https://arxiv.org/pdf/2206.09997.pdf"
+  main_contributor: true

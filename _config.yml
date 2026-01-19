@@ -33,14 +33,14 @@ author:
   department: Physics
   linkedin_username: dimitris-ntounis-76645b269
   linkedin: dimitris-ntounis-76645b269
-  #google_scholar: 5vCzegYAAAAJ
-  twitter_username: dimntounis  # if you have one
-  twitter: dimntounis  # if you have one
-  github_username:  dntounis
-  github:  dntounis
+  twitter_username: dimntounis
+  twitter: dimntounis
+  github_username: dntounis
+  github: dntounis
   google_scholar: https://scholar.google.com/citations?user=5vCzegYAAAAJ&hl=en
   orcid: 0009-0008-1063-5620
   inspire: "https://inspirehep.net/authors/2649182"
+  substack: "https://dimitrisntounis.substack.com"
 
 
 baseurl: "" 
@@ -148,11 +148,10 @@ defaults:
 header_pages:
   - projects.md
   - publications.md
+  - talks.md
   - teaching.md
   - cv.md
-#  - about.md
-#  - research.md
-#  - contact.md
+  - contact.md
 
 navigation:
   - title: About
