@@ -2710,3 +2710,70 @@ img[loading="lazy"][src] {
 [data-theme="dark"] .loading-text {
     color: #8b949e;
 }
+
+/* ==========================================================================
+   Dark Mode: Affiliation Logos & Sidebar
+   ========================================================================== */
+
+[data-theme="dark"] .affiliation-logos {
+    background: #30363d;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin: 0.5rem 0 1rem 0;
+}
+
+[data-theme="dark"] .affiliation-logo {
+    filter: grayscale(30%) brightness(1.1);
+}
+
+[data-theme="dark"] .affiliation-logos a:hover .affiliation-logo {
+    filter: grayscale(0%) brightness(1.1);
+}
+
+[data-theme="dark"] .sidebar {
+    background: #30363d;
+}
+
+[data-theme="dark"] .author-bio {
+    color: #8b949e;
+}
+
+[data-theme="dark"] .author-link i {
+    color: #8b949e;
+}
+
+[data-theme="dark"] .author-link a {
+    color: #58a6ff;
+}
+
+[data-theme="dark"] .cv-link {
+    background: #30363d;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+}
+
+[data-theme="dark"] .cv-link a {
+    color: #58a6ff;
+}
+
+/* ==========================================================================
+   External Links - Cardinal red in light mode, light blue in dark mode
+   ========================================================================== */
+
+/* Light mode: all content links use cardinal red */
+.home-content a:not(.affiliation-logos a):not(.news-link-card):not(.blog-post-link):not(.blog-subscribe-btn):not(.contact-cta a) {
+    color: #8C1515;
+}
+
+.home-content a:not(.affiliation-logos a):not(.news-link-card):not(.blog-post-link):not(.blog-subscribe-btn):not(.contact-cta a):hover {
+    color: #6B0F0F;
+}
+
+/* Dark mode: content links use light blue */
+[data-theme="dark"] .home-content a:not(.affiliation-logos a):not(.news-link-card):not(.blog-post-link):not(.blog-subscribe-btn):not(.contact-cta a) {
+    color: #58a6ff;
+}
+
+[data-theme="dark"] .home-content a:not(.affiliation-logos a):not(.news-link-card):not(.blog-post-link):not(.blog-subscribe-btn):not(.contact-cta a):hover {
+    color: #79b8ff;
+}
