@@ -127,10 +127,10 @@ layout: default
       {{ content }}
     </div>
 
-    <!-- Latest News Section -->
+    <!-- Recent News Section -->
     {% if site.data.news %}
     <div class="latest-news">
-      <h2>Latest News</h2>
+      <h2>Recent News</h2>
       {% for news in site.data.news limit:5 %}
       <div class="news-item">
         <span class="news-date">{{ news.date | date: "%b %-d, %Y" }}</span>
