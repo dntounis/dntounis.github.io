@@ -39,7 +39,7 @@ description: Get in touch with Dimitris Ntounis - schedule a meeting or send a m
 <h2 id="schedule-meeting">Schedule a Meeting</h2>
 
 <div class="meeting-scheduler">
-    <p>I'm available for 30-minute meetings <strong>Monday through Friday, 7:00 PM - 8:00 PM Pacific Time</strong>. Select an available slot below to request a meeting.</p>
+    <p>I'm available for one-hour meetings <strong>Monday through Friday, 7:00 PM - 8:00 PM Pacific Time</strong>. Select an available slot below to request a meeting.</p>
 
     <div class="availability-info">
         <i class="fas fa-clock"></i> All times shown in Pacific Time (PT)
