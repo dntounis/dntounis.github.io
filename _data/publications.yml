@@ -1,5 +1,13 @@
 ---
 # 2026 Publications
+- title: "A Linear Collider Vision for the Future of Particle Physics"
+  authors: "H. Abramowicz et al. (Linear Collider Vision)"
+  venue: "Eur. Phys. J. Spec. Top."
+  year: 2026
+  doi: "10.1140/epjs/s11734-026-02153-w"
+  arxiv: "2503.19983"
+  pdf: "https://arxiv.org/pdf/2503.19983.pdf"
+
 - title: "Beam-Beam Backgrounds for the Cool Copper Collider"
   authors: "D. Ntounis, L. Gordon, L. Gray, E. Mettner, T. Barklow, E. A. Nanni, C. Vernieri"
   venue: "JINST"
@@ -60,13 +68,6 @@
   year: 2025
   arxiv: "2503.20829"
   pdf: "https://arxiv.org/pdf/2503.20829.pdf"
-
-- title: "A Linear Collider Vision for the Future of Particle Physics"
-  authors: "H. Abramowicz et al. (Linear Collider Vision)"
-  venue: "arXiv preprint"
-  year: 2025
-  arxiv: "2503.19983"
-  pdf: "https://arxiv.org/pdf/2503.19983.pdf"
 
 - title: "Evaluating the Impact of Detector Design on Jet Flavor Tagging for Future Colliders"
   authors: "D. Ntounis, L. Gouskos, C. Vernieri"
