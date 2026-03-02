@@ -9,6 +9,9 @@ image: "/assets/images/SiD_hits_550.png"
 tags: ["Future Colliders", "Beam-Induced Background", "C³"]
 links:
   - type: "paper"
+    text: "JINST"
+    url: "https://iopscience.iop.org/article/10.1088/1748-0221/21/02/P02024"
+  - type: "paper"
     text: "arXiv"
     url: "https://arxiv.org/abs/2511.01075"
   - type: "github"
@@ -23,7 +26,7 @@ links:
 
 This study presents a comprehensive analysis of beam-beam backgrounds for the Cool Copper Collider (C³), a proposed electron-positron linear collider targeting precision Higgs physics at center-of-mass energies of 250 and 550 GeV. The work validates the compatibility of existing detector concepts with C³ beam parameters and provides a reusable simulation framework for future collider studies.
 
-**Paper**: [arXiv:2511.01075](https://arxiv.org/abs/2511.01075) *(accepted for publication in JINST)*
+**Paper**: [JINST 21 (2026) P02024](https://iopscience.iop.org/article/10.1088/1748-0221/21/02/P02024), [arXiv:2511.01075](https://arxiv.org/abs/2511.01075)
 
 **Code**: [GitHub Repository](https://github.com/dntounis/Beam_Beam_Backgrounds)
 
