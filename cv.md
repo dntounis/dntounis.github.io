@@ -9,6 +9,6 @@ permalink: /cv/
  --->
 
 You can find a recent version of my CV
-<a href="https://cap.stanford.edu/profiles/viewCV?facultyId=293047&name=Dimitris_Ntounis" class="cv-button" target="_blank" rel="noopener noreferrer">
+<a href="{{ site.cv_pdf }}" class="cv-button" target="_blank" rel="noopener noreferrer">
     here <i class="fas fa-external-link-alt"></i>
 </a>
