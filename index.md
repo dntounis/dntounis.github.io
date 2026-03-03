@@ -54,6 +54,13 @@ My research lies at the intersection of experimental particle physics, accelerat
 
 <div class="news-coverage">
     <div class="news-item-featured">
+        <a href="https://humsci.stanford.edu/feature/stanford-researchers-honored-2025-breakthrough-prizes" target="_blank" class="news-link-card">
+            <div class="news-source">Stanford School of Humanities and Sciences</div>
+            <div class="news-headline">Stanford researchers honored with 2025 Breakthrough Prizes</div>
+            <div class="news-description">Stanford coverage of the 2025 Breakthrough Prize in Fundamental Physics awarded to the ATLAS and CMS collaborations.</div>
+        </a>
+    </div>
+    <div class="news-item-featured">
         <a href="https://atlas.cern/Updates/Briefing/Jetting-Higgs-Boson" target="_blank" class="news-link-card">
             <div class="news-source">ATLAS Experiment</div>
             <div class="news-headline">Jetting towards the Higgs boson</div>
