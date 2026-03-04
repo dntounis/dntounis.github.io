@@ -80,7 +80,7 @@ description: Publications and research papers by Dimitris Ntounis in particle ph
                         <span class="jinst-badge">JINST</span>
                         {% elsif publication.venue contains "PoS" %}
                         <span class="pos-badge">PoS</span>
-                        {% elsif publication.venue contains "EPJ" %}
+                        {% elsif publication.venue contains "EPJ" or publication.venue contains "Eur. Phys. J." %}
                         <span class="epj-badge">EPJ</span>
                         {% elsif publication.venue contains "Nucl. Instrum." %}
                         <span class="nima-badge">NIMA</span>
