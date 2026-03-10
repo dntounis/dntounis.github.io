@@ -17,6 +17,12 @@ Vertical card layout with image on top, inspired by ozamram.github.io
     {% endif %}
 
     <div class="project-card-body">
+        <div class="project-card-meta">
+            <span class="project-card-status">{{ project.status | default: "Research" | capitalize }}</span>
+            {% if project.tags and project.tags.first %}
+            <span class="project-card-kicker">{{ project.tags.first }}</span>
+            {% endif %}
+        </div>
         <h3 class="project-card-title">
             {{ project.title | markdownify | remove: '<p>' | remove: '</p>' }}
         </h3>
