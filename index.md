@@ -105,10 +105,10 @@ My research lies at the intersection of experimental particle physics, accelerat
         </div>
     </div>
     <div class="viz-legend">
-        <span class="legend-item"><span class="legend-dot" style="background: #8C1515;"></span> You</span>
-        <span class="legend-item"><span class="legend-dot" style="background: #2E5984;"></span> Collaborators</span>
-        <span class="legend-item"><span class="legend-dot" style="background: #F9A825;"></span> Frequent (3+ papers)</span>
-        <span class="legend-item" id="collab-legend" style="display: none;"><span class="legend-dot" style="background: #4CAF50;"></span> Collaborations</span>
+        <span class="legend-item"><span class="legend-dot" style="background: #8C1515;"></span> D. Ntounis</span>
+        <span class="legend-item"><span class="legend-dot" style="background: #4E6FAE;"></span> Collaborators</span>
+        <span class="legend-item"><span class="legend-dot" style="background: #D08B32;"></span> Frequent (3+ papers)</span>
+        <span class="legend-item" id="collab-legend" style="display: none;"><span class="legend-dot" style="background: #5E8E69;"></span> Collaborations</span>
     </div>
     <p class="viz-note" id="viz-note">Showing individual co-authors only. Papers with &gt;20 authors (ATLAS/CMS) are excluded.</p>
 </div>
@@ -140,6 +140,28 @@ My research lies at the intersection of experimental particle physics, accelerat
             console.error('Error fetching INSPIRE data:', error);
             return null;
         }
+    }
+
+    function getCanonicalCollaborator(fullName) {
+        const trimmedName = fullName.trim();
+        const normalizedName = trimmedName.toLowerCase();
+        const nameParts = trimmedName.split(',')[0].trim().split(/\s+/);
+        const surname = nameParts[nameParts.length - 1] || trimmedName;
+        const surnameKey = surname.toLowerCase().replace(/[^a-z]/g, '');
+
+        // INSPIRE can return the same collaborator in multiple formats
+        // (for example "E. Nanni", "Nanni, E.", or "Emanuele Nanni").
+        if (surnameKey === 'nanni') {
+            return {
+                id: 'nanni',
+                name: 'E. Nanni'
+            };
+        }
+
+        return {
+            id: normalizedName.replace(/[^a-z]/g, ''),
+            name: trimmedName
+        };
     }
 
     function processInspireData(papers, includeCollab = false) {
@@ -187,8 +209,8 @@ My research lies at the intersection of experimental particle physics, accelerat
                 // Skip if it's the main author
                 if (fullName.toLowerCase().includes('ntounis')) return;
 
-                // Create a normalized key for the author
-                const key = fullName.toLowerCase().replace(/[^a-z]/g, '');
+                const collaboratorIdentity = getCanonicalCollaborator(fullName);
+                const key = collaboratorIdentity.id;
 
                 if (collaboratorMap.has(key)) {
                     const collab = collaboratorMap.get(key);
@@ -197,7 +219,7 @@ My research lies at the intersection of experimental particle physics, accelerat
                 } else {
                     collaboratorMap.set(key, {
                         id: key,
-                        name: fullName,
+                        name: collaboratorIdentity.name,
                         papers: 1,
                         citations: citations,
                         group: 'collaborator'
@@ -282,72 +304,213 @@ My research lies at the intersection of experimental particle physics, accelerat
             return;
         }
 
-        const width = container.clientWidth || 600;
-        const height = 500;
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const palette = {
+            self: '#8C1515',
+            collaborator: isDark ? '#7AA2D6' : '#4E6FAE',
+            frequent: '#D08B32',
+            collaboration: '#5E8E69',
+            link: isDark ? 'rgba(148, 163, 184, 0.32)' : 'rgba(78, 111, 174, 0.22)',
+            linkActive: isDark ? '#DBEAFE' : '#7A1C1C',
+            frame: isDark ? 'rgba(148, 163, 184, 0.12)' : 'rgba(140, 21, 21, 0.08)',
+            labelBg: isDark ? 'rgba(15, 23, 42, 0.86)' : 'rgba(255, 252, 247, 0.92)',
+            labelBorder: isDark ? 'rgba(148, 163, 184, 0.18)' : 'rgba(140, 21, 21, 0.1)',
+            labelText: isDark ? '#F8FAFC' : '#2F2A26',
+            ring: isDark ? 'rgba(122, 162, 214, 0.12)' : 'rgba(78, 111, 174, 0.08)',
+            glow: isDark ? 'rgba(122, 162, 214, 0.22)' : 'rgba(140, 21, 21, 0.12)'
+        };
+
+        const width = container.clientWidth || 720;
+        const height = width < 680 ? 520 : 600;
         const centerX = width / 2;
         const centerY = height / 2;
+        const framePadding = width < 680 ? 28 : 36;
+        const vizId = `network-${Math.random().toString(36).slice(2, 8)}`;
 
         const svg = d3.select('#viz-container')
             .append('svg')
+            .attr('class', 'd3-visualization')
             .attr('width', width)
             .attr('height', height)
-            .attr('viewBox', `0 0 ${width} ${height}`);
+            .attr('viewBox', `0 0 ${width} ${height}`)
+            .attr('role', 'img')
+            .attr('aria-label', 'Interactive collaboration network showing co-authors and research collaborations.');
 
-        // Add zoom behavior
-        const g = svg.append('g');
+        const defs = svg.append('defs');
+
+        const backdropGradient = defs.append('linearGradient')
+            .attr('id', `${vizId}-bg`)
+            .attr('x1', '0%')
+            .attr('y1', '0%')
+            .attr('x2', '0%')
+            .attr('y2', '100%');
+
+        backdropGradient.append('stop')
+            .attr('offset', '0%')
+            .attr('stop-color', isDark ? '#121A24' : '#FFFDFC');
+
+        backdropGradient.append('stop')
+            .attr('offset', '100%')
+            .attr('stop-color', isDark ? '#0D1117' : '#F6EFE5');
+
+        const nodeGlow = defs.append('filter')
+            .attr('id', `${vizId}-glow`)
+            .attr('x', '-50%')
+            .attr('y', '-50%')
+            .attr('width', '200%')
+            .attr('height', '200%');
+
+        nodeGlow.append('feGaussianBlur')
+            .attr('stdDeviation', 5)
+            .attr('result', 'blur');
+
+        nodeGlow.append('feMerge')
+            .selectAll('feMergeNode')
+            .data(['blur', 'SourceGraphic'])
+            .enter()
+            .append('feMergeNode')
+            .attr('in', d => d);
+
+        const backdrop = svg.append('g').attr('class', 'viz-backdrop');
+
+        backdrop.append('rect')
+            .attr('x', framePadding)
+            .attr('y', framePadding)
+            .attr('width', width - framePadding * 2)
+            .attr('height', height - framePadding * 2)
+            .attr('rx', 28)
+            .attr('fill', `url(#${vizId}-bg)`)
+            .attr('stroke', palette.frame)
+            .attr('stroke-width', 1.2);
+
+        [90, 155, 225].forEach(radius => {
+            backdrop.append('circle')
+                .attr('cx', centerX)
+                .attr('cy', centerY)
+                .attr('r', Math.min(radius, width / 2 - framePadding - 6))
+                .attr('fill', 'none')
+                .attr('stroke', palette.ring)
+                .attr('stroke-width', radius === 90 ? 1.2 : 1)
+                .attr('stroke-dasharray', radius === 225 ? '5 7' : '2 8');
+        });
+
+        backdrop.append('circle')
+            .attr('cx', centerX)
+            .attr('cy', centerY)
+            .attr('r', 58)
+            .attr('fill', palette.glow);
+
+        const g = svg.append('g').attr('class', 'network-layer');
         svg.call(d3.zoom()
-            .scaleExtent([0.5, 3])
+            .scaleExtent([0.8, 2.4])
             .on('zoom', (event) => g.attr('transform', event.transform)));
 
-        // Stronger forces for better spacing
-        const simulation = d3.forceSimulation(data.nodes)
-            .force('link', d3.forceLink(data.links).id(d => d.id).distance(d => 120 + (5 - Math.min(d.value, 5)) * 15))
-            .force('charge', d3.forceManyBody().strength(-300))
-            .force('center', d3.forceCenter(centerX, centerY))
-            .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + 35))
-            .force('x', d3.forceX(centerX).strength(0.05))
-            .force('y', d3.forceY(centerY).strength(0.05));
-
         function getNodeRadius(d) {
-            if (d.group === 'self') return 28;
-            if (d.group === 'collaboration') return 20;
-            if (d.group === 'frequent') return 10 + Math.min(d.papers, 5) * 1.5;
-            return 7 + Math.min(d.papers, 5) * 1.5;
+            if (d.group === 'self') return 24;
+            if (d.group === 'collaboration') return 16;
+            if (d.group === 'frequent') return 8 + Math.min(d.papers, 6) * 1.6;
+            return 6 + Math.min(d.papers, 6) * 1.15;
         }
 
         function getNodeColor(d) {
-            if (d.group === 'self') return '#8C1515';
-            if (d.group === 'collaboration') return '#4CAF50';
-            if (d.group === 'frequent') return '#F9A825';
-            return '#2E5984';
+            if (d.group === 'self') return palette.self;
+            if (d.group === 'collaboration') return palette.collaboration;
+            if (d.group === 'frequent') return palette.frequent;
+            return palette.collaborator;
+        }
+
+        function getOuterRingColor(d) {
+            if (d.group === 'self') return isDark ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.85)';
+            if (d.group === 'frequent') return isDark ? 'rgba(208, 139, 50, 0.5)' : 'rgba(208, 139, 50, 0.42)';
+            if (d.group === 'collaboration') return isDark ? 'rgba(94, 142, 105, 0.52)' : 'rgba(94, 142, 105, 0.38)';
+            return isDark ? 'rgba(122, 162, 214, 0.3)' : 'rgba(78, 111, 174, 0.2)';
+        }
+
+        function getOrbitRadius(d) {
+            if (d.group === 'self') return 0;
+            if (d.group === 'collaboration') return Math.min(232, width * 0.34);
+            if (d.group === 'frequent') return Math.min(170, width * 0.25);
+            return Math.min(206, width * 0.3);
         }
 
         function formatName(d) {
-            if (d.group === 'self') return 'You';
+            if (d.group === 'self') return 'D. Ntounis';
             if (d.group === 'collaboration') return d.name;
-            // Format: "F. Lastname"
-            const parts = d.name.split(/[,\s]+/).filter(p => p.length > 0);
+            const parts = d.name.split(/[,\s]+/).filter(Boolean);
             if (parts.length >= 2) {
-                // Handle "Lastname, Firstname" format
                 if (d.name.includes(',')) {
-                    return parts[1].charAt(0) + '. ' + parts[0];
+                    return `${parts[1].charAt(0)}. ${parts[0]}`;
                 }
-                return parts[0].charAt(0) + '. ' + parts[parts.length - 1];
+                return `${parts[0].charAt(0)}. ${parts[parts.length - 1]}`;
             }
             return d.name;
         }
 
-        // Draw links first (behind nodes)
+        function shouldShowLabel(d) {
+            return d.group === 'self' || d.group === 'collaboration' || d.group === 'frequent' || d.papers >= 4;
+        }
+
+        function resolveNode(nodeOrId) {
+            if (typeof nodeOrId === 'object') return nodeOrId;
+            return data.nodes.find(node => node.id === nodeOrId) || data.nodes[0];
+        }
+
+        function getLinkPath(d) {
+            const sourceX = d.source.x;
+            const sourceY = d.source.y;
+            const targetX = d.target.x;
+            const targetY = d.target.y;
+            const dx = targetX - sourceX;
+            const dy = targetY - sourceY;
+            const controlX = (sourceX + targetX) / 2 - dy * 0.12;
+            const controlY = (sourceY + targetY) / 2 + dx * 0.12;
+            return `M${sourceX},${sourceY}Q${controlX},${controlY} ${targetX},${targetY}`;
+        }
+
+        const neighborMap = new Map();
+        function connect(a, b) {
+            if (!neighborMap.has(a)) neighborMap.set(a, new Set());
+            neighborMap.get(a).add(b);
+        }
+
+        data.links.forEach(link => {
+            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+            connect(sourceId, targetId);
+            connect(targetId, sourceId);
+        });
+
+        function isConnected(a, b) {
+            return a.id === b.id || neighborMap.get(a.id)?.has(b.id);
+        }
+
+        const simulation = d3.forceSimulation(data.nodes)
+            .force('link', d3.forceLink(data.links)
+                .id(d => d.id)
+                .distance(d => getOrbitRadius(resolveNode(d.target)))
+                .strength(d => resolveNode(d.target).group === 'collaboration' ? 0.28 : 0.44))
+            .force('charge', d3.forceManyBody().strength(d => {
+                if (d.group === 'self') return -980;
+                if (d.group === 'collaboration') return -560;
+                return -360;
+            }))
+            .force('center', d3.forceCenter(centerX, centerY))
+            .force('collision', d3.forceCollide().radius(d => getNodeRadius(d) + (d.group === 'self' ? 64 : 30)).strength(0.9))
+            .force('radial', d3.forceRadial(d => getOrbitRadius(d), centerX, centerY).strength(d => d.group === 'self' ? 0 : 0.13))
+            .force('x', d3.forceX(centerX).strength(0.035))
+            .force('y', d3.forceY(centerY).strength(0.035));
+
         const link = g.append('g')
             .attr('class', 'links')
-            .selectAll('line')
+            .selectAll('path')
             .data(data.links)
-            .join('line')
-            .attr('stroke', '#999')
-            .attr('stroke-opacity', 0.3)
-            .attr('stroke-width', d => Math.sqrt(Math.min(d.value, 8)) * 1.2);
+            .join('path')
+            .attr('fill', 'none')
+            .attr('stroke', palette.link)
+            .attr('stroke-opacity', 0.7)
+            .attr('stroke-linecap', 'round')
+            .attr('stroke-width', d => 1.2 + Math.min(d.value, 8) * 0.55);
 
-        // Create node groups
         const node = g.append('g')
             .attr('class', 'nodes')
             .selectAll('g')
@@ -360,27 +523,46 @@ My research lies at the intersection of experimental particle physics, accelerat
                 .on('drag', dragged)
                 .on('end', dragended));
 
-        // Add circles
         node.append('circle')
+            .attr('class', 'node-halo')
+            .attr('r', d => getNodeRadius(d) + (d.group === 'self' ? 16 : d.group === 'frequent' ? 10 : 7))
+            .attr('fill', d => getNodeColor(d))
+            .attr('opacity', d => d.group === 'self' ? 0.18 : d.group === 'frequent' ? 0.12 : 0.08)
+            .attr('filter', `url(#${vizId}-glow)`);
+
+        node.append('circle')
+            .attr('class', 'node-ring')
+            .attr('r', d => getNodeRadius(d) + (d.group === 'self' ? 7 : 4))
+            .attr('fill', 'none')
+            .attr('stroke', d => getOuterRingColor(d))
+            .attr('stroke-width', d => d.group === 'self' ? 2.5 : 1.4)
+            .attr('stroke-dasharray', d => d.group === 'collaboration' ? '4 5' : null);
+
+        node.append('circle')
+            .attr('class', 'node-core')
             .attr('r', d => getNodeRadius(d))
             .attr('fill', d => getNodeColor(d))
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 2)
-            .attr('opacity', 0.9);
+            .attr('stroke', isDark ? 'rgba(248, 250, 252, 0.88)' : 'rgba(255, 255, 255, 0.92)')
+            .attr('stroke-width', d => d.group === 'self' ? 2.5 : 1.8);
 
-        // Add label backgrounds (white rectangles behind text)
+        node.append('circle')
+            .attr('class', 'node-center-dot')
+            .attr('r', d => d.group === 'self' ? 4.5 : 2.2)
+            .attr('fill', isDark ? 'rgba(248, 250, 252, 0.92)' : 'rgba(255, 255, 255, 0.9)');
+
         const labelGroups = node.append('g')
-            .attr('class', 'label-group');
+            .attr('class', 'label-group')
+            .attr('pointer-events', 'none')
+            .style('opacity', d => shouldShowLabel(d) ? 1 : 0.08);
 
-        // Background rect (will be sized after text is rendered)
         labelGroups.append('rect')
             .attr('class', 'label-bg')
-            .attr('fill', 'rgba(255,255,255,0.9)')
-            .attr('rx', 3)
-            .attr('ry', 3)
-            .attr('opacity', 0);
+            .attr('fill', palette.labelBg)
+            .attr('stroke', palette.labelBorder)
+            .attr('stroke-width', 1)
+            .attr('rx', 999)
+            .attr('ry', 999);
 
-        // Add text labels
         labelGroups.append('text')
             .attr('class', 'node-label')
             .text(d => formatName(d))
@@ -390,29 +572,26 @@ My research lies at the intersection of experimental particle physics, accelerat
                 if (d.group === 'self') return '11px';
                 if (d.group === 'collaboration') return '10px';
                 if (d.group === 'frequent') return '9px';
-                return '8px';
+                return '8.5px';
             })
             .attr('font-family', 'Inter, -apple-system, sans-serif')
             .attr('font-weight', d => (d.group === 'self' || d.group === 'collaboration') ? '600' : '500')
-            .attr('fill', '#333')
-            .attr('pointer-events', 'none');
+            .attr('fill', palette.labelText);
 
-        // Size and position the background rectangles
-        labelGroups.each(function(d) {
+        labelGroups.each(function() {
             const group = d3.select(this);
             const text = group.select('text');
             const bbox = text.node().getBBox();
-            const padding = 3;
+            const horizontalPadding = 8;
+            const verticalPadding = 5;
 
             group.select('rect')
-                .attr('x', bbox.x - padding)
-                .attr('y', bbox.y - padding)
-                .attr('width', bbox.width + padding * 2)
-                .attr('height', bbox.height + padding * 2)
-                .attr('opacity', d.group === 'self' ? 0 : 0.85);
+                .attr('x', bbox.x - horizontalPadding)
+                .attr('y', bbox.y - verticalPadding)
+                .attr('width', bbox.width + horizontalPadding * 2)
+                .attr('height', bbox.height + verticalPadding * 2);
         });
 
-        // Tooltip with more info
         node.append('title')
             .text(d => {
                 if (d.group === 'collaboration') {
@@ -424,61 +603,70 @@ My research lies at the intersection of experimental particle physics, accelerat
                 return `${d.name}\n${d.papers} paper${d.papers > 1 ? 's' : ''} together${d.citations ? `\n${d.citations} citations` : ''}`;
             });
 
-        // Hover effects
         node.on('mouseenter', function(event, d) {
-            // Highlight this node
-            d3.select(this).select('circle')
-                .attr('stroke', getNodeColor(d))
-                .attr('stroke-width', 3);
+            d3.select(this).raise();
 
-            // Highlight connected links
-            link.attr('stroke-opacity', l =>
-                (l.source.id === d.id || l.target.id === d.id) ? 0.8 : 0.1
-            ).attr('stroke', l =>
-                (l.source.id === d.id || l.target.id === d.id) ? getNodeColor(d) : '#999'
-            );
+            node.select('.node-core')
+                .attr('opacity', n => isConnected(d, n) ? 1 : 0.18)
+                .attr('stroke-width', n => n.id === d.id ? 3 : (n.group === 'self' ? 2.5 : 1.8));
 
-            // Dim other nodes
-            node.select('circle').attr('opacity', n =>
-                n.id === d.id || data.links.some(l =>
-                    (l.source.id === d.id && l.target.id === n.id) ||
-                    (l.target.id === d.id && l.source.id === n.id)
-                ) ? 1 : 0.3
-            );
-        })
-        .on('mouseleave', function() {
-            // Reset all
-            node.select('circle')
-                .attr('stroke', '#fff')
-                .attr('stroke-width', 2)
-                .attr('opacity', 0.9);
-            link.attr('stroke-opacity', 0.3)
-                .attr('stroke', '#999');
+            node.select('.node-halo')
+                .attr('opacity', n => n.id === d.id ? 0.28 : isConnected(d, n) ? 0.16 : 0.03);
+
+            node.select('.node-ring')
+                .attr('stroke', n => n.id === d.id ? palette.linkActive : getOuterRingColor(n))
+                .attr('opacity', n => isConnected(d, n) ? 1 : 0.2);
+
+            labelGroups
+                .transition()
+                .duration(120)
+                .style('opacity', n => isConnected(d, n) ? 1 : (shouldShowLabel(n) ? 0.18 : 0.04));
+
+            link
+                .attr('stroke', l => (l.source.id === d.id || l.target.id === d.id) ? palette.linkActive : palette.link)
+                .attr('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 0.92 : 0.08);
+        }).on('mouseleave', function() {
+            node.select('.node-core')
+                .attr('opacity', 1)
+                .attr('stroke-width', d => d.group === 'self' ? 2.5 : 1.8);
+
+            node.select('.node-halo')
+                .attr('opacity', d => d.group === 'self' ? 0.18 : d.group === 'frequent' ? 0.12 : 0.08);
+
+            node.select('.node-ring')
+                .attr('stroke', d => getOuterRingColor(d))
+                .attr('opacity', 1);
+
+            labelGroups
+                .transition()
+                .duration(140)
+                .style('opacity', d => shouldShowLabel(d) ? 1 : 0.08);
+
+            link
+                .attr('stroke', palette.link)
+                .attr('stroke-opacity', 0.7);
         });
 
-        // Update positions on tick
         simulation.on('tick', () => {
-            link
-                .attr('x1', d => d.source.x)
-                .attr('y1', d => d.source.y)
-                .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y);
+            data.nodes.forEach(d => {
+                const padding = d.group === 'self' ? framePadding + 64 : framePadding + 18;
+                d.x = Math.max(padding, Math.min(width - padding, d.x));
+                d.y = Math.max(padding, Math.min(height - padding, d.y));
+            });
 
+            link.attr('d', d => getLinkPath(d));
             node.attr('transform', d => `translate(${d.x},${d.y})`);
 
-            // Position labels to avoid center (radial outward)
-            labelGroups.attr('transform', function(d) {
+            labelGroups.attr('transform', d => {
                 if (d.group === 'self') {
-                    return `translate(0, ${getNodeRadius(d) + 14})`;
+                    return `translate(0, ${getNodeRadius(d) + 18})`;
                 }
-                // Calculate angle from center
-                const dx = d.x - centerX;
-                const dy = d.y - centerY;
-                const angle = Math.atan2(dy, dx);
-                const labelDist = getNodeRadius(d) + 12;
-                const lx = Math.cos(angle) * labelDist;
-                const ly = Math.sin(angle) * labelDist;
-                return `translate(${lx}, ${ly})`;
+
+                const angle = Math.atan2(d.y - centerY, d.x - centerX);
+                const labelDistance = getNodeRadius(d) + (d.group === 'collaboration' ? 16 : 13);
+                const labelX = Math.cos(angle) * labelDistance;
+                const labelY = Math.sin(angle) * labelDistance;
+                return `translate(${labelX}, ${labelY})`;
             });
         });
 
@@ -536,6 +724,16 @@ My research lies at the intersection of experimental particle physics, accelerat
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(updateVisualization, 250);
+        });
+
+        const themeObserver = new MutationObserver((mutations) => {
+            if (mutations.some(mutation => mutation.attributeName === 'data-theme')) {
+                updateVisualization();
+            }
+        });
+        themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
         });
     }
 
