@@ -4,6 +4,7 @@ title: Dimitris Ntounis
 description: PhD Candidate in Physics at Stanford University, researching Higgs boson physics and future particle colliders.
 ---
 
+<section id="about" class="home-section" data-section-label="About" markdown="1">
 <!-- Affiliation Logos -->
 <div class="affiliation-logos">
     <a href="https://www.stanford.edu/" target="_blank" title="Stanford University">
@@ -39,7 +40,9 @@ You can find a few key points about me below or read my [Projects](/projects) pa
 - Higgs Boson Physics with the ATLAS experiment at the CERN LHC
 - Future electron-positron colliders
 - Machine Learning for Science
+</section>
 
+<section id="research" class="home-section" data-section-label="Research" markdown="1">
 <h1 class="cardinal-red-title">Research</h1>
 
 My research lies at the intersection of experimental particle physics, accelerator science, and machine learning. I am driven by a fundamental question: *What are the building blocks of the Universe, and how do they interact?*
@@ -49,7 +52,9 @@ My research lies at the intersection of experimental particle physics, accelerat
 **Next-Generation Colliders**: Looking beyond the LHC, I contribute to the development of future electron-positron colliders designed to achieve unprecedented precision in Higgs, electroweak, and top quark measurements. My contributions include comprehensive studies of the beam dynamics, luminosity optimization, and beam-induced background characterization for the <a href="https://web.slac.stanford.edu/c3/" target="_blank">Cool Copper Collider (C³)</a>, a newly proposed US-led linear collider concept. I also benchmark jet flavor tagging algorithms across different detector configurations to inform optimal detector design.
 
 **AI/ML for Discovery**: I leverage state-of-the-art machine learning techniques to extract maximum physics insight from available data. This includes developing novel algorithms for particle identification that enhance our sensitivity to new physics signatures.
+</section>
 
+<section id="news" class="home-section" data-section-label="News" markdown="1">
 <h1 class="cardinal-red-title">In the News</h1>
 
 <div class="news-coverage">
@@ -82,7 +87,9 @@ My research lies at the intersection of experimental particle physics, accelerat
         </a>
     </div>
 </div>
+</section>
 
+<section id="research-network" class="home-section" data-section-label="Network" markdown="1">
 <h1 class="cardinal-red-title">Research Network</h1>
 
 <p>Interactive visualization of my research collaborations from <a href="https://inspirehep.net/authors/2649182" target="_blank">INSPIRE-HEP</a>. Excludes large collaboration papers (ATLAS/CMS) to show individual co-authors.</p>
@@ -744,7 +751,9 @@ My research lies at the intersection of experimental particle physics, accelerat
     }
 })();
 </script>
+</section>
 
+<section id="blog" class="home-section" data-section-label="Blog" markdown="1">
 <h1 class="cardinal-red-title">From the Blog</h1>
 
 <div id="substack-posts" class="blog-posts-grid">
@@ -815,6 +824,7 @@ My research lies at the intersection of experimental particle physics, accelerat
     }
 })();
 </script>
+</section>
 
 <div class="section-spacer"></div>
 

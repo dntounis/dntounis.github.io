@@ -78,10 +78,13 @@
     {% endif %}
 </head>
 
-<body>
+<body class="layout-{{ page.layout }} page-{{ page.title | default: site.title | slugify }}{% if page.url == '/' %} page-home{% endif %}">
     <header class="site-header">
         <nav class="site-nav">
-            <a href="{{ '/' | relative_url }}" class="site-title">Dimitris Ntounis</a>
+            <div class="site-brand">
+                <a href="{{ '/' | relative_url }}" class="site-title">Dimitris Ntounis</a>
+                <span id="sectionIndicator" class="section-indicator" aria-live="polite" aria-atomic="true"></span>
+            </div>
             <button class="menu-toggle" aria-label="Toggle navigation menu">
                 <span></span>
                 <span></span>
@@ -111,6 +114,9 @@
                 {%- endfor -%}
             </div>
         </nav>
+        <div class="header-progress" aria-hidden="true">
+            <span id="headerProgressBar" class="header-progress-bar"></span>
+        </div>
     </header>
 
     <!-- Theme Toggle Button -->

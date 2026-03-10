@@ -146,7 +146,7 @@ layout: default
 /* Layout */
 .wrapper {
     display: flex;
-    gap: 2rem;
+    gap: 2.25rem;
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -159,12 +159,14 @@ layout: default
 .sidebar {
     width: 300px;
     position: sticky;
-    top: 80px;  /* Adjust based on your header height */
-    max-height: calc(100vh - 100px);  /* Subtract header height + some padding */
+    top: 92px;  /* Adjust based on your header height */
+    max-height: calc(100vh - 116px);  /* Subtract header height + some padding */
     overflow-y: auto;
-    padding: 2rem;
-    background: #f8f9fa;
-    border-radius: 8px;
+    padding: 1.6rem;
+    background: linear-gradient(180deg, var(--surface-1) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+    border-radius: 22px;
     margin-bottom: 2rem;  /* Add space at bottom */
 }
 
@@ -173,7 +175,7 @@ layout: default
 
 
 .sidebar-content {
-  padding-top: 60px; /* Account for fixed header */
+  padding-top: 48px; /* Account for fixed header */
 }
 
 .author-avatar {
@@ -186,8 +188,8 @@ layout: default
   height: 200px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 4px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.12);
 }
 
 .author-info {
@@ -200,8 +202,9 @@ layout: default
 }
 
 .author-bio {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.96rem;
+  line-height: 1.65;
+  color: var(--muted-text);
   margin-bottom: 1rem;
 }
 
@@ -221,7 +224,7 @@ layout: default
 
 .author-link i {
   width: 16px;
-  color: #666;
+  color: var(--muted-text);
 }
 
 .author-link a {
@@ -251,6 +254,8 @@ layout: default
 @media (max-width: 768px) {
   .wrapper {
     flex-direction: column;
+    gap: 1.25rem;
+    padding: 14px;
   }
 
   .sidebar {
@@ -258,11 +263,14 @@ layout: default
     width: 100%;
     height: auto;
     padding: 1rem;
+    top: auto;
+    max-height: none;
+    border-radius: 18px;
   }
 
   .main-content {
     margin-left: 0;
-    padding: 1rem;
+    padding: 0.25rem;
   }
 }
 </style>
