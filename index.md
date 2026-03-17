@@ -13,8 +13,8 @@ description: PhD Candidate in Physics at Stanford University, researching Higgs 
     <a href="https://www6.slac.stanford.edu/" target="_blank" title="SLAC National Accelerator Laboratory">
         <img src="/assets/images/logos/SLAC_short_red.png" alt="SLAC National Accelerator Laboratory" class="affiliation-logo">
     </a>
-    <a href="https://home.cern/" target="_blank" title="CERN">
-        <img src="/assets/images/logos/CERNBlue.png" alt="CERN" class="affiliation-logo">
+    <a href="https://home.cern/" target="_blank" title="CERN" class="affiliation-link affiliation-link--cern">
+        <img src="/assets/images/logos/CERNBlue.png" alt="CERN" class="affiliation-logo affiliation-logo--cern">
     </a>
     <a href="https://atlas.cern/" target="_blank" title="ATLAS Experiment">
         <img src="/assets/images/logos/ATLAS.png" alt="ATLAS Experiment" class="affiliation-logo">
