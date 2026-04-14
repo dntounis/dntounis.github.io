@@ -6,10 +6,31 @@
     <meta charset="utf-8">
     <title>{{ page.title }} - {{ site.title }}</title>
 
-    <!-- Google Fonts - Serif for body, Sans-serif for headings -->
+    <!-- Fonts: Charter (system on macOS/iOS) + Inter for UI. Charter webfont fallback for other platforms. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Charter webfont fallback for Windows/Linux (macOS/iOS users get the local Charter) */
+      @font-face {
+        font-family: 'Charter';
+        src: local('Charter'), local('Charter Regular'),
+             url('https://fonts.cdnfonts.com/s/13909/Charter%20Regular.woff') format('woff');
+        font-weight: 400; font-style: normal; font-display: swap;
+      }
+      @font-face {
+        font-family: 'Charter';
+        src: local('Charter Italic'), local('Charter-Italic'),
+             url('https://fonts.cdnfonts.com/s/13909/Charter%20Italic.woff') format('woff');
+        font-weight: 400; font-style: italic; font-display: swap;
+      }
+      @font-face {
+        font-family: 'Charter';
+        src: local('Charter Bold'), local('Charter-Bold'),
+             url('https://fonts.cdnfonts.com/s/13909/Charter%20Bold.woff') format('woff');
+        font-weight: 700; font-style: normal; font-display: swap;
+      }
+    </style>
 
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

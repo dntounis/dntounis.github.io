@@ -143,31 +143,30 @@ layout: default
 </div>
 
 <style>
-/* Layout */
+/* Layout — generous whitespace, academic measure */
 .wrapper {
     display: flex;
-    gap: 2.25rem;
-    max-width: 1200px;
+    gap: 3rem;
+    max-width: 1120px;
     margin: 0 auto;
-    padding: 20px;
-    min-height: calc(100vh - 160px);  /* Subtract header + footer height */
+    padding: 28px 24px;
+    min-height: calc(100vh - 160px);
 }
 
-/* Sidebar Styles */
-
-
+/* Sidebar — flat, quiet, Philcox/Asmar-inspired */
 .sidebar {
-    width: 300px;
+    width: 260px;
+    flex-shrink: 0;
     position: sticky;
-    top: 92px;  /* Adjust based on your header height */
-    max-height: calc(100vh - 116px);  /* Subtract header height + some padding */
+    top: 96px;
+    max-height: calc(100vh - 116px);
     overflow-y: auto;
-    padding: 1.6rem;
-    background: linear-gradient(180deg, var(--surface-1) 0%, var(--surface-2) 100%);
-    border: 1px solid var(--surface-border);
-    box-shadow: var(--surface-shadow);
-    border-radius: 22px;
-    margin-bottom: 2rem;  /* Add space at bottom */
+    padding: 0.5rem 0.25rem;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin-bottom: 2rem;
 }
 
 
@@ -175,36 +174,38 @@ layout: default
 
 
 .sidebar-content {
-  padding-top: 48px; /* Account for fixed header */
+  padding-top: 16px;
 }
 
 .author-avatar {
-  text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.4rem;
 }
 
 .author-avatar-img {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
+  width: 220px;
+  height: 220px;
+  border-radius: 4px;      /* square with soft corners — Philcox/Asmar feel */
   object-fit: cover;
-  border: 4px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+  border: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .author-info {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
 .author-name {
-  font-size: 1.5rem;
-  margin: 0 0 0.5rem 0;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: -0.01em;
 }
 
 .author-bio {
-  font-size: 0.96rem;
-  line-height: 1.65;
-  color: var(--muted-text);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--muted-text, #4a4a4a);
   margin-bottom: 1rem;
 }
 
