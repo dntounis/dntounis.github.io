@@ -131,9 +131,9 @@ layout: default
     {% if site.data.news %}
     <div class="latest-news">
       <h2>Recent News</h2>
-      {% for news in site.data.news limit:5 %}
+      {% for news in site.data.news limit:15 %}
       <div class="news-item">
-        <span class="news-date">{{ news.date | date: "%b %-d, %Y" }}</span>
+        <span class="news-date">{% if news.date_text %}{{ news.date_text }}{% else %}{{ news.date | date: "%b %-d, %Y" }}{% endif %}</span>
         <span class="news-content">{{ news.content }}</span>
       </div>
       {% endfor %}

@@ -1,14 +1,31 @@
+- date: 2026-07-13
+  content: 'At Princeton University for the <a href="https://indico.cern.ch/event/1704372/" target="_blank">CoDaS-HEP 2026</a> Computational and Data Science school for HEP.'
+
+- date: 2026-06-08
+  content: 'In Helsinki for <a href="https://indico.cern.ch/event/1552126/" target="_blank">FCC Week 2026</a>, presenting a <a href="https://indico.cern.ch/event/1552126/contributions/7128251/" target="_blank">poster</a> on beam-induced background occupancy studies at FCC-ee.'
+
+- date: 2026-06-01
+  content: 'Attending the <a href="https://indico.global/event/17000" target="_blank">ML4FP 2026</a> Machine Learning for Fundamental Physics summer school at Georgia Tech in Atlanta.'
+
+- date: 2026-05-29
+  content: 'My paper <em><a href="https://openreview.net/forum?id=jonYN1gCsu" target="_blank">GuineaGrad: A Differentiable Beam-Beam Interaction Simulator for Gradient-Based Collider Optimization</a></em> was accepted at the ICML 2026 Workshop AI4Physics.'
+
+- date: 2026-04-28
+  content: 'Passed my 4th-year oral exam with my dissertation reading committee.'
+
 - date: 2026-02-11
-  content: 'Our paper on Beam-Beam Backgrounds for the Cool Copper Collider was published in <a href="https://iopscience.iop.org/article/10.1088/1748-0221/21/02/P02024">JINST</a>!'
+  content: 'Our paper on Beam-Beam Backgrounds for the Cool Copper Collider was published in <a href="https://iopscience.iop.org/article/10.1088/1748-0221/21/02/P02024" target="_blank">JINST</a>!'
 
 - date: 2025-04-05
-  content: 'Co-awarded the Breakthrough Prize in Fundamental Physics as a member of both the <a href="https://breakthroughprize.org/Laureates/1/L3993">ATLAS</a> and <a href="https://breakthroughprize.org/Laureates/1/L3994">CMS</a> collaborations!'
+  content: 'Co-awarded the Breakthrough Prize in Fundamental Physics as a member of both the <a href="https://breakthroughprize.org/Laureates/1/L3993" target="_blank">ATLAS</a> and <a href="https://breakthroughprize.org/Laureates/1/L3994" target="_blank">CMS</a> collaborations!'
 
 - date: 2024-11
-  content: 'Back in Europe for two weeks for the <a href="https://indico.slac.stanford.edu/event/9113">C³ workshop</a> in Amsterdam, the <a href="https://indico.in2p3.fr/event/32629">ECFA workshop</a> in Paris and a week-long stay at CERN.'
+  date_text: "Nov 2024"
+  content: 'Back in Europe for two weeks for the <a href="https://indico.slac.stanford.edu/event/9113" target="_blank">C³ workshop</a> in Amsterdam, the <a href="https://indico.in2p3.fr/event/32629" target="_blank">ECFA workshop</a> in Paris and a week-long stay at CERN.'
 
 - date: 2024-08-13
   content: "Successfully passed my PhD qualifying exam with distinction &mdash;  officially advancing to candidacy."
 
 - date: 2024-07
-  content: 'In Tokyo for a week for the <a href="https://agenda.linearcollider.org/event/10134">LCWS 2024 conference</a>.'
+  date_text: "Jul 2024"
+  content: 'In Tokyo for a week for the <a href="https://agenda.linearcollider.org/event/10134" target="_blank">LCWS 2024 conference</a>.'

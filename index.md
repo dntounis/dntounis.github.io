@@ -32,7 +32,7 @@ You can find a few key points about me below or read my [Projects](/projects) pa
 
 ## Education
 - PhD in Physics, Stanford University, *in progress*
-- PhD Minor in Computer Science, Stanford University, *in progress*
+- PhD Minor in Computer Science, Stanford University, *requirements completed* (degree conferred with PhD)
 - MSc in Physics, Stanford University, 2024
 - BSc in Physics, National and Kapodistrian University of Athens, 2021
 

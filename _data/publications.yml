@@ -1,5 +1,14 @@
 ---
 # 2026 Publications
+- title: "GuineaGrad: A Differentiable Beam-Beam Interaction Simulator for Gradient-Based Collider Optimization"
+  authors: "D. Ntounis"
+  venue: "ICML 2026 Workshop AI4Physics"
+  year: 2026
+  url: "https://openreview.net/forum?id=jonYN1gCsu"
+  url_label: "OpenReview"
+  pdf: "https://openreview.net/pdf?id=jonYN1gCsu"
+  first_author: true
+
 - title: "A Linear Collider Vision for the Future of Particle Physics"
   authors: "H. Abramowicz et al. (Linear Collider Vision)"
   venue: "Eur. Phys. J. Spec. Top."
