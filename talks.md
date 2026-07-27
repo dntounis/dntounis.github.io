@@ -12,7 +12,22 @@ description: Conference talks, invited presentations, and posters by Dimitris Nt
 {% for event in site.data.talks.conference_talks %}
 <div class="talk-year">
     <h3>{{ event.conference }}</h3>
-    <div class="talk-date">{{ event.month | date: "%B" }} {{ event.year }}</div>
+    <div class="talk-date">
+        {% case event.month %}
+            {% when 1 %}January
+            {% when 2 %}February
+            {% when 3 %}March
+            {% when 4 %}April
+            {% when 5 %}May
+            {% when 6 %}June
+            {% when 7 %}July
+            {% when 8 %}August
+            {% when 9 %}September
+            {% when 10 %}October
+            {% when 11 %}November
+            {% when 12 %}December
+        {% endcase %} {{ event.year }}{% if event.location %} &mdash; {{ event.location }}{% endif %}
+    </div>
 
     {% for talk in event.talks %}
     <div class="talk-item">
@@ -29,6 +44,12 @@ description: Conference talks, invited presentations, and posters by Dimitris Nt
         <div class="talk-venue">
             <a href="{{ event.conference_url }}" target="_blank">{{ event.conference }}</a>
         </div>
+        {% if talk.image %}
+        <figure class="talk-figure">
+            <img src="{{ talk.image | relative_url }}" alt="{{ talk.image_alt | default: talk.title }}" loading="lazy">
+            {% if talk.image_caption %}<figcaption>{{ talk.image_caption }}</figcaption>{% endif %}
+        </figure>
+        {% endif %}
     </div>
     {% endfor %}
 

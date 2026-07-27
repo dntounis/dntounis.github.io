@@ -101,6 +101,11 @@ description: Publications and research papers by Dimitris Ntounis in particle ph
                             <i class="ai ai-arxiv"></i> arXiv:{{ publication.arxiv }}
                         </a>
                         {% endif %}
+                        {% if publication.url %}
+                        <a href="{{ publication.url }}" target="_blank" class="pub-link" aria-label="View {{ publication.url_label | default: 'publication page' }} for {{ publication.title }}">
+                            <i class="fas fa-external-link-alt"></i> {{ publication.url_label | default: "Link" }}
+                        </a>
+                        {% endif %}
                         {% if publication.pdf %}
                         <a href="{{ publication.pdf }}" target="_blank" class="pub-link" aria-label="Download PDF">
                             <i class="fas fa-file-pdf"></i> PDF

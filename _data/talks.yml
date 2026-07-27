@@ -2,6 +2,16 @@
 # Organized by category and year
 
 conference_talks:
+  - year: 2026
+    month: 6
+    conference: "FCC Week 2026"
+    conference_url: "https://indico.cern.ch/event/1552126/"
+    location: "Helsinki, Finland"
+    talks:
+      - title: "Beam-Induced Backgrounds at FCC-ee: Occupancy Studies with IDEA and CLD using a Machine- and Detector-Agnostic Simulation Framework"
+        url: "https://indico.cern.ch/event/1552126/contributions/7128251/"
+        type: poster
+
   - year: 2024
     month: 10
     conference: "Third ECFA Workshop on e+e- Higgs/EW/Top Factories"
