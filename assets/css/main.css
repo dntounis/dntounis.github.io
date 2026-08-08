@@ -76,17 +76,27 @@ h1 { font-size: 2.1rem; }
 h2 { font-size: 1.55rem; }
 h3 { font-size: 1.25rem; }
 
-/* Navigation/UI uses sans-serif for contrast against serif body */
+/* Interface chrome (controls, labels) stays sans-serif */
 .site-header,
-.site-nav,
-.nav-links,
-.page-link,
-.site-title,
 .menu-toggle,
 .theme-toggle,
 .back-to-top,
 .section-indicator {
     font-family: var(--font-ui);
+}
+
+/* The site title and navigation are things you read, not controls you operate,
+   so they take Charter along with the rest of the content. */
+.site-title {
+    font-family: var(--font-heading);
+    letter-spacing: -0.015em;
+}
+
+.site-nav,
+.nav-links,
+.page-link,
+.dropdown a {
+    font-family: var(--font-body);
 }
 
 /* Code uses monospace */
@@ -192,9 +202,11 @@ code, pre, .code {
 }
 
 .page-link {
-    color: #424242;  /* Dark grey for default state */
+    color: #33322f;
     text-decoration: none;
-    font-weight: 500;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
     position: relative;
     display: inline-block;
     padding-bottom: 0.25rem;
@@ -490,18 +502,9 @@ code, pre, .code {
     transition: transform var(--transition-speed);
 }
 
-.project-details {
-    height: 0;
-    overflow: hidden;
-    transition: height var(--transition-speed);
-    border-top: 1px solid var(--border-color);
-}
-
-.project-details.expanded {
-    height: auto;
-    padding: 1rem 0;
-    margin-top: 1rem;
-}
+/* Removed: .project-details / .project-details.expanded.
+   No markup in the site renders .project-details, so these rules (and the
+   height transition, which animated a layout property) were dead. */
 
 /* ==========================================================================
    5. Project Tags and Links
@@ -690,8 +693,8 @@ code, pre, .code {
     padding: 1.25rem;
     background: #f8f9fa;
     border-radius: 8px;
-    border-left: 4px solid #8C1515;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--surface-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .publication-item:hover {
@@ -1345,11 +1348,11 @@ h3 {
 .talk-item {
     margin-bottom: 1.5rem;
     padding-left: 1.5rem;
-    border-left: 3px solid #e0e0e0;
+    border-left: 1px solid var(--surface-border);
 }
 
 .talk-item:hover {
-    border-left-color: #8C1515;
+    border-left-color: var(--cardinal-red);
 }
 
 .talk-title {
@@ -1640,10 +1643,10 @@ img[loading="lazy"][src] {
 /* ATLAS Authorship Note */
 .atlas-note {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-left: 4px solid #8C1515;
+    border: 1px solid var(--surface-border-strong);
     padding: 1rem 1.5rem;
     margin: 1.5rem 0;
-    border-radius: 0 8px 8px 0;
+    border-radius: 8px;
     font-size: 0.95rem;
     color: #555;
 }
@@ -1874,7 +1877,7 @@ img[loading="lazy"][src] {
     padding: 1.5rem;
     text-decoration: none;
     color: inherit;
-    border-left: 4px solid #8C1515;
+    border: 1px solid var(--surface-border);
     height: 100%;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -2597,9 +2600,9 @@ img[loading="lazy"][src] {
 
 /* Dark mode visualization */
 [data-theme="dark"] .collaboration-viz {
-    background:
-        radial-gradient(circle at top left, rgba(184, 58, 75, 0.14), transparent 36%),
-        linear-gradient(180deg, #121922 0%, #0d1117 100%);
+    /* Flat panel. A Cardinal radial at 14% over near-black read as a muddy
+       grey-brown smear across the top-left corner rather than a red tint. */
+    background: #121922;
     border-color: rgba(148, 163, 184, 0.12);
     box-shadow: 0 20px 46px rgba(0, 0, 0, 0.32);
 }
@@ -2638,9 +2641,7 @@ img[loading="lazy"][src] {
 }
 
 [data-theme="dark"] #viz-container {
-    background:
-        linear-gradient(180deg, rgba(17, 24, 39, 0.9), rgba(10, 15, 22, 0.94)),
-        linear-gradient(90deg, rgba(140, 21, 21, 0.06), rgba(78, 111, 174, 0.08));
+    background: #0d1117;
     border-color: rgba(148, 163, 184, 0.12);
 }
 
@@ -2877,8 +2878,11 @@ img[loading="lazy"][src] {
         drop-shadow(0 0 16px rgba(0, 83, 161, 0.3));
 }
 
+/* No panel behind the sidebar. It used to carry a #30363d block in dark mode
+   only, which the scroll container clipped into a hard horizontal edge, and
+   which had no counterpart in light mode. The sidebar sits on the page. */
 [data-theme="dark"] .sidebar {
-    background: #30363d;
+    background: transparent;
 }
 
 [data-theme="dark"] .author-bio {
@@ -2931,7 +2935,7 @@ img[loading="lazy"][src] {
 
 :root {
     --surface-1: #fffefe;
-    --surface-2: #faf8f5;
+    --surface-2: #f7f4ee;   /* warm beige, matches the page ground */
     --surface-3: #ffffff;
     --surface-border: rgba(107, 83, 67, 0.14);
     --surface-border-strong: rgba(140, 21, 21, 0.18);
@@ -2953,10 +2957,10 @@ img[loading="lazy"][src] {
     --muted-text: #94a3b8;
 }
 
+/* Flat warm-beige page ground. The former Cardinal radial wash tinted the
+   top-left corner pink; a single even stock reads calmer under the serif. */
 body {
-    background:
-        radial-gradient(circle at top left, rgba(184, 58, 75, 0.05), transparent 22%),
-        linear-gradient(180deg, #fffefe 0%, #fbfaf8 100%);
+    background: #f7f4ee;
 }
 
 [data-theme="dark"] body {
@@ -2966,7 +2970,7 @@ body {
 }
 
 .site-header {
-    background: rgba(253, 250, 245, 0.88);
+    background: rgba(247, 244, 238, 0.88);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(107, 83, 67, 0.1);
@@ -2977,6 +2981,18 @@ body {
 [data-theme="dark"] .site-header {
     background: rgba(13, 17, 23, 0.84);
     border-bottom-color: var(--surface-border);
+}
+
+/* Nav had no dark override, so the light ink colour carried onto the dark
+   header at ~1.5:1. Light text here, and Cardinal Bloom on hover because
+   #8C1515 only reaches 2:1 against this background. */
+[data-theme="dark"] .page-link {
+    color: #c9d1d9;
+}
+
+[data-theme="dark"] .page-link:hover,
+[data-theme="dark"] .page-link.current {
+    color: #D4566B;
 }
 
 .site-nav {
@@ -3253,20 +3269,13 @@ body {
     transform: translateY(-6px);
 }
 
+/* The 4px Cardinal side bar that used to sit here has been removed.
+   Hairline borders now do the containing, and the Cardinal source/venue
+   text carries the accent. See the Hairline Rule in DESIGN.md. */
 .news-link-card,
 .publication-item {
     position: relative;
     overflow: hidden;
-    border-left: none;
-}
-
-.news-link-card::before,
-.publication-item::before {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: linear-gradient(180deg, #8C1515 0%, #B83A4B 100%);
 }
 
 .news-link-card {
@@ -3467,7 +3476,7 @@ body {
     }
 
     .nav-links {
-        background: rgba(253, 250, 245, 0.95);
+        background: rgba(247, 244, 238, 0.95);
         border-top: 1px solid rgba(107, 83, 67, 0.1);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);

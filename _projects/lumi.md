@@ -2,7 +2,7 @@
 title: >-
    Luminosity Studies for the Cool Copper Collider (C\\(^3\\)) 
 description: "Luminosity and beam-induced background studies for the Cool Copper Collider"
-status: "past"  # or "completed"
+status: "past"
 order: 4
 image: "/assets/images/lumi_spectra_diff_colliders_130_to_570GeV.png"
 tags: ["Future Colliders","Accelerator Physics"]

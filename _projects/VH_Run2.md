@@ -4,7 +4,7 @@ title: >-
 id: "atlas-vh-run2"  # Custom ID
 description: >-
   Study of High-Transverse-Momentum Higgs Boson Production in Association with a Vector Boson in the \\(q\bar{q}b\bar{b}\\) Final State with the ATLAS Detector at \\(\sqrt{s}=13 \ \mathrm{TeV}\\)
-status: "past"  # or "completed"
+status: "past"
 order: 2
 image: "/assets/images/VH_fit_Run2.png"
 tags: ["Higgs Boson","ATLAS"]

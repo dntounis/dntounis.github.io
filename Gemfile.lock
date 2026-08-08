@@ -18,14 +18,7 @@ GEM
       public_suffix (>= 2.0.2, < 7.0)
     base64 (0.2.0)
     benchmark (0.4.0)
-    bibtex-ruby (4.4.7)
-      latex-decode (~> 0.0)
     bigdecimal (3.1.8)
-    citeproc (1.0.10)
-      namae (~> 1.0)
-    citeproc-ruby (1.1.14)
-      citeproc (~> 1.0, >= 1.0.9)
-      csl (~> 1.6)
     coffee-script (2.4.1)
       coffee-script-source
       execjs
@@ -34,11 +27,6 @@ GEM
     commonmarker (0.23.10)
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
-    csl (1.6.0)
-      namae (~> 1.0)
-      rexml
-    csl-styles (1.0.1.11)
-      csl (~> 1.0)
     csv (3.3.0)
     dnsruby (1.72.2)
       simpleidn (~> 0.2.1)
@@ -156,8 +144,6 @@ GEM
       jekyll (>= 3.9, < 4.0)
       jekyll-commonmark (~> 1.4.0)
       rouge (>= 2.0, < 5.0)
-    jekyll-data (1.1.1)
-      jekyll (>= 3.3, < 5.0.0)
     jekyll-default-layout (0.1.5)
       jekyll (>= 3.0, < 5.0)
     jekyll-feed (0.17.0)
@@ -188,11 +174,6 @@ GEM
       rubyzip (>= 1.3.0, < 3.0)
     jekyll-sass-converter (1.5.2)
       sass (~> 3.4)
-    jekyll-scholar (5.16.0)
-      bibtex-ruby (~> 4.0, >= 4.0.13)
-      citeproc-ruby (~> 1.0)
-      csl-styles (~> 1.0)
-      jekyll (~> 3.0)
     jekyll-seo-tag (2.8.0)
       jekyll (>= 3.8, < 5.0)
     jekyll-sitemap (1.4.0)
@@ -251,7 +232,6 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
-    latex-decode (0.4.0)
     liquid (4.0.4)
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -264,8 +244,6 @@ GEM
       jekyll-feed (~> 0.9)
       jekyll-seo-tag (~> 2.1)
     minitest (5.25.1)
-    namae (1.2.0)
-      racc (~> 1.7)
     net-http (0.5.0)
       uri
     nokogiri (1.16.7)
@@ -348,15 +326,10 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  bibtex-ruby
-  citeproc-ruby
-  csl-styles
   faraday-retry
   github-pages
   http_parser.rb (~> 0.6.0)
-  jekyll-data
   jekyll-feed (~> 0.12)
-  jekyll-scholar
   jekyll-seo-tag
   jekyll-sitemap
   minima (~> 2.5)

@@ -159,8 +159,10 @@ layout: default
     flex-shrink: 0;
     position: sticky;
     top: 96px;
-    max-height: calc(100vh - 116px);
-    overflow-y: auto;
+    /* Sized to its content, so the whole list is visible at once.
+       It previously capped at the viewport height and scrolled internally,
+       which produced a second scrollbar inside the page. */
+    align-self: flex-start;
     padding: 0.5rem 0.25rem;
     background: transparent;
     border: none;
@@ -178,12 +180,14 @@ layout: default
 }
 
 .author-avatar {
-  margin-bottom: 1.4rem;
+  margin-bottom: 1rem;
 }
 
+/* Sized so the avatar, bio and the full link list clear a laptop viewport
+   without the sidebar needing its own scrollbar. */
 .author-avatar-img {
-  width: 220px;
-  height: 220px;
+  width: 168px;
+  height: 168px;
   border-radius: 4px;      /* square with soft corners — Philcox/Asmar feel */
   object-fit: cover;
   border: none;
@@ -191,7 +195,7 @@ layout: default
 }
 
 .author-info {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.1rem;
 }
 
 .author-name {
@@ -206,13 +210,13 @@ layout: default
   font-size: 0.98rem;
   line-height: 1.55;
   color: var(--muted-text, #4a4a4a);
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .author-links {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.3rem;
 }
 
 .author-link {
@@ -220,7 +224,7 @@ layout: default
   align-items: center;
   gap: 0.8rem;
   font-size: 0.95rem;
-  padding: 0.3rem 0;
+  padding: 0.18rem 0;
 }
 
 .author-link i {
@@ -235,6 +239,14 @@ layout: default
 
 .author-link a:hover {
   text-decoration: underline;
+}
+
+/* Short windows: shrink the avatar rather than let the list run past the fold. */
+@media (min-width: 769px) and (max-height: 820px) {
+  .author-avatar-img { width: 132px; height: 132px; }
+  .author-bio { font-size: 0.92rem; }
+  .author-link { font-size: 0.9rem; padding: 0.1rem 0; }
+  .author-links { gap: 0.2rem; }
 }
 
 /* Main Content Styles */
@@ -259,14 +271,50 @@ layout: default
     padding: 14px;
   }
 
+  /* Stacked layout: the sidebar sits above the content, so a ten-row vertical
+     link list pushed "About" a long way down the page. Avatar goes beside the
+     name and bio, and the links wrap as a compact block. */
   .sidebar {
     position: relative;
     width: 100%;
     height: auto;
-    padding: 1rem;
+    padding: 1rem 0.25rem;
     top: auto;
     max-height: none;
-    border-radius: 18px;
+    border-radius: 0;
+  }
+
+  /* The grid belongs on .sidebar-content — it is the element that actually
+     holds the avatar, bio and links. */
+  .sidebar-content {
+    padding-top: 0;
+    display: grid;
+    grid-template-columns: 116px minmax(0, 1fr);
+    column-gap: 1.1rem;
+    align-items: start;
+  }
+
+  .author-avatar { margin-bottom: 0; }
+  .author-avatar-img { width: 116px; height: 116px; }
+
+  .author-info { margin-bottom: 0; align-self: center; }
+
+  .author-links {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--surface-border, rgba(107, 83, 67, 0.14));
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.55rem;
+  }
+
+  .author-link {
+    padding: 0.3rem 0.6rem;
+    gap: 0.45rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--surface-border, rgba(107, 83, 67, 0.14));
+    border-radius: 6px;
   }
 
   .main-content {

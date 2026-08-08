@@ -4,7 +4,7 @@ title: >-
 description: >-
   Precision study of high-momentum Higgs boson production using advanced reconstruction techniques 
   and EFT interpretation with combined Run 2 and Run 3 ATLAS data
-status: "current"  # or "completed"
+status: "current"
 order: 4
 image: "/assets/images/VHbb_tikz.png"
 tags: ["ATLAS", "Higgs Boson"]

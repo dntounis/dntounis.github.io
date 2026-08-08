@@ -3,7 +3,7 @@ title: >-
   Automatized Luminosity Optimization for future \\(e^{+}e^{-}\\) colliders
 description: >-
     Developing a luminosity optimization framework that takes into acount non-analytic contributions to the luminosity modeled through a Gaussian Process surrogate
-status: "current"  # or "completed"
+status: "current"
 order: 2
 image: "/assets/images/pareto_frontier_plot.png"
 tags: ["Future Colliders", "Optimization"]

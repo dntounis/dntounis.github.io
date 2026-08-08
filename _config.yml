@@ -97,10 +97,16 @@ plugins:
 #   - vendor/gems/
 #   - vendor/ruby/
 
-include:
-  - _includes
-  - _data
+# NOTE: do not add `_includes` or `_data` to `include:`. Doing so copies them
+# verbatim into the build, publishing raw YAML and template partials at
+# /_data/*.yml and /_includes/*.html. Liquid reads both regardless.
 
+# Maintenance tooling: runs locally, never served.
+exclude:
+  - scripts/
+  - Gemfile
+  - Gemfile.lock
+  - README.md
 
 lsi: false
 safe: true
@@ -115,16 +121,9 @@ kramdown:
 
 
 
-# Scholar settings
-scholar:
-  style: apa
-  locale: en
-  sort_by: year,month
-  order: descending
-  group_by: none
-  bibliography_list_tag: ul
-  source: _bibliography
-  bibliography: references.bib
+# Publications are rendered from _data/publications.yml by publications.md.
+# There is no BibTeX pipeline: jekyll-scholar is not whitelisted by GitHub
+# Pages, and `safe: true` disables _plugins/ regardless.
 
 # Collections for projects
 collections:
@@ -153,37 +152,14 @@ header_pages:
   - cv.md
   - contact.md
 
-navigation:
-  - title: About
-    url: /about/
-  - title: Research
-    url: /research/
-    submenu:
-      #- title: Current Projects
-      #  url: /research/current/
-      #- title: Completed Projects
-      #  url: /research/completed/
-      - title: Current Projects
-        url: /projects#current-projects
-      - title: Past Projects
-        url: /projects#past-projects
-  - title: Projects
-    url: /projects/
-    submenu:
-      - title: Current Projects
-        url: /projects/current/
-      - title: Completed Projects
-        url: /projects/completed/
-  - title: Publications
-    url: /publications/
-
 # Academic Settings
 academic_links:
   google_scholar: true
   research_gate: true
   orcid: true    
 
-#cv_pdf: /assets/files/Dimitris_Ntounis_academic_CV_November2024.pdf  # Update this path to your CV's location
+# Current CV only. Superseded versions live outside the repo in ../cv_archive/
+# so they are neither published nor indexed.
 cv_pdf: /assets/files/DN_CV_3March2026.pdf
 
 

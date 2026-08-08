@@ -10,11 +10,8 @@ source "https://rubygems.org"
 #gem "jekyll", "~> 4.3.4"
 # This is the default theme for new Jekyll sites. You may change this to anything you like.
 gem "minima", "~> 2.5"
-gem "webrick"
-gem "bibtex-ruby"
-gem "citeproc-ruby"
-gem "csl-styles"
-gem "observer"
+gem "webrick"          # local `jekyll serve` on Ruby 3+
+gem "observer"         # Ruby 3.5 compat shim
 gem "faraday-retry"
 
 
@@ -23,13 +20,13 @@ gem "faraday-retry"
 # If you want to use GitHub Pages, remove the "gem "jekyll"" above and
 # uncomment the line below. To upgrade, run `bundle update github-pages`.
 gem "github-pages", group: :jekyll_plugins
-# If you have any plugins, put them here!
+# Only GitHub Pages whitelisted plugins belong here. Anything else is ignored
+# in production (Pages forces safe mode), so it silently works locally and
+# breaks on deploy. Whitelist: https://pages.github.com/versions/
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.12"
   gem "jekyll-seo-tag"
-  gem 'jekyll-sitemap'  
-  gem "jekyll-scholar"
-  gem "jekyll-data"
+  gem "jekyll-sitemap"
 end
 
 

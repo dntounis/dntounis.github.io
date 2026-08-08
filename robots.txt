@@ -1,13 +1,4 @@
-dntounis.github.io /
-├── _config.yml
-├── Gemfile
-├── robots.txt
-├── _includes/
-│   ├── head.html
-│   ├── project-card-content.html
-│   └── publications-list.html
-├── _layouts/
-│   └── default.html
-├── _projects/
-│   └── your-projects.md
-└── publications.md
+User-agent: *
+Allow: /
+
+Sitemap: https://dntounis.github.io/sitemap.xml
