@@ -3,7 +3,7 @@ title: >-
   Jet Flavor Tagging Studies for Future Colliders
 description: >-
     Investigating jet tagging capabilities for different detector options
-status: "current"  # or "completed"
+status: "current"
 order: 3
 image: "/assets/images/stagging_test_test_test.png"
 tags: ["Future Colliders","Machine Learning", "Higgs Boson", "Jets" ]

@@ -2,7 +2,7 @@
 title: >-
    Sustainability Strategy for the Cool Copper Collider (C\\(^3\\))   
 description: "Environmental impact and sustainability analysis of future Higgs factories, focusing on the Cool Copper Collider"
-status: "past"  # or "completed"
+status: "past"
 order: 3
 image: "/assets/images/sustainability_weighted_carbon_footprint_total.png"
 tags: ["Future Colliders","Sustainability"]
