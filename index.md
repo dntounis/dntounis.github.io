@@ -26,20 +26,20 @@ description: PhD Candidate in Physics at Stanford University, researching Higgs 
 
 <h1 class="cardinal-red-title">About</h1>
 
-My name is Dimitrios (but most people call me Dimitris) Ntounis [*/di-MEE-tris DOO-nis/*] and I come from Athens, Greece. I am currently a PhD Candidate in the <a href="https://physics.stanford.edu/" target="_blank">Physics Department</a> at <a href="https://www.stanford.edu/" target="_blank">Stanford University</a>. I am a researcher at <a href="https://www6.slac.stanford.edu/" target="_blank">SLAC National Accelerator Laboratory</a> working with the <a href="https://atlas.slac.stanford.edu/" target="_blank">SLAC ATLAS</a> group. I'm also pursuing a PhD Minor in Computer Science at Stanford.
+My name is Dimitrios (but most people call me Dimitris) Ntounis [*/di-MEE-tris DOO-nis/*] and I come from Athens, Greece. I am currently a PhD Candidate in the <a href="https://physics.stanford.edu/" target="_blank">Physics Department</a> at <a href="https://www.stanford.edu/" target="_blank">Stanford University</a>. I am a researcher at <a href="https://www6.slac.stanford.edu/" target="_blank">SLAC National Accelerator Laboratory</a> working with the <a href="https://atlas.slac.stanford.edu/" target="_blank">SLAC ATLAS</a> group. I've also completed a PhD Minor in Computer Science at Stanford.
 
 You can find a few key points about me below or read my [Projects](/projects) page or <a href="{{ site.cv_pdf }}" target="_blank">CV</a> for more details.
 
 ## Education
 - PhD in Physics, Stanford University, *in progress*
-- PhD Minor in Computer Science, Stanford University, *requirements completed* (degree conferred with PhD)
+- PhD Minor in Computer Science, Stanford University, *requirements completed* (degree to be conferred with PhD)
 - MSc in Physics, Stanford University, 2024
 - BSc in Physics, National and Kapodistrian University of Athens, 2021
 
 ## Research Interests
 - Higgs Boson Physics with the ATLAS experiment at the CERN LHC
 - Future electron-positron colliders
-- Machine Learning for Science
+- AI for Science
 </section>
 
 <section id="research" class="home-section" data-section-label="Research" markdown="1">
@@ -51,7 +51,7 @@ My research lies at the intersection of experimental particle physics, accelerat
 
 **Next-Generation Colliders**: Looking beyond the LHC, I contribute to the development of future electron-positron colliders designed to achieve unprecedented precision in Higgs, electroweak, and top quark measurements. My contributions include comprehensive studies of the beam dynamics, luminosity optimization, and beam-induced background characterization for the <a href="https://web.slac.stanford.edu/c3/" target="_blank">Cool Copper Collider (C³)</a>, a newly proposed US-led linear collider concept. I also benchmark jet flavor tagging algorithms across different detector configurations to inform optimal detector design.
 
-**AI/ML for Discovery**: I leverage state-of-the-art machine learning techniques to extract maximum physics insight from available data. This includes developing novel algorithms for particle identification that enhance our sensitivity to new physics signatures.
+**AI/ML for Science Discovery**: I leverage state-of-the-art machine learning techniques to extract maximum physics insight from available data. This includes developing novel algorithms for particle identification that enhance our sensitivity to new physics signatures, creating automated pipelines for end-to-end detector optimization for future collider facilities, and using modern embedding models to quantify and predict scientific innovation. 
 </section>
 
 <section id="news" class="home-section" data-section-label="News" markdown="1">
