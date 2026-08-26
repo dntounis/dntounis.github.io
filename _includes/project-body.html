@@ -1,0 +1,34 @@
+{% comment %}
+Renders a project's markdown body.
+
+In production this is exactly `{{ project.content | markdownify }}`.
+
+In development each top-level block of the rendered body is additionally
+wrapped in a div carrying its index, so assets/js/inline-edit.js can line the
+rendered blocks up against the markdown source blocks that
+scripts/edit_server.py reads off disk, and swap one for a textarea holding its
+ORIGINAL MARKDOWN. Edits therefore round-trip through the markdown source and
+never through rendered HTML, which would destroy MathJax spans and link syntax.
+
+Note `project.content` here is the RENDERED html, not markdown -- Jekyll has
+already run the document through kramdown by the time this include sees it
+(which is why the production branch's `| markdownify` is a no-op pass-through).
+So the index below is an index into the rendered blocks, and the client
+verifies it agrees with the source blocks before allowing an edit. It refuses
+rather than guesses when the two do not line up.
+
+GitHub Pages builds with JEKYLL_ENV=production, so none of this ships.
+{% endcomment %}
+{%- if jekyll.environment == "development" -%}
+  {%- comment -%} split on a blank line; the literal below spans three lines {%- endcomment -%}
+  {%- assign html_blocks = project.content | split: "
+
+" -%}
+  <div class="md-editable" data-md-file="{{ project.path }}" data-md-count="{{ html_blocks.size }}">
+    {%- for block in html_blocks %}
+    <div class="md-block" data-md-index="{{ forloop.index0 }}">{{ block }}</div>
+    {%- endfor %}
+  </div>
+{%- else -%}
+  {{ project.content | markdownify }}
+{%- endif -%}
