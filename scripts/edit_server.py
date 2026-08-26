@@ -8,8 +8,8 @@ else byte-identical.
     python3 scripts/edit_server.py            # then: bundle exec jekyll serve --livereload
 
 Development only. Binds to 127.0.0.1 so nothing outside this machine can
-reach it, and refuses any path that is not a markdown file inside one of
-EDITABLE_DIRS.
+reach it, and refuses any path that is not a markdown file inside
+EDITABLE_DIRS or named in EDITABLE_FILES.
 """
 
 import json
@@ -20,6 +20,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EDITABLE_DIRS = ("_projects",)
+EDITABLE_FILES = ("index.md",)   # specific root-level pages
 SEP = "\n\n"
 PORT = int(os.environ.get("EDIT_SERVER_PORT", "4011"))
 
@@ -42,9 +43,10 @@ def resolve(rel_path):
         raise Refused("path escapes the site root: %r" % (rel_path,))
     if not full.endswith((".md", ".markdown")):
         raise Refused("not a markdown file: %r" % (rel_path,))
-    inside = os.path.relpath(full, root).split(os.sep)[0]
-    if inside not in EDITABLE_DIRS:
-        raise Refused("%r is outside the editable directories %s" % (rel_path, list(EDITABLE_DIRS)))
+    inside = os.path.relpath(full, root)
+    if inside not in EDITABLE_FILES and inside.split(os.sep)[0] not in EDITABLE_DIRS:
+        raise Refused("%r is not editable; allowed: %s and %s"
+                      % (rel_path, list(EDITABLE_DIRS), list(EDITABLE_FILES)))
     if not os.path.isfile(full):
         raise Refused("no such file: %r" % (rel_path,))
     return full
@@ -116,7 +118,7 @@ class Handler(BaseHTTPRequestHandler):
         route = parts.path.rstrip("/")
 
         if route in ("/health", ""):
-            return self._reply(200, {"ok": True, "root": SITE_ROOT, "editable": list(EDITABLE_DIRS)})
+            return self._reply(200, {"ok": True, "root": SITE_ROOT, "editable": list(EDITABLE_DIRS) + list(EDITABLE_FILES)})
 
         if route == "/source":
             # The page cannot read the markdown itself: Jekyll hands templates the

@@ -123,7 +123,14 @@ layout: default
   <!-- Main Content -->
   <div class="main-content">
     <!-- Your index.md content will appear here -->
-    <div class="home-content">
+    {%- comment -%}
+      data-md-file lets assets/js/inline-edit.js edit this page's prose in
+      place (development only). index.md is largely hand-written html with
+      inline <script> blocks, so unlike _projects it is NOT split into indexed
+      blocks -- wrapping those in divs would break the html nesting. The client
+      matches clicked text against the source blocks instead.
+    {%- endcomment -%}
+    <div class="home-content"{% if jekyll.environment == "development" %} data-md-file="index.md"{% endif %}>
       {{ content }}
     </div>
 

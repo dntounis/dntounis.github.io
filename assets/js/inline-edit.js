@@ -6,22 +6,36 @@
 /*
  * In-page markdown editing (development only).
  *
- * Loaded only when JEKYLL_ENV=development, so it never reaches GitHub Pages.
+ * Click text on the page and it becomes a textarea holding that block's
+ * ORIGINAL MARKDOWN, fetched from scripts/edit_server.py. Saving rewrites just
+ * that block in the source .md file.
  *
- * Clicking a block in a project dialog swaps it for a textarea holding that
- * block's ORIGINAL MARKDOWN, taken from the JSON that _includes/project-body.html
- * emits alongside the rendered HTML. Saving POSTs the block back to
- * scripts/edit_server.py, which rewrites just that block in the .md file.
+ * It edits the markdown source rather than the rendered text because these
+ * pages contain MathJax and markdown links, and round-tripping rendered HTML
+ * back to markdown corrupts both. Jekyll hands templates the already-rendered
+ * content, so the source has to come off disk.
  *
- * Editing the markdown source rather than the rendered HTML is the whole point:
- * these pages contain MathJax and markdown links, and converting rendered HTML
- * back to markdown would mangle both.
+ * Two ways of locating the block behind a click:
+ *
+ *   index mode  - projects. _includes/project-body.html wraps each rendered
+ *                 block in a div carrying its index, so the block is known
+ *                 directly. Verified against the source before editing.
+ *   match mode  - pages such as index.md, which are largely hand-written HTML
+ *                 with inline <script> blocks. Wrapping those in divs would
+ *                 break HTML nesting, so instead the clicked element's text is
+ *                 matched against the source blocks.
+ *
+ * Both modes refuse rather than guess, and the server independently rejects a
+ * write whose block no longer matches what the page rendered.
  */
 (function () {
     'use strict';
 
     var SERVER = 'http://127.0.0.1:' + (window.INLINE_EDIT_PORT || 4011);
-    var RELOAD_DELAY = 1400;  // give Jekyll time to regenerate before reloading
+    var RELOAD_DELAY = 1400;       // let Jekyll regenerate before reloading
+    var MIN_MATCH_CHARS = 25;      // shorter text cannot be matched safely
+    var AMBIGUOUS_RATIO = 0.85;    // two candidates this close are a refusal
+    var PROSE = 'p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, dd, dt';
     var RESTORE_KEY = 'inlineEdit.restore';
     var enabled = false;
 
@@ -33,32 +47,46 @@
     }
 
     function toast(msg, kind) {
-        var el = document.getElementById('inline-edit-toast') || (function () {
-            var t = h('div', 'inline-edit-toast');
-            t.id = 'inline-edit-toast';
-            document.body.appendChild(t);
-            return t;
-        })();
+        var el = document.getElementById('inline-edit-toast');
+        if (!el) {
+            el = h('div', 'inline-edit-toast');
+            el.id = 'inline-edit-toast';
+            document.body.appendChild(el);
+        }
         el.textContent = msg;
         el.dataset.kind = kind || 'info';
         el.classList.add('is-visible');
         clearTimeout(el._timer);
-        el._timer = setTimeout(function () { el.classList.remove('is-visible'); }, 4000);
+        el._timer = setTimeout(function () { el.classList.remove('is-visible'); }, 5000);
     }
 
-    /* Fetch the markdown source blocks for a file. The page itself only has
-       the rendered html -- Jekyll converts collection documents before any
-       template sees them -- so the source has to come from the edit server. */
-    function sourceFor(container) {
-        if (container._sourcePromise) return container._sourcePromise;
-        var file = container.dataset.mdFile;
-        container._sourcePromise = fetch(SERVER + '/source?file=' + encodeURIComponent(file))
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                if (!data.ok) throw new Error(data.error || 'source unavailable');
-                return data.blocks;
+    /* ---- source ---------------------------------------------------------- */
+
+    var sourceCache = {};
+
+    function sourceFor(file) {
+        if (sourceCache[file]) return sourceCache[file];
+        sourceCache[file] = fetch(SERVER + '/source?file=' + encodeURIComponent(file))
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!d.ok) throw new Error(d.error || 'source unavailable');
+                return d.blocks;
             });
-        return container._sourcePromise;
+        return sourceCache[file];
+    }
+
+    function normalize(s) {
+        return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+    }
+
+    /* Markdown block reduced to comparable text: drop inline html, unwrap
+       [label](url) to its label, then keep only alphanumerics. This is what
+       lets a rendered paragraph match its source despite link and emphasis
+       syntax. */
+    function blockText(block) {
+        return normalize(String(block)
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1'));
     }
 
     function words(text) {
@@ -66,31 +94,54 @@
             .split(/\s+/).filter(function (w) { return w.length >= 5; });
     }
 
-    /* The rendered-block index and the source-block index line up in practice,
-       but nothing guarantees it: kramdown decides where blank lines go in its
-       output. So check the alignment before letting anyone type, and refuse
-       rather than write into the wrong block. A shared-long-word overlap test
-       tolerates markdown syntax (links, emphasis, math) while still rejecting
-       a genuinely different paragraph. */
-    function aligned(sourceBlock, block) {
-        var domWords = words(block.textContent);
-        if (!domWords.length) return true;              // image/hr-only block
-        var hay = ' ' + (sourceBlock || '').toLowerCase() + ' ';
+    /* Index mode sanity check. The rendered-block index and the source-block
+       index line up in practice, but kramdown decides where blank lines go in
+       its output, so verify before writing into a block. Long-word overlap
+       tolerates markdown syntax while still rejecting a different paragraph. */
+    function aligned(sourceBlock, el) {
+        var domWords = words(el.textContent);
+        if (!domWords.length) return true;                  // image/rule-only block
+        var hay = ' ' + String(sourceBlock).toLowerCase() + ' ';
         var hits = domWords.filter(function (w) { return hay.indexOf(w) !== -1; }).length;
         return hits / domWords.length >= 0.6;
     }
 
-    /* Remember which dialog was open and where we were, so the post-save
-       reload does not throw away the reading position. */
+    /* Match mode. Prefer the tightest containing block: a short list item lives
+       inside its own short list block, not inside some long paragraph that
+       happens to repeat the phrase. Refuse when the top two are close. */
+    function matchBlock(blocks, el) {
+        var t = normalize(el.textContent);
+        if (t.length < MIN_MATCH_CHARS) {
+            return { error: 'that text is too short to match to the source safely' };
+        }
+        var cands = [];
+        for (var i = 0; i < blocks.length; i++) {
+            var n = blockText(blocks[i]);
+            if (n && n.indexOf(t) !== -1) cands.push({ index: i, ratio: t.length / n.length });
+        }
+        if (!cands.length) return { error: 'no source block contains that text' };
+        cands.sort(function (a, b) { return b.ratio - a.ratio; });
+        if (cands.length > 1 && cands[1].ratio / cands[0].ratio > AMBIGUOUS_RATIO) {
+            return {
+                error: 'that text appears in blocks ' +
+                    cands.map(function (c) { return c.index; }).join(' and ') +
+                    ' — too ambiguous to edit safely'
+            };
+        }
+        return { index: cands[0].index };
+    }
+
+    /* ---- reading position across the post-save reload -------------------- */
+
     function rememberPosition(container) {
-        var dialog = container.closest('dialog');
-        var body = container.closest('.dialog-body') || container.parentElement;
+        var dialog = container.closest ? container.closest('dialog') : null;
+        var body = container.closest ? (container.closest('.dialog-body') || null) : null;
         try {
             sessionStorage.setItem(RESTORE_KEY, JSON.stringify({
                 dialog: dialog ? dialog.id : null,
-                scroll: body ? body.scrollTop : 0
+                scroll: body ? body.scrollTop : window.scrollY
             }));
-        } catch (err) { /* private mode; position is not worth failing over */ }
+        } catch (err) { /* private mode; not worth failing over */ }
     }
 
     function restorePosition() {
@@ -102,12 +153,16 @@
         if (!raw) return;
         var state;
         try { state = JSON.parse(raw); } catch (err) { return; }
-        if (!state || !state.dialog) return;
+        if (!state) return;
 
+        if (!state.dialog) {
+            window.scrollTo(0, state.scroll || 0);
+            return;
+        }
         var dialog = document.getElementById(state.dialog);
         if (!dialog) return;
         var slug = state.dialog.replace(/-dialog$/, '');
-        // Reuse the page's own opener so its scroll-lock and MathJax hooks run.
+        // Reuse the page's own opener so its scroll lock and MathJax hooks run.
         if (typeof window.showProjectDialog === 'function') {
             window.showProjectDialog(slug, null);
         } else if (typeof dialog.showModal === 'function') {
@@ -117,99 +172,46 @@
         if (body) setTimeout(function () { body.scrollTop = state.scroll || 0; }, 120);
     }
 
-    function closeEditor(block) {
-        if (!block._editor || block._editor === 'pending') return;
-        block._editor.remove();
-        block._editor = null;
-        block.classList.remove('is-editing');
-        if (block._rendered !== undefined) block.innerHTML = block._rendered;
+    /* ---- editor ---------------------------------------------------------- */
+
+    var openEditors = [];
+
+    /* Where to put the editor. Inserting after the element keeps the rendered
+       page intact (no innerHTML surgery); for a list item, go up to the list so
+       the markup stays valid. */
+    function anchorFor(el) {
+        if (el.tagName === 'LI' || el.tagName === 'DD' || el.tagName === 'DT') {
+            return el.closest('ul, ol, dl') || el;
+        }
+        return el;
     }
 
-    function save(block, container, index, original, text, statusEl) {
-        statusEl.textContent = 'Saving…';
-        fetch(SERVER + '/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                file: container.dataset.mdFile,
-                index: index,
-                expected: original,
-                text: text
-            })
-        }).then(function (res) {
-            return res.json().then(function (data) { return { status: res.status, data: data }; });
-        }).then(function (r) {
-            if (!r.data.ok) {
-                statusEl.textContent = r.data.error || ('HTTP ' + r.status);
-                statusEl.dataset.kind = 'error';
-                return;
-            }
-            if (!r.data.changed) {
-                statusEl.textContent = 'No change.';
-                return;
-            }
-            rememberPosition(container);
-            statusEl.textContent = 'Saved — reloading…';
-            setTimeout(function () { location.reload(); }, RELOAD_DELAY);
-        }).catch(function (err) {
-            statusEl.textContent = 'Cannot reach the edit server on ' + SERVER +
-                ' — start it with: python3 scripts/edit_server.py';
-            statusEl.dataset.kind = 'error';
-            console.error('[inline-edit]', err);
-        });
+    function closeEditor(rec) {
+        rec.editor.remove();
+        rec.anchor.classList.remove('md-anchor-editing');
+        var i = openEditors.indexOf(rec);
+        if (i !== -1) openEditors.splice(i, 1);
     }
 
-    function openEditor(block, container) {
-        if (block._editor) return;
-        block._editor = 'pending';
-        sourceFor(container).then(function (blocks) {
-            block._editor = null;
-            var domCount = container.querySelectorAll('.md-block').length;
-            // Trailing blank lines in the file produce empty source blocks that
-            // kramdown drops from its output. They cannot shift any earlier
-            // index, so discount them rather than refusing the whole file.
-            var effective = blocks.length;
-            while (effective > 0 && blocks[effective - 1].trim() === '') effective--;
-            if (effective !== domCount) {
-                return toast('Cannot edit ' + container.dataset.mdFile + ': the page has ' +
-                    domCount + ' blocks but the file has ' + effective +
-                    '. Edit the file directly.', 'error');
-            }
-            var index = parseInt(block.dataset.mdIndex, 10);
-            var original = blocks[index];
-            if (typeof original !== 'string') {
-                return toast('Block ' + index + ' has no source; reload the page.', 'error');
-            }
-            if (!aligned(original, block)) {
-                return toast('Block ' + index + ' does not match its source in ' +
-                    container.dataset.mdFile + '. Refusing to edit it. Edit the file directly.', 'error');
-            }
-            mountEditor(block, container, index, original);
-        }).catch(function (err) {
-            block._editor = null;
-            toast('Cannot reach the edit server on ' + SERVER +
-                ' — start it with: python3 scripts/edit_server.py', 'error');
-            console.error('[inline-edit]', err);
-        });
+    function closeAll() {
+        openEditors.slice().forEach(closeEditor);
     }
 
-    function mountEditor(block, container, index, original) {
-        if (block._rendered === undefined) block._rendered = block.innerHTML;
-        block.classList.add('is-editing');
-        block.innerHTML = '';
+    function mountEditor(file, container, index, original, el) {
+        var anchor = anchorFor(el);
+        if (anchor._mdEditor) return;
 
         var editor = h('div', 'md-editor');
         var area = h('textarea', 'md-editor-area');
         area.value = original;
         area.spellcheck = true;
-        area.rows = Math.min(28, Math.max(3, original.split('\n').length + 2));
 
         var bar = h('div', 'md-editor-bar');
         var saveBtn = h('button', 'md-editor-save', 'Save');
         var cancelBtn = h('button', 'md-editor-cancel', 'Cancel');
         var status = h('span', 'md-editor-status');
-        var hint = h('span', 'md-editor-hint', container.dataset.mdFile + ' · block ' + index + ' · ⌘/Ctrl+Enter to save, Esc to cancel');
-
+        var hint = h('span', 'md-editor-hint', file + ' · block ' + index +
+            ' · ⌘/Ctrl+Enter to save, Esc to cancel');
         saveBtn.type = cancelBtn.type = 'button';
         bar.appendChild(saveBtn);
         bar.appendChild(cancelBtn);
@@ -217,53 +219,123 @@
         bar.appendChild(hint);
         editor.appendChild(area);
         editor.appendChild(bar);
-        block.appendChild(editor);
-        block._editor = editor;
 
-        // Grow with content so long blocks stay fully visible.
+        anchor.classList.add('md-anchor-editing');
+        anchor.parentNode.insertBefore(editor, anchor.nextSibling);
+
+        var rec = { editor: editor, anchor: anchor };
+        openEditors.push(rec);
+
         function autosize() {
             area.style.height = 'auto';
-            area.style.height = Math.min(area.scrollHeight + 2, 640) + 'px';
+            area.style.height = Math.min(area.scrollHeight + 4, 640) + 'px';
         }
         area.addEventListener('input', autosize);
         autosize();
         area.focus();
+        area.setSelectionRange(area.value.length, area.value.length);
 
-        saveBtn.addEventListener('click', function () {
-            save(block, container, index, original, area.value, status);
-        });
-        cancelBtn.addEventListener('click', function () { closeEditor(block); });
+        function doSave() {
+            status.dataset.kind = 'info';
+            status.textContent = 'Saving…';
+            fetch(SERVER + '/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ file: file, index: index, expected: original, text: area.value })
+            }).then(function (res) {
+                return res.json().then(function (d) { return { status: res.status, data: d }; });
+            }).then(function (r) {
+                if (!r.data.ok) {
+                    status.dataset.kind = 'error';
+                    status.textContent = r.data.error || ('HTTP ' + r.status);
+                    return;
+                }
+                if (!r.data.changed) { status.textContent = 'No change.'; return; }
+                rememberPosition(container);
+                status.textContent = 'Saved — reloading…';
+                setTimeout(function () { location.reload(); }, RELOAD_DELAY);
+            }).catch(function (err) {
+                status.dataset.kind = 'error';
+                status.textContent = 'Cannot reach the edit server on ' + SERVER;
+                console.error('[inline-edit]', err);
+            });
+        }
+
+        saveBtn.addEventListener('click', doSave);
+        cancelBtn.addEventListener('click', function () { closeEditor(rec); });
         area.addEventListener('keydown', function (ev) {
             if (ev.key === 'Escape') {
-                ev.stopPropagation();   // do not let the dialog close instead
-                closeEditor(block);
+                ev.stopPropagation();        // do not let the dialog close instead
+                closeEditor(rec);
             } else if ((ev.metaKey || ev.ctrlKey) && ev.key === 'Enter') {
                 ev.preventDefault();
-                save(block, container, index, original, area.value, status);
+                doSave();
             }
         });
-        // Keep clicks inside the editor from re-triggering the block handler.
         editor.addEventListener('click', function (ev) { ev.stopPropagation(); });
     }
 
-    function onBlockClick(ev) {
+    /* ---- click handling -------------------------------------------------- */
+
+    function handle(ev) {
         if (!enabled) return;
-        var block = ev.target.closest('.md-block');
-        if (!block || block._editor) return;
-        // Let real links and buttons behave normally.
-        if (ev.target.closest('a, button, input, textarea, select, label')) return;
-        var container = block.closest('.md-editable');
+        if (ev.target.closest('.md-editor, a, button, input, textarea, select, label, script')) return;
+
+        var container = ev.target.closest('[data-md-file]');
         if (!container) return;
+        var file = container.dataset.mdFile;
+
+        var block = ev.target.closest('.md-block');
+        var el = block || ev.target.closest(PROSE);
+        if (!el || !container.contains(el)) return;
+        if (anchorFor(el).classList.contains('md-anchor-editing')) return;
+
         ev.preventDefault();
-        openEditor(block, container);
+        ev.stopPropagation();
+
+        sourceFor(file).then(function (blocks) {
+            var index, original;
+
+            if (block) {
+                // index mode: discount trailing blank lines, which cannot shift
+                // an earlier index, then confirm the counts agree.
+                var domCount = container.querySelectorAll('.md-block').length;
+                var effective = blocks.length;
+                while (effective > 0 && String(blocks[effective - 1]).trim() === '') effective--;
+                if (effective !== domCount) {
+                    return toast('Cannot edit ' + file + ': the page has ' + domCount +
+                        ' blocks but the file has ' + effective + '. Edit the file directly.', 'error');
+                }
+                index = parseInt(block.dataset.mdIndex, 10);
+                original = blocks[index];
+                if (typeof original !== 'string') {
+                    return toast('Block ' + index + ' has no source; reload the page.', 'error');
+                }
+                if (!aligned(original, block)) {
+                    return toast('Block ' + index + ' does not match its source in ' + file +
+                        '. Refusing to edit it.', 'error');
+                }
+            } else {
+                var m = matchBlock(blocks, el);
+                if (m.error) return toast(m.error + ' (' + file + ')', 'error');
+                index = m.index;
+                original = blocks[index];
+            }
+
+            mountEditor(file, container, index, original, el);
+        }).catch(function (err) {
+            toast('Cannot reach the edit server on ' + SERVER +
+                ' — start it with: python3 scripts/edit_server.py', 'error');
+            console.error('[inline-edit]', err);
+        });
     }
+
+    /* ---- toggle --------------------------------------------------------- */
 
     function setEnabled(on) {
         enabled = on;
         document.body.classList.toggle('inline-edit-on', on);
-        if (!on) {
-            document.querySelectorAll('.md-block.is-editing').forEach(closeEditor);
-        }
+        if (!on) closeAll();
         var btn = document.getElementById('inline-edit-toggle');
         if (btn) {
             btn.textContent = on ? '✎ Editing on' : '✎ Edit text';
@@ -272,28 +344,24 @@
         try { sessionStorage.setItem('inlineEdit.on', on ? '1' : '0'); } catch (err) { /* ignore */ }
     }
 
-    function addToggle() {
+    function init() {
+        if (!document.querySelector('[data-md-file]')) return;
+
         var btn = h('button', 'inline-edit-toggle', '✎ Edit text');
         btn.id = 'inline-edit-toggle';
         btn.type = 'button';
-        btn.title = 'Click any paragraph to edit its markdown source (local only)';
+        btn.title = 'Click text to edit its markdown source (local only)';
         btn.addEventListener('click', function () { setEnabled(!enabled); });
         document.body.appendChild(btn);
-    }
 
-    function checkServer() {
+        document.addEventListener('click', handle, true);
+
         fetch(SERVER + '/health').then(function (r) { return r.json(); }).then(function (d) {
             if (d && d.ok) console.info('[inline-edit] edit server ready at ' + SERVER);
         }).catch(function () {
-            console.warn('[inline-edit] edit server not running — start it with: python3 scripts/edit_server.py');
+            console.warn('[inline-edit] edit server not running — python3 scripts/edit_server.py');
         });
-    }
 
-    function init() {
-        if (!document.querySelector('.md-editable')) return;
-        addToggle();
-        document.addEventListener('click', onBlockClick, true);
-        checkServer();
         var was;
         try { was = sessionStorage.getItem('inlineEdit.on'); } catch (err) { was = null; }
         if (was === '1') setEnabled(true);
