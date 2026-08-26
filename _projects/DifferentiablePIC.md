@@ -4,7 +4,7 @@ title: >-
 description: >-
     Reimplementing the beam-beam interaction codes that collider design depends on so they run on GPUs and expose gradients
 status: "current"
-image: "/assets/images/gpx_legacy_parity.png"
+image: "/assets/images/gg_gradient_advantage.svg"
 order: 8
 tags: ["Machine Learning", "Future Colliders", "Differentiable Simulation", "Luminosity"]
 links:

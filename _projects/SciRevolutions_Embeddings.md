@@ -4,7 +4,7 @@ title: >-
 description: >-
     Treating embedding geometry as a quantitative observable of conceptual reorganization, and using counterfactual ablation to detect scientific revolutions
 status: "current"
-image: "/assets/images/counterfactual_ablation_framework.png"
+image: "/assets/images/counterfactual_ablation_framework.svg"
 order: 7
 tags: ["AI4Science", "Machine Learning", "Representation Learning", "History of Science"]
 ---
@@ -35,4 +35,4 @@ The immediate contribution is retrospective: establishing that historically reco
 
 ---
 
-*With A. Schwartzman (SLAC), C. Chafe (Stanford Music), and T. A. Ryckman (Stanford Philosophy). Manuscript in preparation.*
+*With A. Schwartzman (SLAC Physics), C. Chafe (Stanford Music), and T. A. Ryckman (Stanford Philosophy). Manuscript in preparation.*
