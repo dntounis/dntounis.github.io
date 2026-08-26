@@ -240,5 +240,15 @@
         }
     })();
     </script>
+
+    {%- comment -%}
+      In-page markdown editing. Development only: GitHub Pages builds with
+      JEKYLL_ENV=production, so this never ships. Needs the write-back server:
+      python3 scripts/edit_server.py
+    {%- endcomment -%}
+    {% if jekyll.environment == "development" %}
+    <link rel="stylesheet" href="{{ '/assets/css/inline-edit.css' | relative_url }}">
+    <script src="{{ '/assets/js/inline-edit.js' | relative_url }}" defer></script>
+    {% endif %}
 </body>
 </html>
