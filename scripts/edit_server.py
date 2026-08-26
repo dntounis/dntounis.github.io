@@ -81,7 +81,13 @@ def apply_edit(full_path, index, expected, replacement):
     if blocks[index] == replacement:
         return False, len(blocks)
 
-    blocks[index] = replacement
+    if replacement.strip() == "" and blocks[index].strip() != "":
+        # Emptying a block means "delete this paragraph". Leaving a blank block
+        # behind would desync the source block count from the rendered one and
+        # lock further editing of the file, so drop it entirely.
+        del blocks[index]
+    else:
+        blocks[index] = replacement
     with open(full_path, "w", encoding="utf-8") as fh:
         fh.write(front + SEP.join(blocks))
     return True, len(blocks)

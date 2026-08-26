@@ -28,8 +28,6 @@ description: PhD Candidate in Physics at Stanford University, researching Higgs 
 
 My name is Dimitrios (but most people call me Dimitris) Ntounis [*/di-MEE-tris DOO-nis/*] and I come from Athens, Greece. I am currently a PhD Candidate in the <a href="https://physics.stanford.edu/" target="_blank">Physics Department</a> at <a href="https://www.stanford.edu/" target="_blank">Stanford University</a>. I am a researcher at <a href="https://www6.slac.stanford.edu/" target="_blank">SLAC National Accelerator Laboratory</a> working with the <a href="https://atlas.slac.stanford.edu/" target="_blank">SLAC ATLAS</a> group. I've also completed a PhD Minor in Computer Science at Stanford.
 
-You can find a few key points about me below or read my [Projects](/projects) page or <a href="{{ site.cv_pdf }}" target="_blank">CV</a> for more details.
-
 ## Education
 - PhD in Physics, Stanford University, *in progress*
 - PhD Minor in Computer Science, Stanford University, *requirements completed* (degree to be conferred with PhD)
@@ -45,13 +43,13 @@ You can find a few key points about me below or read my [Projects](/projects) pa
 <section id="research" class="home-section" data-section-label="Research" markdown="1">
 <h1 class="cardinal-red-title">Research</h1>
 
-My research lies at the intersection of experimental particle physics, accelerator science, and machine learning. I am driven by a fundamental question: *What are the building blocks of the Universe, and how do they interact?*
+My research lies at the intersection of experimental particle physics, accelerator science, and machine learning, driven by the fundamental question: *What are the building blocks of the Universe, and how do they interact?*
 
-**Higgs Boson Physics at the LHC**: I analyze petabyte-scale datasets from the <a href="https://atlas.cern/" target="_blank">ATLAS</a> detector at CERN's Large Hadron Collider (LHC) to probe the properties of the <a href="https://en.wikipedia.org/wiki/Higgs_boson" target="_blank">Higgs boson</a>—the particle intimately tied to the mechanism that gives fundamental particles their mass. My work focuses on precision measurements of Higgs production in association with vector bosons, using advanced statistical techniques to extract signals from challenging backgrounds.
+**Higgs Boson Physics at the LHC**: I analyze petabyte-scale datasets from the <a href="https://atlas.cern/" target="_blank">ATLAS</a> detector at CERN's Large Hadron Collider (LHC) to probe the properties of the <a href="https://en.wikipedia.org/wiki/Higgs_boson" target="_blank">Higgs boson</a>—the particle intimately tied to the mechanism that gives fundamental particles their mass. My work focuses on measurements of Higgs production in association with vector bosons, using advanced statistical techniques to extract signals from challenging data-driven backgrounds.
 
-**Next-Generation Colliders**: Looking beyond the LHC, I contribute to the development of future electron-positron colliders designed to achieve unprecedented precision in Higgs, electroweak, and top quark measurements. My contributions include comprehensive studies of the beam dynamics, luminosity optimization, and beam-induced background characterization for the <a href="https://web.slac.stanford.edu/c3/" target="_blank">Cool Copper Collider (C³)</a>, a newly proposed US-led linear collider concept. I also benchmark jet flavor tagging algorithms across different detector configurations to inform optimal detector design.
+**Next-Generation Colliders**: Looking beyond the LHC, I contribute to the development of future electron-positron colliders designed to achieve unprecedented precision in Higgs, electroweak, and top quark measurements. My contributions include comprehensive studies of the beam dynamics, luminosity optimization, and beam-induced background characterization for the <a href="https://web.slac.stanford.edu/c3/" target="_blank">Cool Copper Collider (C³)</a>, a newly proposed US-led linear collider concept. More recently, I have been focused on broader work understanding the beam dynamics of electron-positron collisions, and accelerating beam-beam simulation tools.
 
-**AI/ML for Science Discovery**: I leverage state-of-the-art machine learning techniques to extract maximum physics insight from available data. This includes developing novel algorithms for particle identification that enhance our sensitivity to new physics signatures, creating automated pipelines for end-to-end detector optimization for future collider facilities, and using modern embedding models to quantify and predict scientific innovation. 
+**AI/ML for Science Discovery**: I leverage state-of-the-art machine learning techniques to extract maximum physics insight from available data. This includes developing novel algorithms for particle identification that enhance our sensitivity to new physics signatures, creating automated pipelines for end-to-end detector optimization for future collider facilities, and using modern embedding models to quantify and predict scientific innovation.
 </section>
 
 <section id="news" class="home-section" data-section-label="News" markdown="1">
@@ -117,7 +115,6 @@ My research lies at the intersection of experimental particle physics, accelerat
         <span class="legend-item"><span class="legend-dot" style="background: #D08B32;"></span> Frequent (3+ papers)</span>
         <span class="legend-item" id="collab-legend" style="display: none;"><span class="legend-dot" style="background: #5E8E69;"></span> Collaborations</span>
     </div>
-    <p class="viz-note" id="viz-note">Showing individual co-authors only. Papers with &gt;20 authors (ATLAS/CMS) are excluded.</p>
 </div>
 
 <script>
@@ -306,16 +303,13 @@ My research lies at the intersection of experimental particle physics, accelerat
         }
 
         // Update stats display
-        const noteEl = document.getElementById('viz-note');
         const collabLegend = document.getElementById('collab-legend');
 
         if (includeCollab) {
             document.getElementById('paper-count').textContent = individualPapers.length + collaborationPapers.length;
-            noteEl.textContent = `Showing all papers including ${collabPapersCount} collaboration papers (>${COLLAB_THRESHOLD} authors).`;
             collabLegend.style.display = 'inline-flex';
         } else {
             document.getElementById('paper-count').textContent = includedPapers;
-            noteEl.textContent = `Showing individual co-authors only. ${collabPapersCount} papers with >${COLLAB_THRESHOLD} authors (ATLAS/CMS) are excluded.`;
             collabLegend.style.display = 'none';
         }
         document.getElementById('collaborator-count').textContent = sortedCollaborators.length + (includeCollab ? collaborationCounts.size : 0);

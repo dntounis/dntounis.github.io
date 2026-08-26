@@ -297,16 +297,20 @@
             var index, original;
 
             if (block) {
-                // index mode: discount trailing blank lines, which cannot shift
-                // an earlier index, then confirm the counts agree.
-                var domCount = container.querySelectorAll('.md-block').length;
-                var effective = blocks.length;
-                while (effective > 0 && String(blocks[effective - 1]).trim() === '') effective--;
-                if (effective !== domCount) {
-                    return toast('Cannot edit ' + file + ': the page has ' + domCount +
-                        ' blocks but the file has ' + effective + '. Edit the file directly.', 'error');
+                // index mode. Blank source blocks render to nothing, so the
+                // rendered blocks line up with the NON-EMPTY source blocks;
+                // map through that rather than comparing raw counts, which
+                // would lock the file the moment a paragraph was deleted.
+                var live = [];
+                for (var k = 0; k < blocks.length; k++) {
+                    if (String(blocks[k]).trim() !== '') live.push(k);
                 }
-                index = parseInt(block.dataset.mdIndex, 10);
+                var domCount = container.querySelectorAll('.md-block').length;
+                if (live.length !== domCount) {
+                    return toast('Cannot edit ' + file + ': the page has ' + domCount +
+                        ' blocks but the file has ' + live.length + '. Edit the file directly.', 'error');
+                }
+                index = live[parseInt(block.dataset.mdIndex, 10)];
                 original = blocks[index];
                 if (typeof original !== 'string') {
                     return toast('Block ' + index + ' has no source; reload the page.', 'error');
