@@ -131,11 +131,24 @@ My research lies at the intersection of experimental particle physics, accelerat
     let includeCollabPapers = false;
 
     async function fetchInspireData() {
-        try {
-            // Fetch publications from INSPIRE-HEP API using BAI (INSPIRE author identifier)
+        // INSPIRE embeds the full author list in every record, and ATLAS/CMS
+        // papers carry thousands of authors each, so asking for 100 unfiltered
+        // records returns hundreds of MB and the request never completes in the
+        // browser. Split the query by author count and request only the fields
+        // this visualization actually reads.
+        const BASE_URL = 'https://inspirehep.net/api/literature';
+        const authorQuery = `a ${INSPIRE_BAI}`;
+
+        async function fetchPage(authorCountFilter, fields, size) {
+            const query = encodeURIComponent(`${authorQuery} and ${authorCountFilter}`);
             const response = await fetch(
-                `https://inspirehep.net/api/literature?sort=mostrecent&size=100&q=a%20${INSPIRE_BAI}`
+                `${BASE_URL}?sort=mostrecent&size=${size}&fields=${fields}&q=${query}`
             );
+
+            if (!response.ok) {
+                throw new Error(`INSPIRE-HEP returned HTTP ${response.status}`);
+            }
+
             const data = await response.json();
 
             if (!data.hits || !data.hits.hits) {
@@ -143,6 +156,18 @@ My research lies at the intersection of experimental particle physics, accelerat
             }
 
             return data.hits.hits;
+        }
+
+        try {
+            const [individual, collaboration] = await Promise.all([
+                // Individual-author papers: the co-author names are the payload.
+                fetchPage(`ac 1->${COLLAB_THRESHOLD}`, 'authors.full_name,citation_count', 100),
+                // Collaboration papers: the author list is never rendered, so
+                // ask for the collaboration name and citation count only.
+                fetchPage(`ac ${COLLAB_THRESHOLD + 1}+`, 'collaborations,citation_count', 250)
+            ]);
+
+            return { individual, collaboration };
         } catch (error) {
             console.error('Error fetching INSPIRE data:', error);
             return null;
@@ -172,39 +197,37 @@ My research lies at the intersection of experimental particle physics, accelerat
     }
 
     function processInspireData(papers, includeCollab = false) {
+        const individualPapers = papers.individual || [];
+        const collaborationPapers = papers.collaboration || [];
         const collaboratorMap = new Map();
-        const collaborationSet = new Set(); // Track large collaborations (ATLAS, CMS, etc.)
+        const collaborationCounts = new Map(); // Large collaborations (ATLAS, CMS, ...) -> paper count
         const nodes = [];
         const links = [];
         let totalCitations = 0;
         let includedPapers = 0;
-        let collabPapersCount = 0;
+        const collabPapersCount = collaborationPapers.length;
 
-        // Process each paper
-        papers.forEach(paper => {
-            const metadata = paper.metadata;
+        // Collaboration papers contribute one node per collaboration, not per author
+        if (includeCollab) {
+            collaborationPapers.forEach(paper => {
+                const metadata = paper.metadata || {};
+                totalCitations += metadata.citation_count || 0;
+                includedPapers++;
+
+                (metadata.collaborations || []).forEach(collab => {
+                    const collabName = collab.value || collab;
+                    if (!collabName) return;
+                    collaborationCounts.set(collabName, (collaborationCounts.get(collabName) || 0) + 1);
+                });
+            });
+        }
+
+        // Process each individual-author paper
+        individualPapers.forEach(paper => {
+            const metadata = paper.metadata || {};
             const authors = metadata.authors || [];
             const citations = metadata.citation_count || 0;
-            const isCollabPaper = authors.length > COLLAB_THRESHOLD;
 
-            if (isCollabPaper) {
-                collabPapersCount++;
-                if (!includeCollab) return; // Skip if not including collaboration papers
-
-                // For collaboration papers, just track the collaboration name
-                const collaborations = metadata.collaborations || [];
-                collaborations.forEach(collab => {
-                    const collabName = collab.value || collab;
-                    if (collabName && !collaborationSet.has(collabName)) {
-                        collaborationSet.add(collabName);
-                    }
-                });
-                totalCitations += citations;
-                includedPapers++;
-                return;
-            }
-
-            // Non-collaboration paper
             totalCitations += citations;
             includedPapers++;
 
@@ -265,19 +288,19 @@ My research lies at the intersection of experimental particle physics, accelerat
         });
 
         // Add collaboration nodes if including collab papers
-        if (includeCollab && collaborationSet.size > 0) {
-            collaborationSet.forEach(collabName => {
+        if (includeCollab && collaborationCounts.size > 0) {
+            collaborationCounts.forEach((paperCount, collabName) => {
                 const collabId = collabName.toLowerCase().replace(/[^a-z]/g, '');
                 nodes.push({
                     id: collabId,
                     name: collabName,
                     group: 'collaboration',
-                    papers: collabPapersCount
+                    papers: paperCount
                 });
                 links.push({
                     source: 'self',
                     target: collabId,
-                    value: collabPapersCount
+                    value: paperCount
                 });
             });
         }
@@ -287,7 +310,7 @@ My research lies at the intersection of experimental particle physics, accelerat
         const collabLegend = document.getElementById('collab-legend');
 
         if (includeCollab) {
-            document.getElementById('paper-count').textContent = papers.length;
+            document.getElementById('paper-count').textContent = individualPapers.length + collaborationPapers.length;
             noteEl.textContent = `Showing all papers including ${collabPapersCount} collaboration papers (>${COLLAB_THRESHOLD} authors).`;
             collabLegend.style.display = 'inline-flex';
         } else {
@@ -295,7 +318,7 @@ My research lies at the intersection of experimental particle physics, accelerat
             noteEl.textContent = `Showing individual co-authors only. ${collabPapersCount} papers with >${COLLAB_THRESHOLD} authors (ATLAS/CMS) are excluded.`;
             collabLegend.style.display = 'none';
         }
-        document.getElementById('collaborator-count').textContent = sortedCollaborators.length + (includeCollab ? collaborationSet.size : 0);
+        document.getElementById('collaborator-count').textContent = sortedCollaborators.length + (includeCollab ? collaborationCounts.size : 0);
         document.getElementById('citation-count').textContent = totalCitations.toLocaleString();
 
         return { nodes, links };
