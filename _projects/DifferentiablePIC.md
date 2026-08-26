@@ -17,7 +17,7 @@ links:
 
 ### Research Context
 
-Beam-beam interactions set the physics reach of every high-energy lepton collider: the field of each bunch distorts the opposing bunch, and that pinch determines luminosity, beamstrahlung energy spread, and pair-production backgrounds. This luminosity enhancement typically has no closed form and must come out of expensive simulations using Particle-In-Cell (PIC) codes.
+Beam-beam interactions set the physics reach of every high-energy lepton collider: the field of each bunch distorts the opposing bunch, and that pinch determines luminosity, beamstrahlung energy spread, and pair-production backgrounds. The luminosity enhancement from this pinch typically has no closed form and must come out of expensive simulations using Particle-In-Cell (PIC) codes.
 
 [GUINEA-PIG](https://cds.cern.ch/record/382453) has been the community standard for over two decades. It is an excellent forward simulator, but it exposes **no derivatives** and runs on a single CPU core. Collider design therefore proceeds by parameter scans, finite differences, or derivative-free optimizers — none of which scale well into the high-dimensional space of all possible beam configurations. I am approaching this bottleneck along two threads.
 
@@ -27,8 +27,4 @@ Beam-beam interactions set the physics reach of every high-energy lepton collide
 
 ### Guinea-Pig X (GPX): a CUDA port for throughput
 
-**Guinea-Pig X** is a CUDA port of the CLIC GUINEA-PIG code — same physics, same output records, with the field solves and per-event Monte-Carlo samplers moved onto the GPU. Across reference configurations spanning FCC-ee, C³, CLIC, and ILC it delivers roughly an order-of-magnitude end-to-end speedup, and since one simulation occupies one GPU, throughput scales near-linearly with GPU count. Statistical parity with the legacy code is established by multi-seed Kolmogorov–Smirnov tests on the output records, complemented by a per-record classifier calibrated against a legacy-versus-legacy null. *Manuscript in preparation.*
-
-### Why this matters
-
-GPX makes the existing design workflow substantially cheaper without asking anyone to change how they work. GuineaGrad changes what the workflow can be — opening up gradient-based multi-objective design, sensitivity analysis, and eventually end-to-end optimization of collider and detector parameters as a single problem.
+**Guinea-Pig X** is a CUDA port of GUINEA-PIG. Across reference configurations for several colliders, it delivers roughly an order-of-magnitude end-to-end speedup, while maintaining statistical parity with the legacy code. *Manuscript in preparation.*

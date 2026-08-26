@@ -88,8 +88,14 @@ def apply_edit(full_path, index, expected, replacement):
         del blocks[index]
     else:
         blocks[index] = replacement
+    new_body = SEP.join(blocks)
+    # Deleting the last block takes the file's trailing newline with it, since
+    # that newline lived inside the deleted text. Put it back.
+    if body.endswith("\n") and not new_body.endswith("\n"):
+        new_body += "\n"
+
     with open(full_path, "w", encoding="utf-8") as fh:
-        fh.write(front + SEP.join(blocks))
+        fh.write(front + new_body)
     return True, len(blocks)
 
 
