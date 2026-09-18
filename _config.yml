@@ -131,6 +131,9 @@ collections:
     output: false
     permalink: /projects/:path/
     permalink: /projects/:title/
+  explainers:
+    output: true
+    permalink: /explainers/:path/
 
 
 # Default layouts
@@ -140,12 +143,18 @@ defaults:
       type: "projects"
     values:
       layout: project
+  - scope:
+      path: ""
+      type: "explainers"
+    values:
+      layout: explainer
 
 
 
 # Navigation
 header_pages:
   - projects.md
+  - explainers.md
   - publications.md
   - talks.md
   - teaching.md

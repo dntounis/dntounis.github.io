@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GUINEA-PIG slice crossing — n_z versus n_t</title>
+<style>
+:root{
+  --paper:#FCFCFA; --panel:#F3F3EF; --ink:#17181B; --muted:#6E7076;
+  --faint:#9B9C9F; --rule:#DDDCD6;
+  --b1:#2E4E7E;   /* beam 1 */
+  --b2:#9B4A2F;   /* beam 2 */
+  --sq:#3F7A5B;   /* luminosity */
+  --cq:#B26A2C;   /* challenge / n_t accent */
+  --gq:#7A4A8C;
+  --warn:#9B4A2F;
+  --o1:#86B6EF; --o2:#3987E5; --o3:#1C5CAB; --o4:#0D366B;  /* ordinal n_z ramp */
+  --serif:"Iowan Old Style","Charter","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+     font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 28px 90px}
+header.top{padding:52px 0 20px;border-bottom:1px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.08;margin:14px 0 10px;font-weight:600;letter-spacing:-.015em}
+h1 em{font-style:italic;color:var(--muted)}
+.standfirst{max-width:66ch;color:#3A3B3E;margin:0}
+nav.tabs{display:flex;border-bottom:1px solid var(--rule);margin-bottom:30px;flex-wrap:wrap}
+nav.tabs button{appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding:16px 14px 13px;cursor:pointer;margin-bottom:-1px}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+nav.tabs button:focus-visible{outline:2px solid var(--b1);outline-offset:-4px}
+section.panel{display:none}
+section.panel.on{display:block}
+.figframe{border:1px solid var(--rule);background:#fff;position:relative}
+.figframe canvas{display:block;width:100%;height:330px}
+.figframe canvas.tall{height:470px}
+.figframe canvas.drag{touch-action:none;cursor:crosshair}
+.figtag{position:absolute;top:0;left:0;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);padding:9px 12px;pointer-events:none}
+.figcap{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;padding:9px 2px 0;text-align:right}
+.step-head{display:flex;align-items:baseline;gap:14px;margin:26px 0 6px}
+.step-num{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em}
+.step-head h2{font-size:25px;margin:0;font-weight:600;letter-spacing:-.01em}
+.step-body{max-width:68ch;color:#333437;margin:0}
+.tagpill{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border:1px solid;border-radius:2px}
+.tagpill.a{color:var(--b1);border-color:var(--b1)}
+.tagpill.b{color:var(--cq);border-color:var(--cq)}
+.stepnav{display:flex;align-items:center;gap:16px;margin-top:28px;padding-top:18px;border-top:1px solid var(--rule)}
+.stepnav button{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);color:var(--ink);padding:9px 15px;cursor:pointer;border-radius:2px}
+.stepnav button:hover:not(:disabled){border-color:var(--ink)}
+.stepnav button:disabled{color:var(--faint);cursor:default}
+.dots{display:flex;gap:7px;margin-left:auto}
+.dots i{width:7px;height:7px;border:1px solid var(--faint);border-radius:50%;cursor:pointer;display:block}
+.dots i.on{background:var(--ink);border-color:var(--ink)}
+.pg{display:grid;grid-template-columns:308px 1fr;gap:24px;align-items:start}
+.ctrl{border:1px solid var(--rule);padding:18px;background:var(--panel)}
+.ctrl h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:400}
+.ctrl h3.gap{margin-top:20px}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.btnrow button{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  background:#fff;border:1px solid var(--rule);padding:7px 10px;cursor:pointer;border-radius:2px;color:var(--ink)}
+.btnrow button:hover{border-color:var(--ink)}
+.btnrow button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btnrow button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btnrow button:disabled{color:var(--faint);border-color:var(--rule);cursor:default;background:#fff}
+label.slider{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-top:14px}
+label.slider span.v{float:right;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ink);margin-top:5px}
+select{font-family:var(--mono);font-size:10.5px;width:100%;padding:6px;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px}
+.subtabs{display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:16px;flex-wrap:wrap}
+.subtabs button{flex:1;background:#fff;border:0;padding:11px 6px;cursor:pointer;min-width:130px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.subtabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.readouts{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);border-top:0}
+.readouts div{padding:11px 12px;border-right:1px solid var(--rule)}
+.readouts div:last-child{border-right:0}
+.readouts span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.readouts strong{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:-.02em}
+.readouts strong.hi{color:var(--b1)}
+.readouts strong.bad{color:var(--warn)}
+.sidecanvas{border:1px solid var(--rule);border-top:0;background:#fff}
+.sidecanvas canvas{display:block;width:100%;height:172px}
+.note{font-size:14.2px;color:var(--muted);max-width:72ch;margin-top:18px}
+.status{font-family:var(--mono);font-size:11px;color:var(--muted);min-height:1.5em;margin-top:12px;letter-spacing:.03em;line-height:1.5}
+.legend{display:flex;gap:15px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:11px;flex-wrap:wrap}
+.legend i{width:9px;height:9px;display:inline-block;margin-right:6px;border-radius:50%;vertical-align:-1px}
+.legend i.sq{border-radius:1px}
+.eq{border-left:2px solid var(--ink);background:var(--panel);padding:14px 18px;margin:20px 0;font-family:var(--mono);font-size:13.5px;line-height:1.9;overflow-x:auto;white-space:nowrap}
+.eq math{font-size:16.5px;math-style:normal;color:var(--ink)}
+.eqrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:4px 0;line-height:normal}
+.eqlead,.eqnote{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:normal}
+.eq .an{color:var(--muted);font-family:var(--serif);font-size:14.5px;display:block;margin-top:6px;white-space:normal}
+dl.sym{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:10px 0 2px;white-space:normal}
+dl.sym dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);text-align:right}
+dl.sym dd{margin:0;font-family:var(--serif);font-size:14.2px;color:var(--muted);line-height:1.45}
+.eqlive{font-family:var(--mono);font-size:12.5px;color:var(--muted);border:1px solid var(--rule);border-top:0;padding:12px 14px;background:#fff;line-height:1.8}
+.eqlive b{color:var(--ink)}
+details.ch{border:1px solid var(--rule);border-left:2px solid var(--cq);background:#fff;margin:18px 0;padding:0}
+details.ch>summary{cursor:pointer;padding:13px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--cq);list-style:none}
+details.ch>summary::-webkit-details-marker{display:none}
+details.ch>summary::before{content:"\25B8  "}
+details.ch[open]>summary::before{content:"\25BE  "}
+details.ch .q{padding:0 18px 4px;font-size:15.4px;max-width:72ch}
+details.ch .a{padding:12px 18px 18px;font-size:14.8px;color:#333437;border-top:1px solid var(--rule);margin-top:12px;background:var(--panel)}
+table.cmp{width:100%;border-collapse:collapse;margin-top:18px;font-size:14.4px}
+table.cmp th,table.cmp td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp thead th{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--ink)}
+table.cmp td:first-child{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:12px}
+table.num{width:100%;border-collapse:collapse;margin-top:16px;font-family:var(--mono);font-size:12.5px}
+table.num th,table.num td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:right}
+table.num th:first-child,table.num td:first-child{text-align:left;color:var(--muted);letter-spacing:.06em}
+table.num thead th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--ink)}
+table.num tbody tr:hover{background:var(--panel)}
+td.ok{color:var(--sq)} td.bad{color:var(--warn)}
+.hi{color:var(--warn)}
+h3.sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;margin:44px 0 0;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+h3.sec:first-child{margin-top:0}
+.crit{border:1px solid var(--rule);border-left:2px solid var(--warn);padding:15px 18px;margin:16px 0;background:#fff}
+.crit b{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin-bottom:6px;font-weight:400}
+.crit p{margin:0;font-size:14.8px;color:#333437;max-width:76ch}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);margin-top:22px;border:1px solid var(--rule)}
+.pipeline div{padding:15px 15px 17px;border-right:1px solid var(--rule)}
+.pipeline div:last-child{border-right:0}
+.pipeline b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:7px;font-weight:400}
+.pipeline p{margin:0;font-size:13.8px;line-height:1.5}
+.bar{height:5px;background:var(--rule);overflow:hidden;margin-top:10px}
+.bar>i{display:block;height:100%;width:100%;background:var(--ink);transform:scaleX(0);transform-origin:left center;transition:transform .1s linear}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.4px;color:var(--muted);max-width:76ch}
+.src{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+code{font-family:var(--mono);font-size:.86em;background:var(--panel);padding:1px 5px;border-radius:2px}
+pre.code{font-family:var(--mono);font-size:12px;background:var(--panel);padding:14px 16px;overflow-x:auto;
+  color:#333437;line-height:1.65;border-left:2px solid var(--rule);margin:16px 0}
+pre.code b{color:var(--ink);font-weight:600}
+.subtabs button:focus-visible,.btnrow button:focus-visible,.stepnav button:focus-visible,
+details.ch>summary:focus-visible,select:focus-visible{outline:2px solid var(--b1);outline-offset:-3px}
+input[type=range]:focus-visible{outline:2px solid var(--b1);outline-offset:3px}
+@media (max-width:880px){
+  .pg{grid-template-columns:1fr}
+  .pipeline{grid-template-columns:1fr}
+  .pipeline div{border-right:0;border-bottom:1px solid var(--rule)}
+  .readouts{grid-template-columns:1fr 1fr}
+  .readouts div:nth-child(2){border-right:0}
+  .wrap{padding:0 18px 60px}
+  table.num,table.cmp{display:block;overflow-x:auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">GUINEA-PIG++ &middot; src/guineapigCPP &middot; src/gridCPP &middot; src/fieldCPP &middot; src/particleBeamCPP</div>
+  <h1>Which slice meets which <em>&mdash; and what n<sub>t</sub> is actually for</em></h1>
+  <p class="standfirst">GUINEA-PIG chops each bunch into n<sub>z</sub> longitudinal slices and each
+  encounter into n<sub>t</sub> sub-steps. They are not two versions of the same knob. Everything below is
+  read off the source in this repository, and the toy collision re-derives it &mdash; validated against
+  four analytic limits before it shipped.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-panel="walk">Walkthrough</button>
+  <button role="tab" aria-selected="false" data-panel="cross">The crossing</button>
+  <button role="tab" aria-selected="false" data-panel="plane">n_z &times; n_t plane</button>
+  <button role="tab" aria-selected="false" data-panel="run">Toy collision</button>
+  <button role="tab" aria-selected="false" data-panel="conv">Convergence &amp; fidelity</button>
+  <button role="tab" aria-selected="false" data-panel="ref">Source &amp; critique</button>
+</nav>
+
+<section class="panel on" id="walk">
+  <div class="figframe"><canvas id="figc"></canvas><div class="figtag" id="figtag">Fig. 01</div></div>
+  <div class="figcap" id="figcap"></div>
+  <div class="step-head">
+    <span class="step-num" id="stepnum"></span>
+    <span class="tagpill a" id="stepdir"></span>
+  </div>
+  <div class="step-head" style="margin-top:2px"><h2 id="steptitle"></h2></div>
+  <p class="step-body" id="steptext"></p>
+  <div class="stepnav">
+    <button id="prev">&larr; Back</button>
+    <button id="next">Next &rarr;</button>
+    <div class="dots" id="dots"></div>
+  </div>
+</section>
+
+<section class="panel" id="cross">
+  <div class="subtabs">
+    <button data-xmode="concept" aria-pressed="true">Two discretisations</button>
+    <button data-xmode="live" aria-pressed="false">The crossing, animated</button>
+    <button data-xmode="table" aria-pressed="false">Pair table</button>
+  </div>
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Schedule</h3>
+      <label class="slider">n_z &mdash; slices per bunch <span class="v" id="v_anz">8</span>
+        <input type="range" id="s_anz" min="2" max="16" value="8" step="1"></label>
+      <label class="slider">n_t &mdash; sub-steps per step <span class="v" id="v_ant">4</span>
+        <input type="range" id="s_ant" min="1" max="8" value="4" step="1"></label>
+      <label class="slider">frames per second <span class="v" id="v_afps">6</span>
+        <input type="range" id="s_afps" min="1" max="24" value="6" step="1"></label>
+      <div class="btnrow">
+        <button class="primary" id="aplay">&#9654; Play</button>
+        <button id="astepk">Step k</button>
+        <button id="astepi">Step i&#8320;</button>
+        <button id="arew">&#8635; Reset</button>
+      </div>
+      <h3 class="gap">Emphasise</h3>
+      <div class="btnrow">
+        <button id="em_nz" aria-pressed="true">n_z march</button>
+        <button id="em_nt" aria-pressed="false">n_t scan</button>
+      </div>
+      <div class="status" id="astat"></div>
+    </div>
+    <div>
+      <div class="figframe"><canvas id="animc" class="tall"></canvas><div class="figtag" id="animtag">two ways to discretise a collision</div></div>
+      <div class="readouts">
+        <div><span>crossing step k</span><strong id="a_k">&mdash;</strong></div>
+        <div><span>sub-step i&#8320;</span><strong id="a_i">&mdash;</strong></div>
+        <div><span>pairs this step</span><strong id="a_p">&mdash;</strong></div>
+        <div><span>make_step calls so far</span><strong id="a_s" class="hi">&mdash;</strong></div>
+      </div>
+      <div class="eqlive" id="a_live"></div>
+      <div class="legend">
+        <span><i style="background:var(--b1)"></i>beam 1 &rarr; (slice 0 = head)</span>
+        <span><i style="background:var(--b2)"></i>&larr; beam 2</span>
+        <span><i class="sq" style="background:var(--sq)"></i>pair being solved now</span>
+        <span><i style="background:#C9C8C2"></i>frozen &mdash; code does not touch it</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eq">
+    <div class="eqrow"><span class="eqlead">crossing schedule</span>
+      <math><mrow><msub><mi>i</mi><mn>1</mn></msub><mo>+</mo><msub><mi>i</mi><mn>2</mn></msub><mo>=</mo><mi>k</mi></mrow></math>
+      <span class="eqnote">k = 0 &hellip; 2n<sub>z</sub>&minus;2 &middot; guineapigCPP.h:513</span></div>
+    <div class="eqrow"><span class="eqlead">meeting point</span>
+      <math><mrow><msub><mi>z</mi><mi>meet</mi></msub><mo>=</mo><mfrac><mrow><mo>(</mo><msub><mi>i</mi><mn>2</mn></msub><mo>&minus;</mo><msub><mi>i</mi><mn>1</mn></msub><mo>)</mo></mrow><mn>2</mn></mfrac><mi>&Delta;z</mi></mrow></math>
+      <span class="eqnote">centre of the bin whose lower edge is <code>min_z</code></span></div>
+    <div class="eqrow"><span class="eqlead">push per sub-step</span>
+      <math><mrow><mi>step_</mi><mo>=</mo><mfrac><mi>&Delta;z</mi><mrow><mn>2</mn><msub><mi>n</mi><mi>t</mi></msub></mrow></mfrac><mo>=</mo><mfrac><msub><mi>cut</mi><mi>z</mi></msub><mrow><msub><mi>n</mi><mi>z</mi></msub><msub><mi>n</mi><mi>t</mi></msub></mrow></mfrac></mrow></math>
+      <span class="eqnote">gridCPP.cc:146</span></div>
+    <dl class="sym">
+      <dt>i<sub>1</sub>, i<sub>2</sub></dt><dd>slice index in beam 1 / beam 2, counted from the <b>head</b> of that bunch</dd>
+      <dt>k</dt><dd>crossing step &mdash; equivalently, twice the meeting time in units of &Delta;z/2c</dd>
+      <dt>i<sub>0</sub></dt><dd>sub-step within one k, running 0 &hellip; n<sub>t</sub>&minus;1. The pair list does not change with it</dd>
+      <dt>&Delta;z</dt><dd>slice thickness, 2&middot;cut<sub>z</sub>/n<sub>z</sub></dd>
+    </dl>
+  </div>
+
+  <details class="ch"><summary>Check yourself &mdash; do the beams move during the n_t loop?</summary>
+    <div class="q">Set n<sub>t</sub> = 8 and press <b>Step i&#8320;</b> repeatedly without changing k. The slabs visibly creep.
+    Yet the pair list, and the <code>min_z</code> bin every luminosity event is written into, do not change.
+    Is the creep real physics or a drawing artefact &mdash; and if it is real, why does the bookkeeping ignore it?</div>
+    <div class="a"><b>It is real, and the bookkeeping ignores it on purpose.</b>
+    <p style="margin:8px 0">Each sub-step calls <code>advancePosition(step_)</code> on every particle of the two active slices,
+    with step_ = &Delta;z/(2n<sub>t</sub>). Over the n<sub>t</sub> sub-steps of one k, each beam therefore advances
+    &Delta;z/2, and since they counter-propagate the <i>relative</i> closing is exactly &Delta;z &mdash; one whole slice
+    thickness. That is precisely the displacement that makes the next value of k the correct pairing. The march and the
+    scan are the same motion sampled at two rates.</p>
+    <p style="margin:8px 0">What the code does <i>not</i> do is re-derive the pairing from that motion. The pair list
+    is recomputed only at the top of the k loop, and <code>min_z = &frac12;(i&#8322;&minus;i&#8321;&minus;1)</code>
+    (guineapigCPP.cc:677) is a function of the indices alone. So within one k the geometry is held piecewise constant
+    while the dynamics runs continuously &mdash; a standard operator-split: transport the pairing on the coarse grid,
+    integrate the force on the fine one.</p>
+    <p style="margin:8px 0">There is a measurable consequence, and the toy in the Convergence tab shows it. With
+    rigid beams the split is exact: the 1/n<sub>t</sub> in the luminosity estimator (gridCPP.cc:916) cancels the loop
+    and L comes out bit-identical for n<sub>t</sub> = 1, 2, 4, 8. Give the beams their real angular divergence and it
+    stops being exact &mdash; the slabs now change transverse size as they creep, so the n<sub>t</sub> sub-steps sample
+    &sigma;(z) at n<sub>t</sub> different points inside one &Delta;z bin instead of one. Measured effect:
+    0.4 % between n<sub>t</sub> = 1 and 8. Compare the same quantity's n<sub>z</sub> dependence over the same range:
+    <b>10 %</b>. That ratio, 25:1, is the quantitative version of &ldquo;n<sub>z</sub> carries the geometry, n<sub>t</sub> only refines the push&rdquo;.</p>
+    <p style="margin:8px 0"><b>The judgement call:</b> whether 0.4 % matters is not something the code can tell you.
+    For a luminosity number it is negligible against the transverse-grid bias. For a z-differential background
+    spectrum, where the &Delta;z binning is already the limiting resolution, it is invisible. It would start to
+    matter only if you were using GUINEA-PIG to study the longitudinal structure of the pinch itself &mdash; and at
+    that point you would raise n<sub>z</sub>, not n<sub>t</sub>.</p></div></details>
+</section>
+
+<section class="panel" id="plane">
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Probe</h3>
+      <div class="status" id="pstat">Drag on the map.</div>
+      <h3 class="gap">Beam</h3>
+      <select id="p_preset">
+        <option value="c3_250">C&sup3;-250 &middot; 125 GeV/beam</option>
+        <option value="ilc_250">ILC-250 &middot; 125 GeV/beam</option>
+        <option value="weak">Weak-disruption toy</option>
+      </select>
+      <div class="note" style="margin-top:14px;font-size:13px">
+        Fill is cost, n<sub>z</sub><sup>2</sup>n<sub>t</sub> field solves. Contours are constant push length
+        step_ = cut<sub>z</sub>/(n<sub>z</sub>n<sub>t</sub>) &mdash; lines of roughly equal <i>integration</i>
+        accuracy. They have slope &minus;1 in log&ndash;log while cost climbs twice as fast along n<sub>z</sub>,
+        so the cheapest point on any accuracy contour is its bottom-right end.
+      </div>
+    </div>
+    <div>
+      <div class="figframe"><canvas id="planec" class="drag"></canvas><div class="figtag">cost and push length over the (n_z, n_t) plane</div></div>
+      <div class="readouts">
+        <div><span>field solves</span><strong id="pl_c">&mdash;</strong></div>
+        <div><span>push length step_</span><strong id="pl_s" class="hi">&mdash;</strong></div>
+        <div><span>slice &Delta;z</span><strong id="pl_dz">&mdash;</strong></div>
+        <div><span>lumi z-bins</span><strong id="pl_b">&mdash;</strong></div>
+      </div>
+      <div class="eqlive" id="pl_live"></div>
+    </div>
+  </div>
+  <table class="cmp">
+    <thead><tr><th>what it controls</th><th>n_z</th><th>n_t</th><th>n_x, n_y</th></tr></thead>
+    <tbody>
+      <tr><td>push length step_</td><td>&prop; 1/n<sub>z</sub></td><td>&prop; 1/n<sub>t</sub></td><td>&mdash;</td></tr>
+      <tr><td>field solves</td><td>&prop; n<sub>z</sub><sup>2</sup></td><td>&prop; n<sub>t</sub></td><td>&mdash;</td></tr>
+      <tr><td>cost of one solve</td><td>&mdash;</td><td>&mdash;</td><td>2n<sub>x</sub>&times;2n<sub>y</sub> FFT</td></tr>
+      <tr><td>particle pushes</td><td>&prop; n<sub>z</sub></td><td>&prop; n<sub>t</sub></td><td>&mdash;</td></tr>
+      <tr><td>&Delta;z output bin, z-resolution</td><td>&prop; 1/n<sub>z</sub></td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>hourglass / pinch geometry</td><td>resolves it</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>macroparticles per slice</td><td>&prop; 1/n<sub>z</sub></td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>overlap-integral bias</td><td>&mdash;</td><td>&mdash;</td><td>cells per &sigma;</td></tr>
+    </tbody>
+  </table>
+  <p class="note">The third column is the point about n<sub>x</sub> and n<sub>y</sub>: the transform is always
+  2n<sub>x</sub> &times; 2n<sub>y</sub> (fieldCPP.h:40&ndash;41) whatever n<sub>z</sub> and n<sub>t</sub> are. They set
+  how <i>many</i> transforms, never how big.</p>
+</section>
+
+<section class="panel" id="run">
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Beam</h3>
+      <select id="r_preset">
+        <option value="c3_250">C&sup3;-250 &middot; 125 GeV/beam</option>
+        <option value="ilc_250">ILC-250 &middot; 125 GeV/beam</option>
+        <option value="weak">Weak-disruption toy</option>
+      </select>
+      <h3 class="gap">Grid</h3>
+      <label class="slider">n_x <span class="v" id="v_nx">64</span>
+        <input type="range" id="s_nx" min="4" max="8" value="6" step="1"></label>
+      <label class="slider">n_y <span class="v" id="v_ny">128</span>
+        <input type="range" id="s_ny" min="4" max="8" value="7" step="1"></label>
+      <label class="slider">n_z <span class="v" id="v_nz">8</span>
+        <input type="range" id="s_nz" min="1" max="32" value="8" step="1"></label>
+      <label class="slider">n_t <span class="v" id="v_nt">4</span>
+        <input type="range" id="s_nt" min="1" max="16" value="4" step="1"></label>
+      <label class="slider">n_m macroparticles <span class="v" id="v_nm">8,000</span>
+        <input type="range" id="s_nm" min="1000" max="24000" value="8000" step="1000"></label>
+      <h3 class="gap">Physics switches</h3>
+      <div class="btnrow">
+        <button id="t_kick" aria-pressed="true">beam-beam force</button>
+        <button id="t_div" aria-pressed="true">angular divergence</button>
+      </div>
+      <div class="btnrow" style="margin-top:12px">
+        <button class="primary" id="rgo">&#9654; Run</button>
+        <button id="rstop" disabled>Stop</button>
+      </div>
+      <div class="bar"><i id="rprog"></i></div>
+      <div class="status" id="rstat"></div>
+    </div>
+    <div>
+      <div class="figframe"><canvas id="runc"></canvas><div class="figtag" id="runtag">cumulative L/L&#8320; through the crossing</div></div>
+      <div class="readouts">
+        <div><span>L / L&#8320;</span><strong id="ro_h" class="hi">&mdash;</strong></div>
+        <div><span>&sigma;_y head &rarr; tail</span><strong id="ro_s">&mdash;</strong></div>
+        <div><span>outside grid</span><strong id="ro_o">&mdash;</strong></div>
+        <div><span>solves &middot; wall time</span><strong id="ro_t">&mdash;</strong></div>
+      </div>
+      <div class="eqlive" id="ro_live"></div>
+      <div class="sidecanvas"><canvas id="pinchc"></canvas></div>
+      <div class="sidecanvas"><canvas id="zc"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--sq)"></i>L(k)/L&#8320; and dL/dz</span>
+        <span><i style="background:var(--b1)"></i>beam 1 &sigma;_y, final</span>
+        <span><i style="background:var(--b2)"></i>beam 2 &sigma;_y, final</span>
+        <span><i style="background:#C9C8C2"></i>&sigma;_y initial</span>
+      </div>
+    </div>
+  </div>
+  <div class="eq">
+    <div class="eqrow"><span class="eqlead">luminosity estimator</span>
+      <math><mrow><mi>L</mi><mo>=</mo><munder><mo>&sum;</mo><mrow><mi>steps</mi></mrow></munder><mfrac><mrow><munder><mo>&sum;</mo><mi>cells</mi></munder><msub><mi>&rho;</mi><mn>1</mn></msub><msub><mi>&rho;</mi><mn>2</mn></msub></mrow><mrow><mi>&Delta;x</mi><mo>&InvisibleTimes;</mo><mi>&Delta;y</mi><mo>&InvisibleTimes;</mo><msub><mi>n</mi><mi>t</mi></msub></mrow></mfrac></mrow></math>
+      <span class="eqnote">gridCPP.cc:916</span></div>
+    <span class="an">The 1/n<sub>t</sub> is what makes n<sub>t</sub> luminosity-neutral: each pair is scored
+    n<sub>t</sub> times and divided by n<sub>t</sub>. Switch the force off and the readout is bit-identical for
+    n<sub>t</sub> = 1, 2, 4, 8 &mdash; verified to six decimals. Switch divergence off too and it must land on
+    0.9946, the &plusmn;3&sigma;<sub>z</sub> truncation factor erf(3/&radic;2)&sup2;; whatever is left is grid bias.</span>
+  </div>
+  <details class="ch"><summary>Check yourself &mdash; why is L below 1 even with the force off?</summary>
+    <div class="q">Turn the beam-beam force off and leave divergence on. L/L&#8320; settles near 0.87, not 1.
+    Nothing is deflecting anything. Where did 13 % of the luminosity go?</div>
+    <div class="a"><b>Into the hourglass, and it is the one thing in this file that tests
+    <code>backSlices()</code>.</b>
+    <p style="margin:8px 0">L&#8320; = N&sup2;/(4&pi;&sigma;*<sub>x</sub>&sigma;*<sub>y</sub>) is the luminosity
+    two bunches would have if every pair of slices met exactly at the waist. They do not. Slice i<sub>1</sub> meets
+    slice i<sub>2</sub> at z = (i<sub>2</sub>&minus;i<sub>1</sub>)&Delta;z/2, and at that longitudinal position each
+    beam has expanded to &sigma;(z) = &sigma;*&radic;(1+z&sup2;/&beta;*&sup2;). For C&sup3;-250,
+    &sigma;<sub>z</sub>/&beta;*<sub>y</sub> = 0.83, so the tails collide with a vertical size several times the
+    waist value.</p>
+    <p style="margin:8px 0">Summing that over the toy's own slicing gives an analytic prediction with no free
+    parameters: H = &sum;<sub>ij</sub> w<sub>i</sub>w<sub>j</sub> /
+    &radic;((1+u&sup2;/&beta;*<sub>x</sub>&sup2;)(1+u&sup2;/&beta;*<sub>y</sub>&sup2;)) with u the meeting point
+    above &mdash; 0.8834 at n<sub>z</sub> = 8, converging to 0.8868. The toy returns 0.8732 at n<sub>z</sub> = 8,
+    a ratio of 0.9885; the missing 1.15 % is the &minus;0.64 % transverse-grid bias plus shot noise. That is the
+    validation.</p>
+    <p style="margin:8px 0"><b>Why it tests backSlices.</b> Nothing in the toy tells a slice how big it should be
+    when it collides. Each slice is generated at the waist and then pre-drifted backwards by
+    dist<sub>k</sub> = (k + &frac12;(1&minus;1/n<sub>t</sub>))&middot;&Delta;z/2 (particleBeamCPP.h:232), after
+    which it simply drifts forward one step_ at a time. The correct &sigma;(z) at the correct moment is an
+    <i>emergent</i> property of that offset being right. Change the &Delta;z/2 increment to &Delta;z and the
+    hourglass factor comes out wrong; the luminosity closure test above would still pass, because it does not
+    involve v at all.</p>
+    <p style="margin:8px 0">Note also the n<sub>z</sub> dependence of H itself: 0.808 at n<sub>z</sub> = 2, 0.873
+    at 4, 0.883 at 8, 0.887 in the limit. Two slices cannot represent an hourglass. This is pure geometry &mdash;
+    n<sub>t</sub> does not appear.</p></div></details>
+</section>
+
+<section class="panel" id="conv">
+  <div class="subtabs">
+    <button data-cmode="sweep" aria-pressed="true">Convergence sweep</button>
+    <button data-cmode="fid" aria-pressed="false">How good is this toy?</button>
+  </div>
+
+  <div id="c_sweep">
+    <div class="pg">
+      <div class="ctrl">
+        <h3>Sweep grid</h3>
+        <div class="note" style="margin:0 0 8px;font-size:13px">n<sub>z</sub> &isin; {2,4,8,16} &times;
+          n<sub>t</sub> &isin; {1,2,4,8}, sixteen collisions at fixed transverse grid.</div>
+        <label class="slider">n_x <span class="v" id="v_snx">32</span>
+          <input type="range" id="s_snx" min="4" max="7" value="5" step="1"></label>
+        <label class="slider">n_y <span class="v" id="v_sny">64</span>
+          <input type="range" id="s_sny" min="4" max="8" value="6" step="1"></label>
+        <label class="slider">n_m <span class="v" id="v_snm">6,000</span>
+          <input type="range" id="s_snm" min="2000" max="16000" value="6000" step="1000"></label>
+        <div class="btnrow" style="margin-top:12px">
+          <button class="primary" id="sgo">&#9654; Run sweep</button>
+          <button id="sstop" disabled>Stop</button>
+        </div>
+        <div class="bar"><i id="sprog"></i></div>
+        <div class="status" id="sstat"></div>
+      </div>
+      <div>
+        <div class="figframe"><canvas id="swa"></canvas><div class="figtag">L/L&#8320; against the product n_z&middot;n_t &mdash; the thing that sets step_</div></div>
+        <div class="figframe" style="border-top:0"><canvas id="swb"></canvas><div class="figtag">the same points against what they cost</div></div>
+        <div class="eqlive" id="sw_live"></div>
+        <div class="legend" id="sw_leg"></div>
+      </div>
+    </div>
+    <p class="note">If the push length were the whole story the four curves would coincide. They do not, and the
+    readout above quantifies the spread for the run you just did. Everything at n<sub>z</sub> &ge; 8 collapses onto one
+    curve; everything below it is a different physical model. The absolute scale depends on the transverse grid, so
+    raise n<sub>y</sub> before reading values off the axis &mdash; the <i>shape</i> is what this panel is for.</p>
+    <details class="ch"><summary>Check yourself &mdash; n_z = 4 overshoots. Why?</summary>
+      <div class="q">Run the sweep. The n<sub>z</sub> = 2 family lands well below the n<sub>z</sub> = 16 answer,
+      but n<sub>z</sub> = 4 ends up <b>above</b> it. The error is not monotonic in n<sub>z</sub>. What are the two
+      effects, and why do they have opposite signs?
+      <span style="color:var(--faint)">(Reference values quoted below &mdash; 1.29, 1.80 and 1.69 for n<sub>z</sub> = 2,
+      4 and 16 &mdash; were measured on a 64&times;128 grid with n<sub>t</sub> up to 16. The in-browser sweep defaults
+      to a coarser grid and to n<sub>t</sub> &le; 8, so its numbers sit a few percent lower.)</span></div>
+      <div class="a"><b>Two errors of opposite sign that cross over between n<sub>z</sub> = 2 and 8.</b>
+      <p style="margin:8px 0"><b>Downward: the hourglass.</b> Coarse slicing puts too much of the charge at
+      |z| near zero. With n<sub>z</sub> = 2 the only available meeting points are z = 0 and &plusmn;&Delta;z/2 =
+      &plusmn;150 &micro;m, and the discrete hourglass factor is 0.808 against 0.887 in the limit &mdash; a 9 %
+      deficit sitting directly on the luminosity. This dominates at n<sub>z</sub> = 2.</p>
+      <p style="margin:8px 0"><b>Upward: over-concentrated deflectors.</b> A slice's whole charge acts as one
+      transverse sheet. Coarse slicing therefore delivers the pinch in a few large, perfectly-timed kicks instead
+      of many small ones, and because the focusing is nonlinear &mdash; a particle kicked inward early sees a
+      denser core for the rest of the crossing &mdash; lumping the kicks <i>over</i>-focuses. This is the same
+      error a leapfrog integrator makes with too long a step, except that here the step is a spatial one and
+      n<sub>t</sub> cannot fix it: n<sub>t</sub> subdivides the push through <i>one</i> sheet, it does not make
+      the sheet thinner.</p>
+      <p style="margin:8px 0">At n<sub>z</sub> = 2 the hourglass deficit (&minus;9 %) beats the over-focusing;
+      at n<sub>z</sub> = 4 the hourglass deficit has fallen to &minus;1.5 % while the over-focusing is still
+      worth about +8 %, so the sum goes positive; by n<sub>z</sub> = 8 both are at the percent level and the
+      curve settles. You can watch the first effect alone by switching the beam-beam force off in the Toy
+      collision tab and stepping n<sub>z</sub> from 2 to 16 &mdash; that isolates the geometry with no dynamics
+      at all.</p>
+      <p style="margin:8px 0"><b>Judgement:</b> the practical reading is that a non-monotonic error curve makes
+      &ldquo;I doubled n<sub>z</sub> and the answer barely moved&rdquo; an unsafe convergence test near
+      n<sub>z</sub> &asymp; 4&ndash;8, because you can be sitting near the crossover where the two errors cancel.
+      Converge in n<sub>z</sub> from above, not from below.</p></div></details>
+  </div>
+
+  <div id="c_fid" style="display:none">
+    <h3 class="sec">What this toy is, exactly</h3>
+    <p class="note" style="max-width:76ch">It re-implements GUINEA-PIG's beam-beam kernel and nothing else:
+    the crossing schedule (guineapigCPP.h:460&ndash;524), CIC charge assignment (gridCPP.cc:763), the
+    cell-integrated Green's kernel <code>f_potential_2</code> (fieldCPP.cc:275), both beams packed into one
+    complex FFT of size 2n<sub>x</sub>&times;2n<sub>y</sub> (fieldCPP.cc:47&ndash;104), the CIC-weighted
+    one-cell field stencil <code>ElectricFieldCIC</code> (gridCPP.cc:44&ndash;82), the <code>backSlices</code>
+    pre-drift (particleBeamCPP.h:232) and the luminosity estimator (gridCPP.cc:916). In <code>Float64</code>,
+    where GUINEA-PIG uses <code>float</code>.</p>
+
+    <h3 class="sec">Fixed grid parameters &mdash; the exact numbers</h3>
+    <table class="num" id="fid_params"></table>
+    <p class="note">Cuts are held fixed in units of the beam size; only n<sub>x</sub>, n<sub>y</sub>,
+    n<sub>z</sub>, n<sub>t</sub>, n<sub>m</sub> move. A separate scan confirmed H<sub>D</sub> depends on cells-per-&sigma;
+    alone and not on where the cut is placed &mdash; cut<sub>y</sub> = 10&sigma; at n<sub>y</sub> = 128 and
+    cut<sub>y</sub> = 20&sigma; at n<sub>y</sub> = 256 give identical answers to four digits, and the
+    out-of-grid fraction is 0.00 % in every converged configuration.</p>
+
+    <h3 class="sec">What was checked against a known answer</h3>
+    <table class="num" id="fid_ledger"></table>
+
+    <h3 class="sec">Error budget at the default configuration</h3>
+    <table class="num" id="fid_budget"></table>
+
+    <h3 class="sec">Physics that is simply absent</h3>
+    <p class="note" style="max-width:76ch">Beamstrahlung and its photon spectrum &mdash; which is what
+    GUINEA-PIG mostly exists for &mdash; coherent and incoherent pairs, tridents, hadrons and minijets,
+    initial energy spread, ISR, crossing angle and crab cavities, offsets, waist shifts and jitter,
+    longitudinal wakes, non-Gaussian tracked distributions, and the <code>extra_grids</code> machinery that
+    catches particles leaving the main grid. Treat every absolute number here as a discretisation study,
+    not a luminosity prediction.</p>
+    <div class="crit"><b>The one number that agrees better than it should</b>
+      <p>The extrapolated H<sub>D</sub> = 1.692 sits 1.1 % from the 1.71 implied by the published C&sup3;-250 luminosity
+      (1.3&times;10<sup>34</sup> over a geometric 7.60&times;10<sup>33</sup> cm<sup>&minus;2</sup>s<sup>&minus;1</sup>).
+      A model with no beamstrahlung has no business being that close, and the agreement should be read as a
+      sanity band rather than a validation: energy loss during the crossing raises the kick (&Delta;v &prop; 1/&gamma;)
+      while the published figure is a total luminosity whose own definition and rounding are not pinned down here.
+      The ledger entries above &mdash; which compare against analytic limits, not against a headline &mdash; are
+      the load-bearing ones.</p></div>
+  </div>
+</section>
+
+<section class="panel" id="ref">
+  <h3 class="sec">The loop nest, verbatim</h3>
+<pre class="code">// guineapigCPP.h:460  &mdash; the crossing schedule, 2n_z&minus;1 steps
+for (k=0; k&lt;n_slice; k++)           iteration_on_overlaping_slices(0, k, sor);
+for (k=n_slice; k&lt;2*n_slice-1; k++) iteration_on_overlaping_slices(k-n_slice+1, n_slice-1, sor);
+
+// guineapigCPP.cc:819 &mdash; <b>n_t sub-steps; the pair list is frozen inside this loop</b>
+for (i0=0; i0&lt;grid_.get_timestep(); i0++)
+    make_time_step_on_slices(firstSliceOfBeam1, lastSliceOfBeam2, sor);
+
+// guineapigCPP.h:513 &mdash; the pairs of one step: the indices run in OPPOSITE directions
+slice_beam_2 = lastSliceOfBeam2;
+for (slice_beam_1 = firstSliceOfBeam1; slice_beam_1 &lt;= lastSliceOfBeam2; slice_beam_1++) {
+    make_step(slice_beam_1, slice_beam_2, sor);   // deposit &rarr; FFT solve &rarr; interp &rarr; kick + drift
+    slice_beam_2--;                               <b>// =&gt; i1 + i2 = k is invariant</b>
+}</pre>
+
+  <h3 class="sec">Source map</h3>
+  <table class="num" id="srcmap"></table>
+
+  <h3 class="sec">Critique</h3>
+  <div class="crit"><b>1 &middot; the n_t loop re-solves the field but not the pairing</b>
+    <p>Within one k, <code>make_step</code> re-deposits and re-solves n<sub>t</sub> times while
+    <code>min_z</code> stays fixed. That is a defensible operator split, but it means the cost of raising
+    n<sub>t</sub> is a full FFT per sub-step per pair, when the pairing &mdash; and therefore the source
+    geometry at slice granularity &mdash; has not changed. A scheme that froze the field and sub-cycled only
+    the push would get most of the integration accuracy for a fraction of the cost. GUINEA-PIG does not offer
+    that option; n<sub>t</sub> buys both together whether you need both or not.</p></div>
+  <div class="crit"><b>2 &middot; cost is quadratic in n_z, but only the linear part is physics</b>
+    <p>Field solves scale as n<sub>z</sub><sup>2</sup>n<sub>t</sub> because every slice must meet every other
+    slice. Particle pushes scale only as n<sub>z</sub>n<sub>t</sub>n<sub>m</sub>, since each
+    <code>make_step</code> touches just two slices. So at large n<sub>z</sub> the run is dominated by field
+    solves whose source distributions differ only slightly from one another &mdash; the transverse charge
+    profile of slice i and slice i+1 are nearly the same object. Nothing in the code exploits that.</p></div>
+  <div class="crit"><b>3 &middot; the z resolution of every differential output is set by a parameter chosen for cost</b>
+    <p><code>min_z</code> takes only 2n<sub>z</sub>&minus;1 discrete values and each event is smeared uniformly
+    over one &Delta;z (meshCPP.h:34). Every z-differential distribution GUINEA-PIG writes &mdash; pair vertices,
+    hadron vertices, luminosity against z &mdash; inherits that binning. n<sub>z</sub> is normally chosen by how
+    long the job may take, which means an output resolution is being set by a compute budget without that
+    trade being stated anywhere in the parameter file.</p></div>
+  <div class="crit"><b>4 &middot; the source tree has an encoding trap</b>
+    <p><code>src/particleBeamCPP.cc</code> is ISO-8859, not UTF-8. GNU grep classifies it as binary and prints
+    <i>nothing</i> rather than an error, so a search for <code>backstep</code> across <code>src/</code> comes back
+    empty and the function looks as though it does not exist. <code>grep -a</code>, or an encoding
+    normalisation, avoids an hour of confusion.</p></div>
+
+  <h3 class="sec">Reference values used here</h3>
+  <table class="num" id="beamtab"></table>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const C={ink:'#17181B',muted:'#6E7076',faint:'#9B9C9F',rule:'#DDDCD6',panel:'#F3F3EF',paper:'#FCFCFA',
+  b1:'#2E4E7E',b2:'#9B4A2F',sq:'#3F7A5B',cq:'#B26A2C',gq:'#7A4A8C',warn:'#9B4A2F',
+  frz:'#C9C8C2', o:['#86B6EF','#3987E5','#1C5CAB','#0D366B']};
+const MONO='11px ui-monospace, "SF Mono", Menlo, monospace';
+const MONO9='9.5px ui-monospace, "SF Mono", Menlo, monospace';
+const MONO8='8.5px ui-monospace, "SF Mono", Menlo, monospace';
+const SERIF='13px "Iowan Old Style", Charter, Georgia, serif';
+
+/* ---------- canvas helpers (shell) ---------- */
+let TAGH=28;
+function tagH(c){const p=c&&c.parentElement,t=p&&p.querySelector('.figtag');
+  return t?Math.max(24,t.offsetHeight):24;}
+function cvs(id){const c=document.getElementById(id);if(!c)return null;
+  const r=c.getBoundingClientRect();if(r.width<5)return null;
+  TAGH=tagH(c);const dpr=window.devicePixelRatio||1;
+  c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);
+  const x=c.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  x.clearRect(0,0,r.width,r.height);return {x,w:r.width,h:r.height};}
+function frame(x,L,T,R,B){x.strokeStyle=C.rule;x.lineWidth=1;x.strokeRect(L+.5,T+.5,R-L,B-T);}
+function txt(x,s,px,py,col,font,align,base){x.fillStyle=col||C.muted;x.font=font||MONO;
+  x.textAlign=align||'left';x.textBaseline=base||'alphabetic';x.fillText(s,px,py);}
+function mathToks(s){const out=[];let i=0;
+  while(i<s.length){const c=s[i];
+    if((c==='_'||c==='^')&&i+1<s.length){let t;
+      if(s[i+1]==='{'){const e=s.indexOf('}',i+2);t=s.slice(i+2,e<0?s.length:e);i=(e<0?s.length:e+1);}
+      else{t=s[i+1];i+=2;}
+      out.push({k:c,t});continue;}
+    /* a LONE trailing _ or ^ (the identifier "step_") is literal text: consume
+       it, or the loop makes no progress and never terminates */
+    let j=i; if(s[j]==='_'||s[j]==='^')j++;
+    while(j<s.length&&s[j]!=='_'&&s[j]!=='^')j++;
+    out.push({k:'',t:s.slice(i,j)});i=j;}
+  return out;}
+function txtMath(x,s,px,py,col,font,align){
+  const F=font||MONO,base=parseFloat(F)||11;
+  const S=F.replace(/^[\d.]+px/,(Math.max(7,Math.round(base*0.74*2)/2))+'px');
+  const toks=mathToks(String(s));
+  let w=0;toks.forEach(t=>{x.font=t.k?S:F;w+=x.measureText(t.t).width;});
+  let cx=align==='center'?px-w/2:(align==='right'?px-w:px);
+  toks.forEach(t=>{const f=t.k?S:F;
+    txt(x,t.t,cx,py+(t.k==='_'?base*0.22:t.k==='^'?-base*0.40:0),col,f,'left');
+    x.font=f;cx+=x.measureText(t.t).width;});
+  return w;}
+function txtHalo(x,s,px,py,col,font,align){
+  const F=font||MONO,base=parseFloat(F)||11;
+  const S=F.replace(/^[\d.]+px/,(Math.max(7,Math.round(base*0.74*2)/2))+'px');
+  let tw=0;mathToks(String(s)).forEach(t=>{x.font=t.k?S:F;tw+=x.measureText(t.t).width;});
+  const a=align||'left',x0=a==='center'?px-tw/2:(a==='right'?px-tw:px);
+  x.fillStyle=C.paper;x.fillRect(x0-3,py-base+1,tw+6,base+3);
+  txtMath(x,s,px,py,col,F,align);}
+function wrapLines(x,s,maxW,font){x.font=font||MONO;
+  const words=String(s).split(' '),out=[];let cur='';
+  words.forEach(wd=>{const t=cur?cur+' '+wd:wd;
+    if(!cur||x.measureText(t).width<=maxW)cur=t;else{out.push(cur);cur=wd;}});
+  if(cur)out.push(cur);return out;}
+function txtUp(x,s,px,py,maxW,col,font,align,lh){
+  const ls=wrapLines(x,s,maxW,font),H=lh||12;
+  ls.forEach((ln,i)=>txtMath(x,ln,px,py-(ls.length-1-i)*H,col,font,align));return ls.length;}
+function txtDown(x,s,px,py,maxW,col,font,align,lh){
+  const ls=wrapLines(x,s,maxW,font),H=lh||12;
+  ls.forEach((ln,i)=>txtMath(x,ln,px,py+i*H,col,font,align));return ls.length;}
+function ylab(x,s,T,B,col){x.save();x.translate(13,(T+B)/2);x.rotate(-Math.PI/2);
+  txtMath(x,s,0,0,col||C.faint,MONO9,'center');x.restore();}
+function hexA(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';}
+function niceTicks(min,max,n){
+  const span=max-min; if(!(span>0)) return {vals:[min],dec:2};
+  const mag=Math.pow(10,Math.floor(Math.log10(span/n)));
+  let best=null;
+  for(const m of [1,2,2.5,5,10,20]){const st=m*mag;
+    const cnt=Math.floor(max/st)-Math.ceil(min/st)+1;
+    if(cnt<3||cnt>12)continue;
+    const sc=Math.abs(cnt-(n+1)); if(!best||sc<best.sc)best={st,sc};}
+  const st=best?best.st:span/n, vals=[];
+  for(let v=Math.ceil(min/st-1e-9)*st;v<=max+st*1e-9;v+=st)vals.push(v);
+  let dec=0; while(dec<6&&Math.abs(st*Math.pow(10,dec)-Math.round(st*Math.pow(10,dec)))>1e-9)dec++;
+  return {vals,dec};}
+function axes(x,L,T,R,B,xt,yt,xlab,ylabel){
+  x.strokeStyle='#EFEEE9';x.lineWidth=1;
+  yt.forEach(t=>{x.beginPath();x.moveTo(L,t.y);x.lineTo(R,t.y);x.stroke();
+    txt(x,String(t.l).replace(/^-0(\.0*)?$/,'0'),L-6,t.y+3,C.faint,MONO9,'right');});
+  xt.forEach(t=>{txt(x,t.l,t.x,B+14,C.faint,MONO9,'center');});
+  x.strokeStyle=C.rule;x.beginPath();x.moveTo(L,B);x.lineTo(R,B);x.stroke();
+  if(xlab)txtMath(x,xlab,(L+R)/2,B+30,C.muted,MONO9,'center');
+  if(ylabel)ylab(x,ylabel,T,B);}
+const fmt=(v,d)=>{if(!isFinite(v))return'--';const a=Math.abs(v);
+  if(a===0)return'0';if(a>=1e6||a<1e-3)return v.toExponential(d===undefined?2:d).replace('e+','e');
+  return v.toFixed(a>=100?0:a>=10?1:(d===undefined?2:d));};
+const commas=n=>Math.round(n).toLocaleString('en-US');
+
+/* =================================================================
+   PHYSICS CORE — validated in Node against four analytic limits
+   before shipping; see VALIDATION.md. Every formula carries the
+   source line it was read from.
+   ================================================================= */
+const RE_NM=2.8179403262e-6, MEC2=0.51099895e-3;
+const PRESETS={
+  c3_250 :{label:'C³-250', E:125,N:6.24e9, sx:210, sy:3.1, sz:1.0e5,bx:1.2e7,by:1.2e5},
+  ilc_250:{label:'ILC-250',     E:125,N:2.0e10, sx:515, sy:7.66,sz:3.0e5,bx:1.3e7,by:4.1e5},
+  weak   :{label:'Weak toy',    E:125,N:1.0e9,  sx:500, sy:50,  sz:1.0e5,bx:1.0e8,by:1.0e7}};
+const CUTX=8, CUTY=10, CUTZ=3;    // grid half-widths, in sigmas — held fixed
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gaussR(r){let u=0,v=0;while(u===0)u=r();while(v===0)v=r();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const t=1/(1+0.3275911*x);
+  return s*(1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x));}
+
+function fft1(re,im,n,off,stride,inv){
+  for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;
+    if(i<j){const a=off+i*stride,b=off+j*stride;
+      let t=re[a];re[a]=re[b];re[b]=t;t=im[a];im[a]=im[b];im[b]=t;}}
+  for(let len=2;len<=n;len<<=1){const ang=(inv?2:-2)*Math.PI/len;
+    const wr=Math.cos(ang),wi=Math.sin(ang);
+    for(let i=0;i<n;i+=len){let cr=1,ci=0;
+      for(let j=0;j<len/2;j++){const a=off+(i+j)*stride,b=off+(i+j+len/2)*stride;
+        const xr=re[b]*cr-im[b]*ci,xi=re[b]*ci+im[b]*cr;
+        re[b]=re[a]-xr;im[b]=im[a]-xi;re[a]+=xr;im[a]+=xi;
+        const nr=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=nr;}}}}
+function fft2(re,im,nx,ny,inv){
+  for(let i=0;i<nx;i++)fft1(re,im,ny,i*ny,1,inv);
+  for(let j=0;j<ny;j++)fft1(re,im,nx,j,ny,inv);
+  if(inv){const s=1/(nx*ny);for(let i=0;i<nx*ny;i++){re[i]*=s;im[i]*=s;}}}
+/* cell-integrated 2-D Green's kernel — fieldCPP.cc:275 */
+function fpot(x,y){const r2=x*x+y*y;if(r2===0)return 0;
+  const ax=(x===0)?0:x*x*Math.atan(y/x), ay=(y===0)?0:y*y*Math.atan(x/y);
+  return x*y*(Math.log(r2)-3.0)+ax+ay;}
+function fpot2(x0,y0,dx,dy){
+  return fpot(x0+dx,y0+dy)-fpot(x0+dx,y0-dy)-fpot(x0-dx,y0+dy)+fpot(x0-dx,y0-dy);}
+function makeSolver(nx,ny,dx,dy){
+  const NX=2*nx,NY=2*ny,N=NX*NY;
+  const kre=new Float64Array(N),kim=new Float64Array(N);
+  const hx=dx/2,hy=dy/2,cell=dx*dy;
+  for(let i=0;i<NX;i++){const ii=(i<nx?i:i-NX);
+    for(let j=0;j<NY;j++){const jj=(j<ny?j:j-NY);
+      kre[i*NY+j]=0.5*fpot2(ii*dx,jj*dy,hx,hy)/cell;}}
+  fft2(kre,kim,NX,NY,false);
+  const wre=new Float64Array(N),wim=new Float64Array(N);
+  const phi1=new Float64Array(nx*ny),phi2=new Float64Array(nx*ny);
+  return {phi1,phi2,
+    solve(rho1,rho2){                 /* both beams in one transform — fieldCPP.cc:56 */
+      wre.fill(0);wim.fill(0);
+      for(let i=0;i<nx;i++){const s=i*ny,d=i*NY;
+        for(let j=0;j<ny;j++){wre[d+j]=rho1[s+j];wim[d+j]=rho2[s+j];}}
+      fft2(wre,wim,NX,NY,false);
+      for(let i=0;i<N;i++){const a=wre[i],b=wim[i],c=kre[i],d=kim[i];
+        wre[i]=a*c-b*d;wim[i]=a*d+b*c;}
+      fft2(wre,wim,NX,NY,true);
+      for(let i=0;i<nx;i++){const s=i*NY,d=i*ny;
+        for(let j=0;j<ny;j++){phi1[d+j]=wre[s+j];phi2[d+j]=wim[s+j];}}}};}
+
+function geom(p){const b=p.beam;
+  const cutx=CUTX*b.sx,cuty=CUTY*b.sy,cutz=CUTZ*b.sz;
+  return {cutx,cuty,cutz,
+    dx:2*cutx/p.nx, dy:2*cuty/p.ny,   // gridCPP.cc:136-137
+    dz:2*cutz/p.nz,                   // gridCPP.cc:138
+    step:cutz/(p.nz*p.nt),            // gridCPP.cc:146
+    gamma:b.E/MEC2, sxp:b.sx/b.bx, syp:b.sy/b.by};}
+/* the pair list of crossing step k — guineapigCPP.h:513 */
+function pairsAt(k,nz){
+  const first=k<nz?0:k-nz+1, last=k<nz?k:nz-1, out=[];
+  let i2=last; for(let i1=first;i1<=last;i1++,i2--) out.push([i1,i2]);
+  return out;}
+function L0of(b){return b.N*b.N/(4*Math.PI*b.sx*b.sy);}
+function disruptionY(b){const g=b.E/MEC2;return 2*b.N*RE_NM*b.sz/(g*b.sy*(b.sx+b.sy));}
+/* analytic hourglass factor over the toy's own slicing — the backSlices target */
+function sliceWeights(nz,sz,cutz){const dz=2*cutz/nz,w=[];
+  for(let j=0;j<nz;j++){const a=(j*dz-cutz)/(Math.SQRT2*sz),b=((j+1)*dz-cutz)/(Math.SQRT2*sz);
+    w.push(0.5*(erf(b)-erf(a)));}
+  return w;}
+function hourglassDiscrete(nz,b){
+  const cutz=CUTZ*b.sz,dz=2*cutz/nz,w=sliceWeights(nz,b.sz,cutz);let H=0;
+  for(let i1=0;i1<nz;i1++)for(let i2=0;i2<nz;i2++){const u=(i2-i1)*dz/2;
+    H+=w[i1]*w[i2]/(Math.sqrt(1+u*u/(b.bx*b.bx))*Math.sqrt(1+u*u/(b.by*b.by)));}
+  return H;}
+
+function buildBeams(p,g,seed){
+  const b=p.beam,rng=mulberry32(seed||20260811),B=[];
+  for(let bm=0;bm<2;bm++){
+    const sl=Array.from({length:p.nz},()=>({x:[],y:[],vx:[],vy:[]}));
+    for(let i=0;i<p.nm;i++){
+      const z=gaussR(rng)*b.sz;
+      const j=Math.floor(z/g.dz+0.5*p.nz);       // particleBeamCPP.h:298
+      if(j<0||j>=p.nz)continue;                  // outside +-cut_z: dropped, as in GP
+      const s=sl[j];
+      s.x.push(gaussR(rng)*b.sx); s.y.push(gaussR(rng)*b.sy);
+      s.vx.push(p.diverg?gaussR(rng)*g.sxp:0);
+      s.vy.push(p.diverg?gaussR(rng)*g.syp:0);}
+    /* backSlices() — particleBeamCPP.h:232. Per-slice transverse pre-drift; this
+       is what makes each slice arrive at its meeting point with the right sigma(z). */
+    let dist=0.5*(1-1/p.nt)*(g.dz/2);
+    for(let j=0;j<p.nz;j++){const s=sl[j];
+      for(let q=0;q<s.x.length;q++){s.x[q]-=s.vx[q]*dist;s.y[q]-=s.vy[q]*dist;}
+      dist+=g.dz/2;}
+    B.push({sl});}
+  return B;}
+
+function makeRun(p,seed){
+  const g=geom(p),b=p.beam,B=buildBeams(p,g,seed),S=makeSolver(p.nx,p.ny,g.dx,g.dy);
+  const nx=p.nx,ny=p.ny,nz=p.nz,nt=p.nt;
+  const rho1=new Float64Array(nx*ny),rho2=new Float64Array(nx*ny);
+  const w=b.N/p.nm, kick=p.kick*2*RE_NM/g.gamma/nt, hx=nx/2, hy=ny/2;
+  let lumi=0,outside=0,inside=0,solves=0,k=0;
+  const lumiK=[],zHist=new Map();
+  const rms=a=>{if(!a.length)return 0;let m=0,s=0;for(const v of a)m+=v;m/=a.length;
+    for(const v of a)s+=(v-m)*(v-m);return Math.sqrt(s/a.length);};
+  const initSy=B[0].sl.map(s=>rms(s.y));
+  function deposit(s,rho){rho.fill(0);const{x,y}=s;
+    for(let q=0;q<x.length;q++){
+      const fx=x[q]/g.dx+hx-0.5, fy=y[q]/g.dy+hy-0.5;
+      const i=Math.floor(fx),j=Math.floor(fy);
+      if(i<0||i>=nx-1||j<0||j>=ny-1){outside++;continue;}
+      inside++;const a=fx-i,c=fy-j;
+      rho[i*ny+j]+=(1-a)*(1-c); rho[(i+1)*ny+j]+=a*(1-c);
+      rho[i*ny+j+1]+=(1-a)*c;   rho[(i+1)*ny+j+1]+=a*c;}}
+  /* ElectricFieldCIC + interpolePotential, gridCPP.cc:44-82 — a CIC-weighted
+     ONE-cell difference of phi, not a two-cell central difference. */
+  const EB=[0,0];
+  function kickAt(phi,x,y){
+    const ax=x/g.dx+hx, ay=y/g.dy+hy;
+    const i1=Math.floor(ax), j0=Math.floor(ay);
+    const wy=ay-0.5, jy=Math.floor(wy), hY=wy-jy;
+    const wx=ax-0.5, ix=Math.floor(wx), hX=wx-ix;
+    if(i1<1||i1>=nx-1||ix<0||ix>=nx-1||jy<0||jy>=ny-1||j0<1||j0>=ny-1){EB[0]=0;EB[1]=0;return;}
+    const P=(i,j)=>phi[i*ny+j];
+    const p1y=hY*P(i1+1,jy+1)+(1-hY)*P(i1+1,jy);
+    const p2y=hY*P(i1  ,jy+1)+(1-hY)*P(i1  ,jy);
+    const p3y=hY*P(i1-1,jy+1)+(1-hY)*P(i1-1,jy);
+    const p1x=hX*P(ix+1,j0+1)+(1-hX)*P(ix,j0+1);
+    const p2x=hX*P(ix+1,j0  )+(1-hX)*P(ix,j0  );
+    const p3x=hX*P(ix+1,j0-1)+(1-hX)*P(ix,j0-1);
+    const fx=ax-Math.floor(ax), fy=ay-Math.floor(ay);
+    EB[0]=(fx*(p1y-p2y)+(1-fx)*(p2y-p3y))/g.dx;
+    EB[1]=(fy*(p1x-p2x)+(1-fy)*(p2x-p3x))/g.dy;}
+  function push(s,phi){const{x,y,vx,vy}=s;
+    for(let q=0;q<x.length;q++){
+      kickAt(phi,x[q],y[q]); vx[q]-=kick*w*EB[0]; vy[q]-=kick*w*EB[1];
+      x[q]+=vx[q]*g.step; y[q]+=vy[q]*g.step;}}   // advancePosition(step_)
+  return {g,B,initSy,totalK:2*nz-1,lumiK,zHist,
+    get lumi(){return lumi;}, get solves(){return solves;},
+    get outFrac(){return inside+outside?outside/(inside+outside):0;},
+    done(){return k>=2*nz-1;},
+    stepOnce(){
+      const P=pairsAt(k,nz);
+      for(let i0=0;i0<nt;i0++){                       // pairing FROZEN in here
+        for(const [i1,i2] of P){
+          deposit(B[0].sl[i1],rho1); deposit(B[1].sl[i2],rho2);
+          let s=0;for(let q=0;q<nx*ny;q++)s+=rho1[q]*rho2[q];
+          const dL=s*w*w/(g.dx*g.dy*nt);              // gridCPP.cc:916
+          lumi+=dL;
+          const mz=0.5*(i2-i1-1);                     // guineapigCPP.cc:677
+          zHist.set(mz,(zHist.get(mz)||0)+dL);
+          S.solve(rho1,rho2); solves++;
+          push(B[0].sl[i1],S.phi2); push(B[1].sl[i2],S.phi1);}}
+      lumiK.push(lumi); k++;},
+    finalSy(){return B.map(x=>x.sl.map(s=>rms(s.y)));}};}
+
+/* =================================================================
+   PANEL: THE CROSSING — animation
+   ================================================================= */
+const A={nz:8,nt:4,k:0,i0:0,pi:0,playing:false,emph:'nz',solves:0,mode:'concept',fps:6};
+const gaussW=(nz,j)=>{const s=nz/(2*CUTZ), c=(j+0.5)-nz/2;
+  return Math.exp(-c*c/(2*s*s));};
+
+/* one make_step call */
+function animTick(){
+  const P=pairsAt(A.k,A.nz);
+  A.pi++; A.solves++;
+  if(A.pi>=P.length){A.pi=0;A.i0++;
+    if(A.i0>=A.nt){A.i0=0;A.k++;
+      if(A.k>2*A.nz-2){A.k=0;A.solves=0;}}}
+}
+function animTickK(){const t=A.k;let guard=0;
+  do{animTick();}while(A.k===t&&++guard<20000);}
+function animTickI(){const t=A.i0,tk=A.k;let guard=0;
+  do{animTick();}while(A.i0===t&&A.k===tk&&++guard<20000);}
+
+/* continuous crossing coordinate: advances by exactly 1 per k, i.e. each beam
+   drifts dz/2 over the n_t sub-steps of one crossing step */
+function animTau(){const np=pairsAt(A.k,A.nz).length;
+  return A.k+(A.i0+A.pi/Math.max(1,np))/A.nt;}
+
+function drawCrossing(){
+  const G=cvs('animc'); if(!G) return;
+  const {x,w,h}=G, T0=TAGH+10;
+  const nz=A.nz, tau=animTau(), P=pairsAt(A.k,A.nz);
+  const cur=P[Math.min(A.pi,P.length-1)]||[0,0];
+  const active=new Map(); P.forEach(([a,b])=>{active.set('1_'+a,b);active.set('2_'+b,a);});
+
+  /* ---- geometry ---- */
+  const L=44, R=w-14;
+  const zmax=nz+1.2, sc=(R-L)/(2*zmax), X=z=>(L+R)/2+z*sc;
+  const yA=T0+14, hA=240;                 // crossing view
+  const y1=yA+70, y2=yA+180;              // the two beam rows
+  const yT=yA+hA+60, hT=16;               // timeline strip (clear of the z-axis title)
+  const yP=yT+66;                         // pair-loop strip
+
+  /* ---- z axis ---- */
+  x.strokeStyle=C.rule;x.lineWidth=1;
+  x.beginPath();x.moveTo(L,yA+hA);x.lineTo(R,yA+hA);x.stroke();
+  const zt=Math.max(1,Math.round(zmax/5));
+  for(let t=-Math.floor(zmax);t<=Math.floor(zmax);t+=zt){
+    x.beginPath();x.moveTo(X(t),yA+hA);x.lineTo(X(t),yA+hA+4);x.stroke();
+    txt(x,String(t),X(t),yA+hA+15,C.faint,MONO9,'center');}
+  txtMath(x,'z / Δz',(L+R)/2,yA+hA+30,C.muted,MONO9,'center');
+  x.save();x.strokeStyle='#E4E3DD';x.setLineDash([2,3]);
+  x.beginPath();x.moveTo(X(0),yA+4);x.lineTo(X(0),yA+hA);x.stroke();x.restore();
+  txt(x,'IP',X(0),yA+2,C.faint,MONO8,'center','top');
+
+  /* ---- slice slabs: each drawn as an edge-on 2-D transverse mesh ---- */
+  const hw=Math.max(2.2,sc*0.40);
+  const b1z=i=>-(i+0.5)+tau/2, b2z=i=>(i-0.5)-tau/2;
+  function slab(zc,ymid,i,beam){
+    const wgt=gaussW(nz,i), hh=18+44*wgt;
+    const part=(beam===1)?active.has('1_'+i):active.has('2_'+i);
+    const isCur=(beam===1)?(i===cur[0]&&P.length):(i===cur[1]&&P.length);
+    const col=part?(beam===1?C.b1:C.b2):C.frz;
+    const px=X(zc);
+    /* transverse mesh, edge-on: horizontal ticks across the slab */
+    const nT=Math.min(9,Math.max(3,Math.round(hh/6)));
+    x.strokeStyle=hexA(col,part?0.85:0.55);x.lineWidth=1;
+    for(let t=0;t<=nT;t++){const yy=Math.round(ymid-hh/2+hh*t/nT)+0.5;
+      x.beginPath();x.moveTo(px-hw,yy);x.lineTo(px+hw,yy);x.stroke();}
+    x.fillStyle=hexA(col,part?0.20:0.10);
+    x.fillRect(px-hw,ymid-hh/2,hw*2,hh);
+    x.strokeStyle=hexA(col,part?1:0.6);x.lineWidth=part?1.3:1;
+    x.strokeRect(px-hw+.5,ymid-hh/2+.5,hw*2-1,hh-1);
+    if(isCur){x.strokeStyle=C.sq;x.lineWidth=2;
+      x.strokeRect(px-hw-3.5,ymid-hh/2-3.5,hw*2+7,hh+7);}
+    if(nz<=12&&hw>5) txt(x,String(i),px,ymid+3,part?col:C.faint,MONO8,'center');
+    return {px,hh};
+  }
+  const g1=[],g2=[];
+  for(let i=nz-1;i>=0;i--) g1[i]=slab(b1z(i),y1,i,1);
+  for(let i=nz-1;i>=0;i--) g2[i]=slab(b2z(i),y2,i,2);
+
+  /* ---- ghost of this k's starting position: the n_t creep, made visible ---- */
+  if(A.emph==='nt'){
+    const tau0=A.k;
+    x.save();x.strokeStyle=hexA(C.cq,0.85);x.setLineDash([3,2]);x.lineWidth=1.2;
+    P.forEach(([a,b])=>{
+      const z0=-(a+0.5)+tau0/2, hh=18+44*gaussW(nz,a);
+      x.strokeRect(X(z0)-hw+.5,y1-hh/2+.5,hw*2-1,hh-1);});
+    x.restore();
+    const a0=P[0][0], dz=X(b1z(a0))-X(-(a0+0.5)+A.k/2);
+    if(Math.abs(dz)>3){
+      const yy=y1-46, xa=X(-(a0+0.5)+A.k/2), xb=X(b1z(a0));
+      x.strokeStyle=C.cq;x.lineWidth=1.4;
+      x.beginPath();x.moveTo(xa,yy);x.lineTo(xb,yy);
+      x.moveTo(xb,yy);x.lineTo(xb-4,yy-3);x.moveTo(xb,yy);x.lineTo(xb-4,yy+3);x.stroke();
+      txtHalo(x,'i₀ creep = '+A.i0+'×step_',(xa+xb)/2,yy-6,C.cq,MONO8,'center');}
+  }
+
+  /* ---- pair links, through the meeting point ---- */
+  const strong=(A.emph==='nz');
+  P.forEach(([i1,i2])=>{
+    const isC=(i1===cur[0]);
+    const zm=(i2-i1)/2;
+    x.strokeStyle=isC?C.sq:hexA(C.ink,strong?0.32:0.14);
+    x.lineWidth=isC?2:1;
+    x.beginPath();
+    x.moveTo(X(b1z(i1)),y1+(g1[i1].hh)/2);
+    x.lineTo(X(zm),(y1+y2)/2);
+    x.lineTo(X(b2z(i2)),y2-(g2[i2].hh)/2);
+    x.stroke();
+    x.fillStyle=isC?C.sq:hexA(C.ink,strong?0.4:0.18);
+    x.beginPath();x.arc(X(zm),(y1+y2)/2,isC?3.2:2,0,7);x.fill();
+    if(isC){x.save();x.strokeStyle=hexA(C.sq,0.55);x.setLineDash([2,3]);
+      x.beginPath();x.moveTo(X(zm),(y1+y2)/2+6);x.lineTo(X(zm),yA+hA-22);x.stroke();x.restore();
+      txtHalo(x,'z_meet',X(zm),yA+hA-24,C.sq,MONO8,'center');}
+  });
+  txtMath(x,'beam 1 →',L-38,y1+3,C.b1,MONO9,'left');
+  txtMath(x,'← beam 2',L-38,y2+3,C.b2,MONO9,'left');
+
+  /* ---- timeline: k as blocks, each subdivided into n_t sub-steps ---- */
+  const nk=2*nz-1, bw=(R-L)/nk;
+  txtMath(x,'crossing steps k  (each block subdivided into n_t = '+A.nt+' sub-steps)',L,yT-8,C.muted,MONO9,'left');
+  for(let kk=0;kk<nk;kk++){
+    const x0=L+kk*bw;
+    x.fillStyle=kk<A.k?hexA(C.ink,0.10):(kk===A.k?hexA(C.sq,0.14):'#F7F6F2');
+    x.fillRect(x0,yT,bw-1,hT);
+    if(kk===A.k&&A.emph==='nt'){
+      for(let t=0;t<A.nt;t++){
+        x.fillStyle=t<A.i0?hexA(C.cq,0.75):(t===A.i0?C.cq:hexA(C.cq,0.16));
+        x.fillRect(x0+1+ (bw-3)*t/A.nt, yT+2, Math.max(1,(bw-3)/A.nt-1), hT-4);}
+    } else if(A.nt>1&&bw>10){
+      x.strokeStyle=hexA(C.ink,0.10);x.lineWidth=1;
+      for(let t=1;t<A.nt;t++){const xx=Math.round(x0+(bw-1)*t/A.nt)+0.5;
+        x.beginPath();x.moveTo(xx,yT+3);x.lineTo(xx,yT+hT-3);x.stroke();}}
+    x.strokeStyle=kk===A.k?C.sq:C.rule;x.lineWidth=kk===A.k?1.5:1;
+    x.strokeRect(x0+.5,yT+.5,bw-2,hT-1);
+    if(bw>16||kk%Math.ceil(nk/10)===0) txt(x,String(kk),x0+bw/2,yT+hT+12,kk===A.k?C.ink:C.faint,MONO8,'center');
+  }
+
+  /* ---- inner loop: the pair list of this k, cursor walking it ---- */
+  txtMath(x,'inner loop over the '+P.length+' pair'+(P.length>1?'s':'')+' of k = '+A.k+
+            '   — one deposit → FFT → push each',L,yP-10,C.muted,MONO9,'left');
+  const maxShow=Math.min(P.length,12), cw=Math.min(74,(R-L)/maxShow);
+  for(let q=0;q<maxShow;q++){
+    const idx=(P.length<=12)?q:Math.round(q*(P.length-1)/(maxShow-1));
+    const p=P[idx], x0=L+q*cw, on=(idx===A.pi);
+    x.fillStyle=on?hexA(C.sq,0.18):'#F7F6F2';
+    x.fillRect(x0,yP,cw-3,20);
+    x.strokeStyle=on?C.sq:C.rule;x.lineWidth=on?1.5:1;
+    x.strokeRect(x0+.5,yP+.5,cw-4,19);
+    txt(x,'('+p[0]+','+p[1]+')',x0+(cw-3)/2,yP+14,on?C.ink:C.muted,MONO8,'center');}
+  if(P.length>12) txt(x,'… '+P.length+' total',L+maxShow*cw+4,yP+14,C.faint,MONO8,'left');
+
+  frame(x,L,yA,R,yA+hA);
+
+  /* readouts */
+  $('#a_k').textContent=A.k+' / '+(2*nz-2);
+  $('#a_i').textContent=(A.i0+1)+' / '+A.nt;
+  $('#a_p').textContent=P.length;
+  $('#a_s').textContent=commas(A.solves)+' / '+commas(nz*nz*A.nt);
+  const gz=geom({beam:PRESETS.c3_250,nx:64,ny:128,nz:A.nz,nt:A.nt});
+  $('#a_live').innerHTML='pair ('+cur[0]+', '+cur[1]+') &nbsp;&rarr;&nbsp; i<sub>1</sub>+i<sub>2</sub> = <b>'+
+    (cur[0]+cur[1])+'</b> = k &nbsp;&middot;&nbsp; z<sub>meet</sub> = <b>'+
+    ((cur[1]-cur[0])/2).toFixed(1)+'&Delta;z</b> &nbsp;&middot;&nbsp; min_z = '+
+    (0.5*(cur[1]-cur[0]-1)).toFixed(1)+' &nbsp;&middot;&nbsp; step_ = <b>'+fmt(gz.step/1000,2)+
+    ' &micro;m</b> per sub-step, n<sub>t</sub>&middot;step_ = &Delta;z/2 = '+fmt(gz.dz/2000,2)+' &micro;m';
+  $('#astat').innerHTML = A.emph==='nz'
+    ? 'n_z march: every increment of k re-links the pairs. '+(2*A.nz-1)+' crossing steps in total.'
+    : 'n_t scan: k is held at '+A.k+'. Amber dashes mark where beam 1 stood at i₀ = 0; the pair list is unchanged.';
+}
+
+/* ---- concept figure: one common 3-D grid vs one 2-D grid per slice.
+       Three rows are three phases of the SAME running crossing, lagged by a
+       third of it, so the strip flows as the clock advances. ---- */
+function drawConcept(){
+  const G=cvs('animc'); if(!G) return;
+  const {x,w,h}=G, T0=TAGH+16;
+  const nz=Math.min(A.nz,10), TFULL=2*nz;
+  const tau=animTau()*(A.nz>nz?nz/A.nz:1);        // keep the strip readable if n_z is large
+  const half=(w-40)/2, Lx=14, Rx=Lx+half-16, Lx2=Lx+half+26, Rx2=w-14;
+  const cap='Left: a single mesh spanning both bunches and all of z. Right: the bunch is n_z rigid slabs; only '+
+            'the boxed pair is on a grid at any instant, and that grid is 2-D and transverse. Both columns run off '+
+            'one clock; the rows are the early, middle and late thirds of the crossing, all advancing together.';
+  const capN=wrapLines(x,cap,w-28,MONO9).length;
+  const rows=3, rowH=(h-T0-18-capN*12)/rows;
+  txtMath(x,'Standard PIC — one 3-D grid',(Lx+Rx)/2,T0-4,C.ink,MONO,'center');
+  txtMath(x,'GUINEA-PIG — 2-D grid per slice',(Lx2+Rx2)/2,T0-4,C.ink,MONO,'center');
+  /* time arrow between the columns */
+  const ax=Lx+half+5;
+  x.strokeStyle=C.faint;x.lineWidth=1;
+  x.beginPath();x.moveTo(ax,T0+10);x.lineTo(ax,T0+rows*rowH-10);
+  x.lineTo(ax-3,T0+rows*rowH-16);x.moveTo(ax,T0+rows*rowH-10);x.lineTo(ax+3,T0+rows*rowH-16);x.stroke();
+  txt(x,'t',ax+5,T0+rows*rowH/2,C.faint,MONO9,'left');
+
+  for(let r=0;r<rows;r++){
+    /* each row owns one third of the crossing and cycles within it, so the strip
+       always reads early → late downwards instead of wrapping out of order */
+    const seg=TFULL/rows, tr=r*seg+(tau%seg);
+    const kr=Math.min(Math.floor(tr),2*nz-2);
+    const yc=T0+rowH*(r+0.5)-2;
+
+    /* ---------- left: one fixed mesh, smooth bunches drifting across it ---------- */
+    const cx=(Lx+Rx)/2, gw=(Rx-Lx)/2-6, gh=rowH*0.26;
+    const pL=2*gw/(2*nz+1);
+    x.strokeStyle='#ECEBE5';x.lineWidth=1;
+    for(let i=0;i<=12;i++){const xx=Math.round(cx-gw+2*gw*i/12)+0.5;
+      x.beginPath();x.moveTo(xx,yc-gh);x.lineTo(xx,yc+gh);x.stroke();}
+    for(let j=0;j<=4;j++){const yy=Math.round(yc-gh+2*gh*j/4)+0.5;
+      x.beginPath();x.moveTo(cx-gw,yy);x.lineTo(cx+gw,yy);x.stroke();}
+    const bc1=(-(nz/2)+tr/2)*pL, bc2=((nz/2)-tr/2)*pL;
+    [[bc1,C.b1],[bc2,C.b2]].forEach(([bz,col])=>{
+      for(let q=6;q>=1;q--){const rr=q/6;
+        x.fillStyle=hexA(col,0.10);
+        x.beginPath();x.ellipse(cx+bz,yc,(nz/2)*pL*0.80*rr,gh*0.72*rr,0,0,7);x.fill();}});
+    x.strokeStyle=C.faint;x.lineWidth=1;
+    x.beginPath();x.moveTo(cx-gw-4,yc);x.lineTo(cx+gw+8,yc);x.stroke();
+    txt(x,'z',cx+gw+11,yc+3,C.faint,MONO8,'left');
+    if(r===0) txtMath(x,'x',cx-gw-4,yc-gh-5,C.faint,MONO8,'center');
+
+    /* ---------- right: discrete slabs, each an edge-on transverse mesh ---------- */
+    const cx2=(Lx2+Rx2)/2, gw2=(Rx2-Lx2)/2-6;
+    const pR=2*gw2/(2*nz+1), hw2=Math.max(1.6,pR*0.30);
+    x.strokeStyle=C.faint;x.lineWidth=1;
+    x.beginPath();x.moveTo(cx2-gw2-4,yc);x.lineTo(cx2+gw2+8,yc);x.stroke();
+    txt(x,'z',cx2+gw2+11,yc+3,C.faint,MONO8,'left');
+    const z1=i=>cx2+(-(i+0.5)+tr/2)*pR, z2=i=>cx2+((i-0.5)-tr/2)*pR;
+    const P=pairsAt(kr,nz), act=new Map();
+    P.forEach(([a,b])=>{act.set('1_'+a,1);act.set('2_'+b,1);});
+    for(let bm=1;bm<=2;bm++){
+      for(let i=nz-1;i>=0;i--){
+        const on=act.has(bm+'_'+i), col=on?(bm===1?C.b1:C.b2):C.frz;
+        const zc=(bm===1?z1(i):z2(i)), hh=9+rowH*0.30*gaussW(nz,i);
+        const nT=Math.min(7,Math.max(3,Math.round(hh/5)));
+        x.strokeStyle=hexA(col,on?0.85:0.5);x.lineWidth=1;
+        for(let t=0;t<=nT;t++){const yy=Math.round(yc-hh/2+hh*t/nT)+0.5;
+          x.beginPath();x.moveTo(zc-hw2,yy);x.lineTo(zc+hw2,yy);x.stroke();}
+        x.fillStyle=hexA(col,on?0.18:0.09);x.fillRect(zc-hw2,yc-hh/2,hw2*2,hh);}}
+    /* box one representative interacting pair, as in the reference figure */
+    if(P.length){
+      const [i1,i2]=P[Math.floor(P.length/2)];
+      const zm=(z1(i1)+z2(i2))/2, hh=12+rowH*0.30*gaussW(nz,i1);
+      x.strokeStyle=hexA(C.sq,0.95);x.lineWidth=1.5;
+      x.strokeRect(zm-hw2*2.4,yc-hh/2-4,hw2*4.8,hh+8);
+      txtHalo(x,'('+i1+','+i2+')',zm,yc-hh/2-8,C.sq,MONO8,'center');
+      if(P.length>1) txtHalo(x,'all '+P.length+' solved before k advances',cx2,yc+rowH*0.30+15,C.sq,MONO8,'center');}
+    /* row label: computed, so it stays true as the strip flows */
+    const phase=P.length>=nz?'full overlap':(tr<1?'heads touch':
+                (tr<nz?'closing — '+P.length+' pair'+(P.length>1?'s':''):
+                       'separating — '+P.length+' pair'+(P.length>1?'s':'')));
+    txtMath(x,'k = '+kr+'  ·  '+phase,Lx,T0+rowH*r+12,C.faint,MONO8,'left');
+  }
+  txtUp(x,cap,14,h-8,w-28,C.muted,MONO9,'left',12);
+  const gz=geom({beam:PRESETS.c3_250,nx:64,ny:128,nz:A.nz,nt:A.nt});
+  $('#a_live').innerHTML='GUINEA-PIG never builds a 3-D grid. The longitudinal direction is carried entirely by '+
+    '<b>which pair of slices</b> is on the 2-D grid, and that grid is always 2n<sub>x</sub>&times;2n<sub>y</sub> '+
+    '&mdash; here '+commas(A.nz*A.nz*A.nt)+' transforms of one fixed size, not one big one.';
+  $('#a_k').textContent=A.k+' / '+(2*A.nz-2);
+  $('#a_i').textContent=(A.i0+1)+' / '+A.nt;
+  $('#a_p').textContent=pairsAt(A.k,A.nz).length;
+  $('#a_s').textContent=commas(A.solves)+' / '+commas(A.nz*A.nz*A.nt);
+  $('#astat').textContent=(A.nz>nz?('strip drawn with '+nz+' slices for legibility; counters use n_z = '+A.nz+'. '):'')
+    +(A.playing?'Playing — both columns share one clock.':'Press Play, or step with k / i₀.');
+}
+
+/* ---- pair table ---- */
+function drawPairTable(){
+  const G=cvs('animc'); if(!G) return;
+  const {x,w,h}=G, T0=TAGH+16, nz=A.nz;
+  const size=Math.min(w-190,h-T0-46), L=64, T=T0+16, cw=size/nz;
+  const done=new Set(), P=pairsAt(A.k,A.nz);
+  const act=new Set(P.map(p=>p[0]+','+p[1]));
+  const cur=P[Math.min(A.pi,P.length-1)]||[-1,-1];
+  for(let i1=0;i1<nz;i1++)for(let i2=0;i2<nz;i2++){
+    const k=i1+i2, x0=L+i2*cw, y0=T+i1*cw;
+    let f;
+    if(i1===cur[0]&&i2===cur[1]) f=C.sq;
+    else if(act.has(i1+','+i2)) f=hexA(C.sq,0.35);
+    else if(k<A.k) f=hexA(C.b1,0.14+0.5*k/(2*nz-2));
+    else f='#F4F3EF';
+    x.fillStyle=f; const gp=cw>7?1:0;
+    x.fillRect(x0+gp,y0+gp,cw-2*gp,cw-2*gp);}
+  x.strokeStyle=C.rule;x.lineWidth=1;x.strokeRect(L+.5,T+.5,nz*cw,nz*cw);
+  const sk=Math.ceil(nz/12);
+  for(let i=0;i<nz;i+=sk){
+    txt(x,String(i),L-7,T+(i+0.5)*cw+3,C.faint,MONO9,'right');
+    txt(x,String(i),L+(i+0.5)*cw,T-7,C.faint,MONO9,'center');}
+  txtMath(x,'beam 2 slice i_2',L+nz*cw/2,T-22,C.muted,MONO9,'center');
+  ylab(x,'beam 1 slice i_1',T,T+nz*cw);
+  /* anti-diagonal annotation */
+  const kk=Math.min(A.k,2*nz-2);
+  if(kk<2*nz-1){
+    const a=pairsAt(kk,nz);
+    if(a.length){const p0=a[0],p1=a[a.length-1];
+      x.strokeStyle=hexA(C.sq,0.8);x.lineWidth=1.5;
+      x.beginPath();x.moveTo(L+(p0[1]+1)*cw+6,T+p0[0]*cw-6);
+      x.lineTo(L+p1[1]*cw-6,T+(p1[0]+1)*cw+6);x.stroke();
+      txtHalo(x,'i_1+i_2 = '+kk,L+(p0[1]+1)*cw+10,T+p0[0]*cw-9,C.sq,MONO9,'left');}}
+  const tx=L+nz*cw+22, tw=w-tx-14;
+  if(tw>110){
+    let yy=T+8;
+    yy+=14*txtDown(x,'Every cell is computed exactly once per sub-step, so '+nz+'² × n_t = '+
+      commas(nz*nz*A.nt)+' make_step calls.',tx,yy,tw,C.muted,MONO9,'left',13);
+    yy+=10;
+    yy+=14*txtDown(x,'Shade = crossing step k at which the cell fires. Constant-k cells lie on an anti-diagonal.',
+      tx,yy,tw,C.muted,MONO9,'left',13);
+  }
+  $('#a_k').textContent=A.k+' / '+(2*nz-2);
+  $('#a_i').textContent=(A.i0+1)+' / '+A.nt;
+  $('#a_p').textContent=P.length;
+  $('#a_s').textContent=commas(A.solves)+' / '+commas(nz*nz*A.nt);
+  $('#a_live').innerHTML='Cell (i<sub>1</sub>, i<sub>2</sub>) fires at k = i<sub>1</sub>+i<sub>2</sub> and is '+
+    'visited <b>n<sub>t</sub> = '+A.nt+'</b> times back to back. Raising n<sub>t</sub> deepens every cell; '+
+    'raising n<sub>z</sub> adds cells quadratically.';
+  $('#astat').textContent='Pair table. '+(A.playing?'Playing.':'Use Step k / Step i₀.');
+}
+function drawAnim(){
+  if(A.mode==='concept') drawConcept();
+  else if(A.mode==='table') drawPairTable();
+  else drawCrossing();
+}
+
+/* =================================================================
+   PANEL: (n_z, n_t) PLANE with draggable probe
+   ================================================================= */
+const PL={nz:8,nt:4,preset:'c3_250'};
+function planeGeo(w,h){
+  const T=tagH(document.getElementById('planec'))+14;
+  const L=52,R=w-16,B=h-46;
+  const lo=0, hi=5;                      // log2 range: 1 .. 32
+  const px=v=>L+(Math.log2(v)-lo)/(hi-lo)*(R-L);
+  const py=v=>B-(Math.log2(v)-lo)/(hi-lo)*(B-T);
+  const ix=X=>Math.pow(2,lo+(X-L)/(R-L)*(hi-lo));
+  const iy=Y=>Math.pow(2,lo+(B-Y)/(B-T)*(hi-lo));
+  return {L,T,R,B,px,py,ix,iy};
+}
+function drawPlane(){
+  const G=cvs('planec'); if(!G) return;
+  const {x,w,h}=G, q=planeGeo(w,h);
+  const b=PRESETS[PL.preset], cutz=CUTZ*b.sz;
+  const maxC=Math.log2(32*32*32), NS=56;
+  for(let a=0;a<NS;a++)for(let c=0;c<NS;c++){
+    const nt=Math.pow(2,(a+0.5)/NS*5), nz=Math.pow(2,(c+0.5)/NS*5);
+    const t=Math.log2(nz*nz*nt)/maxC;
+    x.fillStyle=hexA(C.b1,0.06+0.62*t);
+    const x0=q.L+a/NS*(q.R-q.L), x1=q.L+(a+1)/NS*(q.R-q.L);
+    const y0=q.B-c/NS*(q.B-q.T), y1=q.B-(c+1)/NS*(q.B-q.T);
+    x.fillRect(x0,y1,x1-x0+0.7,y0-y1+0.7);}
+  /* iso-step_ contours: n_z n_t = const, straight in log-log. Drawn with a
+     paper-coloured halo so they read over both ends of the ramp. */
+  x.lineJoin='round';x.font='600 10px ui-monospace, Menlo, monospace';
+  [4,16,64,256,1024].forEach(Pn=>{
+    const pts=[];
+    for(let nt=1;nt<=32;nt*=1.05){const nz=Pn/nt;if(nz<1||nz>32)continue;pts.push([q.px(nt),q.py(nz)]);}
+    if(pts.length<2)return;
+    for(const pass of [0,1]){
+      x.strokeStyle=pass?C.ink:C.paper; x.lineWidth=pass?1.3:3.4;
+      x.beginPath();pts.forEach(([X,Y],i)=>i?x.lineTo(X,Y):x.moveTo(X,Y));x.stroke();}
+    const [lx,ly]=pts[Math.floor(pts.length/2)], sp=cutz/Pn;
+    const s=sp>=1000?fmt(sp/1000,1)+' µm':fmt(sp,0)+' nm';
+    x.textAlign='center';x.textBaseline='bottom';
+    x.lineWidth=3.2;x.strokeStyle=C.paper;x.strokeText(s,lx,ly-4);
+    x.fillStyle=C.ink;x.fillText(s,lx,ly-4);});
+  frame(x,q.L,q.T,q.R,q.B);
+  [1,2,4,8,16,32].forEach(v=>{
+    txt(x,String(v),q.px(v),q.B+15,C.faint,MONO9,'center');
+    txt(x,String(v),q.L-7,q.py(v)+3,C.faint,MONO9,'right');});
+  txtMath(x,'n_t   (sub-steps per crossing step)',(q.L+q.R)/2,q.B+31,C.muted,MONO9,'center');
+  ylab(x,'n_z   (slices per bunch)',q.T,q.B);
+  /* probe */
+  const cx=q.px(PL.nt), cy=q.py(PL.nz);
+  x.strokeStyle=C.paper;x.lineWidth=3.4;
+  x.beginPath();x.moveTo(cx-9,cy);x.lineTo(cx+9,cy);x.moveTo(cx,cy-9);x.lineTo(cx,cy+9);x.stroke();
+  x.strokeStyle=C.warn;x.lineWidth=1.8;
+  x.beginPath();x.moveTo(cx-9,cy);x.lineTo(cx+9,cy);x.moveTo(cx,cy-9);x.lineTo(cx,cy+9);x.stroke();
+  x.beginPath();x.arc(cx,cy,6,0,7);x.stroke();
+
+  const solves=PL.nz*PL.nz*PL.nt, sp=cutz/(PL.nz*PL.nt), dz=2*cutz/PL.nz;
+  $('#pl_c').textContent=commas(solves);
+  $('#pl_s').textContent=(sp>=1000?fmt(sp/1000,2)+' µm':fmt(sp,1)+' nm');
+  $('#pl_dz').textContent=fmt(dz/1000,2)+' µm';
+  $('#pl_b').textContent=commas(2*PL.nz-1);
+  $('#pl_live').innerHTML='n<sub>z</sub> = <b>'+PL.nz+'</b>, n<sub>t</sub> = <b>'+PL.nt+
+    '</b> &nbsp;&middot;&nbsp; product n<sub>z</sub>n<sub>t</sub> = <b>'+(PL.nz*PL.nt)+
+    '</b> sets step_ &nbsp;&middot;&nbsp; cost n<sub>z</sub><sup>2</sup>n<sub>t</sub> = <b>'+commas(solves)+
+    '</b> solves &nbsp;&middot;&nbsp; the cheapest point with this same step_ is n<sub>z</sub> = '+
+    Math.max(1,Math.min(32,Math.round((PL.nz*PL.nt)/32)))+', n<sub>t</sub> = '+
+    Math.min(32,PL.nz*PL.nt)+' at '+
+    commas(Math.max(1,Math.min(32,Math.round((PL.nz*PL.nt)/32)))**2*Math.min(32,PL.nz*PL.nt))+' solves';
+  $('#pstat').innerHTML='Drag the &#10010;. Macroparticles per slice fall as 1/n<sub>z</sub>, so moving up '+
+    'costs statistics as well as time.';
+}
+function planeProbe(ev){
+  const c=document.getElementById('planec'); if(!c) return;
+  const r=c.getBoundingClientRect(), q=planeGeo(r.width,r.height);
+  const X=Math.max(q.L,Math.min(q.R,ev.clientX-r.left));
+  const Y=Math.max(q.T,Math.min(q.B,ev.clientY-r.top));
+  PL.nt=Math.max(1,Math.min(32,Math.round(q.ix(X))));
+  PL.nz=Math.max(1,Math.min(32,Math.round(q.iy(Y))));
+  drawPlane();
+}
+
+/* =================================================================
+   PANEL: TOY COLLISION
+   ================================================================= */
+const RUN={preset:'c3_250',nx:64,ny:128,nz:8,nt:4,nm:8000,kick:true,div:true,res:null,busy:false,cancel:false};
+function runParams(o){
+  const b=PRESETS[(o&&o.preset)||RUN.preset];
+  return {beam:b,nx:(o&&o.nx)||RUN.nx,ny:(o&&o.ny)||RUN.ny,nz:(o&&o.nz)||RUN.nz,nt:(o&&o.nt)||RUN.nt,
+          nm:(o&&o.nm)||RUN.nm,kick:((o&&o.kick)!==undefined?o.kick:RUN.kick)?1:0,
+          diverg:((o&&o.div)!==undefined?o.div:RUN.div)};
+}
+async function doRun(p,onProg,tick){
+  const R=makeRun(p,4242); let n=0;
+  while(!R.done()){
+    if(RUN.cancel) return null;
+    R.stepOnce(); n++;
+    if(n%Math.max(1,Math.floor(R.totalK/30))===0){
+      if(onProg)onProg(n/R.totalK);
+      await new Promise(r=>setTimeout(r,0));}}
+  return {p,lumi:R.lumi,lumiK:R.lumiK,zHist:R.zHist,solves:R.solves,outFrac:R.outFrac,
+          initSy:R.initSy,finalSy:R.finalSy(),g:R.g,L0:L0of(p.beam)};
+}
+function drawRun(){
+  const G=cvs('runc'); if(!G) return;
+  const {x,w,h}=G, T=TAGH+14, L=56, R=w-16, B=h-44;
+  const r=RUN.res;
+  if(!r){txtMath(x,'press Run',(L+R)/2,(T+B)/2,C.faint,MONO,'center');return;}
+  const y=r.lumiK.map(v=>v/r.L0), ymax=Math.max(1.05,...y)*1.05;
+  const px=i=>L+(y.length<2?0.5:i/(y.length-1))*(R-L), py=v=>B-v/ymax*(B-T);
+  const yt=niceTicks(0,ymax,5);
+  const step=Math.max(1,Math.ceil((y.length-1)/8)), xt=[];
+  for(let i=0;i<y.length;i+=step)xt.push({x:px(i),l:String(i)});
+  axes(x,L,T,R,B,xt,yt.vals.map(v=>({y:py(v),l:v.toFixed(yt.dec)})),'crossing step k','cumulative L / L_0');
+  x.strokeStyle=C.faint;x.lineWidth=1.5;x.setLineDash([4,4]);
+  x.beginPath();x.moveTo(L,py(1));x.lineTo(R,py(1));x.stroke();x.setLineDash([]);
+  txtHalo(x,'L_0',R-4,py(1)-5,C.faint,MONO9,'right');
+  x.strokeStyle=C.sq;x.lineWidth=2;x.beginPath();
+  y.forEach((v,i)=>i?x.lineTo(px(i),py(v)):x.moveTo(px(i),py(v)));x.stroke();
+  const last=y[y.length-1];
+  x.fillStyle=C.sq;x.beginPath();x.arc(px(y.length-1),py(last),4,0,7);x.fill();
+  txtHalo(x,'L/L_0 = '+last.toFixed(3),px(y.length-1)-8,py(last)-9,C.ink,MONO,'right');
+  frame(x,L,T,R,B);
+}
+function drawPinch(){
+  const G=cvs('pinchc'); if(!G) return;
+  const {x,w,h}=G, T=12, L=56, R=w-16, B=h-30, r=RUN.res;
+  if(!r) return;
+  const nz=r.p.nz, all=[...r.finalSy[0],...r.finalSy[1],...r.initSy].filter(v=>v>0);
+  const ymax=Math.max(...all)*1.1;
+  const px=i=>L+(nz<2?0.5:i/(nz-1))*(R-L), py=v=>B-v/ymax*(B-T);
+  const yt=niceTicks(0,ymax,3);
+  const st=Math.max(1,Math.ceil((nz-1)/8)), xt=[];
+  for(let i=0;i<nz;i+=st)xt.push({x:px(i),l:String(i)});
+  axes(x,L,T,R,B,xt,yt.vals.map(v=>({y:py(v),l:v.toFixed(yt.dec)})),
+       'slice index   (0 = head, '+(nz-1)+' = tail)','σ_y [nm]');
+  const line=(arr,col,dash)=>{x.strokeStyle=col;x.lineWidth=dash?1.5:2;
+    x.setLineDash(dash?[4,3]:[]);x.beginPath();
+    arr.forEach((v,i)=>i?x.lineTo(px(i),py(v)):x.moveTo(px(i),py(v)));x.stroke();x.setLineDash([]);};
+  line(r.initSy,C.frz,true); line(r.finalSy[0],C.b1); line(r.finalSy[1],C.b2);
+  frame(x,L,T,R,B);
+}
+function drawZ(){
+  const G=cvs('zc'); if(!G) return;
+  const {x,w,h}=G, T=12, L=56, R=w-16, B=h-30, r=RUN.res;
+  if(!r) return;
+  const keys=[...r.zHist.keys()].sort((a,b)=>a-b); if(!keys.length)return;
+  const dzu=r.g.dz/1000, vals=keys.map(k=>r.zHist.get(k)/r.L0);
+  const vmax=Math.max(...vals)*1.1;
+  const zlo=keys[0]*dzu, zhi=(keys[keys.length-1]+1)*dzu;
+  const px=z=>L+(z-zlo)/(zhi-zlo)*(R-L), py=v=>B-v/vmax*(B-T);
+  const xt=niceTicks(zlo,zhi,6), yt=niceTicks(0,vmax,3);
+  axes(x,L,T,R,B,xt.vals.map(v=>({x:px(v),l:v.toFixed(xt.dec)})),
+       yt.vals.map(v=>({y:py(v),l:v.toFixed(yt.dec)})),
+       'collision point z [µm] — '+(2*r.p.nz-1)+' allowed values of min_z','dL/L_0');
+  const bw=Math.max(1,px(zlo+dzu/2)-px(zlo)-2);
+  keys.forEach((k,i)=>{const v=vals[i];
+    x.fillStyle=hexA(C.sq,0.75);x.fillRect(px(k*dzu),py(v),bw,Math.max(0,B-py(v)));});
+  frame(x,L,T,R,B);
+}
+
+/* =================================================================
+   PANEL: CONVERGENCE SWEEP + FIDELITY
+   ================================================================= */
+const SW={nx:32,ny:64,nm:6000,data:null,busy:false};
+const SNZ=[2,4,8,16], SNT=[1,2,4,8];
+function drawSweep(id,xf,xlab){
+  const G=cvs(id); if(!G) return;
+  const {x,w,h}=G, T=TAGH+14, L=58, R=w-58, B=h-46, d=SW.data;
+  if(!d||!d.length){txtMath(x,'run the sweep',(L+R)/2,(T+B)/2,C.faint,MONO,'center');return;}
+  const xs=d.map(xf), ys=d.map(o=>o.hd);
+  const xlo=Math.log2(Math.min(...xs)), xhi=Math.log2(Math.max(...xs));
+  const ylo=Math.min(...ys), yhi=Math.max(...ys), pad=(yhi-ylo)*0.14||0.02;
+  const px=v=>L+(Math.log2(v)-xlo)/((xhi-xlo)||1)*(R-L);
+  const py=v=>B-(v-(ylo-pad))/((yhi-ylo+2*pad)||1)*(B-T);
+  let xtv=[];for(let e=Math.ceil(xlo);e<=Math.floor(xhi);e++)xtv.push(Math.pow(2,e));
+  if(xtv.length>7)xtv=xtv.filter((_,i)=>i%2===0||i===xtv.length-1);
+  const yt=niceTicks(ylo-pad,yhi+pad,4);
+  axes(x,L,T,R,B,xtv.map(v=>({x:px(v),l:String(v)})),
+       yt.vals.map(v=>({y:py(v),l:v.toFixed(yt.dec)})),xlab,'L / L_0');
+  SNZ.forEach((nz,i)=>{
+    const fam=d.filter(o=>o.nz===nz).sort((a,b)=>xf(a)-xf(b)); if(!fam.length)return;
+    x.strokeStyle=C.o[i];x.lineWidth=2;x.beginPath();
+    fam.forEach((o,j)=>j?x.lineTo(px(xf(o)),py(o.hd)):x.moveTo(px(xf(o)),py(o.hd)));x.stroke();
+    fam.forEach(o=>{x.fillStyle=C.o[i];x.beginPath();x.arc(px(xf(o)),py(o.hd),4,0,7);x.fill();
+      x.strokeStyle='#fff';x.lineWidth=1.5;x.stroke();});
+    const lp=fam[fam.length-1];
+    /* families converge, so their end labels would pile up: fan them out */
+    txtMath(x,'n_z='+nz,px(xf(lp))+8,py(lp.hd)+4+(i-1.5)*11,C.o[i],MONO9,'left');});
+  frame(x,L,T,R,B);
+}
+function drawSweeps(){
+  drawSweep('swa',o=>o.nz*o.nt,'n_z · n_t   (this is what sets step_)');
+  drawSweep('swb',o=>o.nz*o.nz*o.nt,'field solves   n_z^2 · n_t');
+  $('#sw_leg').innerHTML=SNZ.map((nz,i)=>
+    '<span><i style="background:'+C.o[i]+'"></i>n_z = '+nz+'</span>').join('');
+  if(SW.data&&SW.data.length){
+    const best=SW.data.reduce((a,c)=>c.hd>a.hd?c:a);
+    const ref=SW.data.filter(o=>o.nz===16).sort((a,b)=>b.nt-a.nt)[0];
+    const p32=SW.data.filter(o=>o.nz*o.nt===32);
+    const sp=p32.length?(Math.max(...p32.map(o=>o.hd))/Math.min(...p32.map(o=>o.hd))):null;
+    $('#sw_live').innerHTML='At the fixed product n<sub>z</sub>n<sub>t</sub> = 32 the answer still varies by '+
+      (sp?('a factor <b>'+sp.toFixed(2)+'</b>'):'—')+' depending on the split. '+
+      (ref?('Best-resolved cell here: n<sub>z</sub>=16, n<sub>t</sub>='+ref.nt+' &rarr; <b>'+ref.hd.toFixed(3)+
+      '</b> at '+commas(16*16*ref.nt)+' solves.'):'')+
+      ' Absolute scale on this grid ('+SW.nx+'×'+SW.ny+') is biased low; the <i>shape</i> is the content.';
+  }
+}
+function fidTables(){
+  const b=PRESETS.c3_250, g=geom({beam:b,nx:64,ny:128,nz:8,nt:4});
+  const rows=[
+    ['cut_x','8 σ*_x','= '+fmt(8*b.sx,0)+' nm','—'],
+    ['cut_y','10 σ*_y','= '+fmt(10*b.sy,1)+' nm','—'],
+    ['cut_z','3 σ_z','= '+fmt(3*b.sz/1000,0)+' µm','drops 0.27 % of each bunch'],
+    ['Δx at n_x = 64','2·cut_x/n_x',fmt(g.dx,1)+' nm',fmt(b.sx/g.dx,1)+' cells per σ*_x'],
+    ['Δy at n_y = 128','2·cut_y/n_y',fmt(g.dy,2)+' nm',fmt(b.sy/g.dy,1)+' cells per σ*_y'],
+    ['Δz at n_z = 8','2·cut_z/n_z',fmt(g.dz/1000,1)+' µm','2n_z−1 = 15 lumi z-bins'],
+    ['step_ at n_t = 4','cut_z/(n_z n_t)',fmt(g.step/1000,2)+' µm','n_t·step_ = Δz/2'],
+    ['FFT size','2n_x × 2n_y','128 × 256','independent of n_z, n_t'],
+    ['β*_x, β*_y','—',fmt(b.bx/1e6,0)+' mm, '+fmt(b.by/1e6,2)+' mm','σ_z/β*_y = '+fmt(b.sz/b.by,2)],
+    ['σ′_x, σ′_y','σ*/β*',fmt(g.sxp*1e6,1)+', '+fmt(g.syp*1e6,1)+' µrad','waist at the IP'],
+    ['D_y','2N r_e σ_z /(γ σ*_y(σ*_x+σ*_y))',fmt(disruptionY(b),1),'—']];
+  $('#fid_params').innerHTML='<thead><tr><th>parameter</th><th>definition</th><th>value</th><th>note</th></tr></thead><tbody>'+
+    rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>').join('')+'</tbody>';
+
+  const led=[
+    ['make_step calls','n_z²·n_t','exact, all n_z,n_t tested','<td class="ok">exact</td>'],
+    ['pair coverage','each pair exactly n_t times','exact','<td class="ok">exact</td>'],
+    ['field of a round Gaussian','&minus;2N r<sub>e</sub>/(&gamma;r)&middot;[1&minus;e<sup>&minus;r²/2σ²</sup>]','0.60 % at 8 cells/σ','<td class="ok">O(Δ²)</td>'],
+    ['L, no force, no divergence','0.99460 = erf(3/√2)²','−0.64 % at 128×256','<td class="ok">grid bias</td>'],
+    ['L independent of n_t','exact (the 1/n_t)','identical to 6 dp','<td class="ok">exact</td>'],
+    ['hourglass factor (backSlices)','0.8834 at n_z = 8','ratio 0.9885','<td class="ok">1.2 %</td>'],
+    ['pinch H_D','no closed form','1.692 extrapolated','<td class="bad">self-converged only</td>']];
+  $('#fid_ledger').innerHTML='<thead><tr><th>quantity</th><th>known answer</th><th>toy</th><th>verdict</th></tr></thead><tbody>'+
+    led.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td>'+r[3]+'</tr>').join('')+'</tbody>';
+
+  const bud=[['transverse resolution (6.4, 4.0 cells/σ)','−0.1 %'],
+    ['longitudinal slicing n_z = 8 vs 32','−0.8 %'],
+    ['sub-steps n_t = 4 vs 8','−0.1 %'],
+    ['macroparticle noise, n_m = 8000','±0.3 % (4-seed spread)'],
+    ['z truncation at ±3σ_z','−0.5 % (already in the reference)'],
+    ['<b>total against the extrapolated 1.692</b>','<b>−0.7 %</b>']];
+  $('#fid_budget').innerHTML='<thead><tr><th>source</th><th>effect on H_D</th></tr></thead><tbody>'+
+    bud.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')+'</tbody>';
+}
+function srcTables(){
+  const rows=[
+    ['crossing schedule, 2n_z−1 steps','guineapigCPP.h:460','beam_interaction()'],
+    ['pairs satisfy i_1+i_2 = k','guineapigCPP.h:513','slice_beam_2--'],
+    ['n_t sub-steps, pairing frozen','guineapigCPP.cc:819','for(i0&lt;get_timestep())'],
+    ['push length','gridCPP.cc:146','step_ = deltaz/(2.0*timestep_)'],
+    ['slice thickness','gridCPP.cc:138','deltaz = 2.0*cut_z/n_cell_z_'],
+    ['particles carry no z','abstractParticle.h:122','advancePosition(): xpos_, ypos_ only'],
+    ['only the paired slices are pushed','gridCPP.h:1172','moveAllParticles(i_slice1, i_slice2)'],
+    ['per-slice pre-drift uses n_t','particleBeamCPP.h:232','backSlices()'],
+    ['collision z from the index difference','guineapigCPP.cc:677','min_z = 0.5*(i2-i1-1)'],
+    ['z smeared over one Δz','meshCPP.h:34','z = (min_z+rndm())*delta_z_'],
+    ['luminosity normalised by n_t','gridCPP.cc:916','sum*1e18/(dx*dy*timestep_)'],
+    ['pair weights normalised by n_t','gridCPP.cc:515','/sqrt(dx*dy*timestep_)'],
+    ['FFT size independent of n_z, n_t','fieldCPP.h:40','nn[0]=2*n_y; nn[1]=2*n_x'],
+    ['2 FFTs per make_step, beams packed','fieldCPP.cc:56,95,104','temp[j]=rho1; temp[j+1]=rho2'],
+    ['Green kernel, cell-integrated','fieldCPP.cc:275','f_potential_2()'],
+    ['CIC field interpolation','gridCPP.cc:44,67','interpolePotential + ElectricFieldCIC'],
+    ['CIC charge assignment','gridCPP.cc:763','assignBeamSliceCIC()'],
+    ['parameter names','gridCPP.cc:265-279','n_x n_y n_z n_t n_m.1 n_m.2']];
+  $('#srcmap').innerHTML='<thead><tr><th>claim</th><th>location</th><th>code</th></tr></thead><tbody>'+
+    rows.map(r=>'<tr><td>'+r[0]+'</td><td class="src">'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+'</tbody>';
+  const bt=Object.keys(PRESETS).map(k=>{const b=PRESETS[k],g=geom({beam:b,nx:64,ny:128,nz:8,nt:4});
+    return '<tr><td>'+b.label+'</td><td>'+b.E+'</td><td>'+b.N.toExponential(2).replace('e+','e')+
+      '</td><td>'+fmt(b.sx,0)+'</td><td>'+fmt(b.sy,2)+'</td><td>'+fmt(b.sz/1000,0)+
+      '</td><td>'+fmt(b.bx/1e6,1)+'</td><td>'+fmt(b.by/1e6,2)+'</td><td>'+fmt(disruptionY(b),1)+
+      '</td><td>'+hourglassDiscrete(32,b).toFixed(3)+'</td></tr>';}).join('');
+  $('#beamtab').innerHTML='<thead><tr><th>preset</th><th>E [GeV]</th><th>N</th><th>σ*_x [nm]</th>'+
+    '<th>σ*_y [nm]</th><th>σ_z [µm]</th><th>β*_x [mm]</th><th>β*_y [mm]</th><th>D_y</th>'+
+    '<th>hourglass</th></tr></thead><tbody>'+bt+'</tbody>';
+}
+
+/* =================================================================
+   WALKTHROUGH
+   ================================================================= */
+const STEPS=[
+ {t:'Neither all-to-all nor slice-i-with-slice-i',d:'a',
+  cap:'Slice indices count backwards from the head of each bunch.',
+  x:'Index the slices from the <b>head</b> of each bunch, 0 to n<sub>z</sub>&minus;1. A slice sitting a distance '+
+    'a behind beam 1&rsquo;s head and one a distance b behind beam 2&rsquo;s head meet when a+b has been closed &mdash; '+
+    'so the pairs that overlap at crossing step k are exactly those with <b>i<sub>1</sub>+i<sub>2</sub> = k</b>, and they '+
+    'meet at z = (i<sub>2</sub>&minus;i<sub>1</sub>)&Delta;z/2. Over the whole crossing every slice does meet every slice, '+
+    'but one at a time, each pair exactly once.'},
+ {t:'The loop that does it',d:'a',
+  cap:'guineapigCPP.h:513 — the two indices walk in opposite directions.',
+  x:'<code>make_time_step_on_slices</code> starts beam 2 at the last slice and decrements it while beam 1 increments. '+
+    'That single <code>slice_beam_2--</code> is the whole schedule: it holds i<sub>1</sub>+i<sub>2</sub> fixed at k. '+
+    'The outer driver runs k from 0 to 2n<sub>z</sub>&minus;2, ramping the overlap up and then down, so the total is '+
+    '<b>n<sub>z</sub>&sup2;</b> distinct slice pairs.'},
+ {t:'n_t subdivides the encounter, not the geometry',d:'b',
+  cap:'The pair list is recomputed at the top of the k loop and nowhere else.',
+  x:'Inside one k, <code>iteration_on_overlaping_slices</code> loops i<sub>0</sub> = 0 &hellip; n<sub>t</sub>&minus;1 and '+
+    'calls the whole pair list again each time. Every sub-step re-deposits the charge, re-solves the field and pushes '+
+    'the particles by step_. What it does <i>not</i> do is re-derive the pairing. So <code>make_step</code> is called '+
+    '<b>n<sub>z</sub>&sup2;&middot;n<sub>t</sub></b> times, and n<sub>t</sub> multiplies the FFT count linearly while '+
+    'n<sub>z</sub> multiplies it quadratically.'},
+ {t:'The beams really do move during the n_t loop',d:'b',
+  cap:'n_t·step_ = Δz/2 per beam, so the relative closing over one k is exactly one slice.',
+  x:'Each sub-step drifts every active particle by step_ = &Delta;z/(2n<sub>t</sub>). Over n<sub>t</sub> sub-steps each '+
+    'beam advances &Delta;z/2 and, counter-propagating, they close by a full &Delta;z &mdash; precisely the displacement '+
+    'that makes k+1 the right pairing. The march and the scan are one motion sampled at two rates. Beam particles never '+
+    'store a z at all: <code>advancePosition</code> touches only xpos_ and ypos_.'},
+ {t:'One identity ties the two knobs together',d:'a',
+  cap:'step_ = cut_z/(n_z·n_t): accuracy follows the product, cost does not.',
+  x:'&Delta;z = 2cut<sub>z</sub>/n<sub>z</sub> and step_ = &Delta;z/(2n<sub>t</sub>), so <b>step_ = '+
+    'cut<sub>z</sub>/(n<sub>z</sub>n<sub>t</sub>)</b>. Integration accuracy is governed by the product; CPU cost by '+
+    'n<sub>z</sub>&sup2;n<sub>t</sub>. At a fixed product, cost &prop; n<sub>z</sub> &mdash; so a shorter push bought '+
+    'with n<sub>t</sub> is n<sub>z</sub> times cheaper than the same push bought with n<sub>z</sub>.'},
+ {t:'What only n_z can buy',d:'a',
+  cap:'The hourglass factor is a pure function of n_z. n_t does not appear.',
+  x:'Slices meet at 2n<sub>z</sub>&minus;1 discrete z values, and at each one the beams have expanded to '+
+    '&sigma;*&radic;(1+z&sup2;/&beta;*&sup2;). Too few slices and that structure is simply absent: for C&sup3;-250 the '+
+    'hourglass factor is 0.808 at n<sub>z</sub> = 2 against 0.887 in the limit &mdash; a 9 % error on the luminosity '+
+    'that no amount of n<sub>t</sub> can touch. The same &Delta;z sets the bin width of every z-differential output '+
+    'GUINEA-PIG writes.'},
+ {t:'What n_z costs you back',d:'b',
+  cap:'Macroparticles per slice fall as 1/n_z; deposited charge gets noisier.',
+  x:'n<sub>m</sub> macroparticles are shared among n<sub>z</sub> slices, so each deposited charge map is built from '+
+    '~n<sub>m</sub>/n<sub>z</sub> of them and its per-cell noise grows like &radic;(n<sub>z</sub>/n<sub>m</sub>). The '+
+    'integrated luminosity is far quieter than that &mdash; it sums over n<sub>z</sub>&sup2; pairs, and the measured '+
+    'seed-to-seed spread at n<sub>m</sub> = 8000 is 0.31 %, not the 3.2 % the per-slice formula suggests. Raise '+
+    'n<sub>z</sub> and n<sub>m</sub> together.'},
+ {t:'What none of them touch',d:'a',
+  cap:'The transform is 2n_x × 2n_y whatever n_z and n_t are.',
+  x:'The Poisson solve is a zero-padded convolution on a <b>2n<sub>x</sub> &times; 2n<sub>y</sub></b> mesh '+
+    '(fieldCPP.h:40), with both beams packed into one complex transform. Neither n<sub>z</sub> nor n<sub>t</sub> '+
+    'changes its size &mdash; they set how many of them run. n<sub>x</sub> and n<sub>y</sub> control something else '+
+    'entirely: the bias in the overlap integral, which is where the remaining percent of the luminosity lives.'}];
+let SI=0;
+function drawFig(){
+  const G=cvs('figc'); if(!G) return;
+  const {x,w,h}=G, T=TAGH+16, B=h-34, L=20, R=w-20;
+  const nz=7;
+  if(SI===0||SI===1){
+    /* head-indexed slices and the i1+i2=k invariant */
+    const yM=(T+B)/2, sc=(R-L)/(2*(nz+1.5)), X=z=>(L+R)/2+z*sc;
+    const tau=SI===0?0:3;
+    x.strokeStyle=C.rule;x.beginPath();x.moveTo(L,yM+70);x.lineTo(R,yM+70);x.stroke();
+    for(let bm=0;bm<2;bm++){const col=bm?C.b2:C.b1, yy=yM+(bm?34:-34);
+      for(let i=nz-1;i>=0;i--){
+        const z=bm?((i-0.5)-tau/2):(-(i+0.5)+tau/2);
+        const hh=14+26*gaussW(nz,i), hw=Math.max(3,sc*0.36);
+        x.fillStyle=hexA(col,0.18);x.fillRect(X(z)-hw,yy-hh/2,hw*2,hh);
+        x.strokeStyle=col;x.lineWidth=1.2;x.strokeRect(X(z)-hw+.5,yy-hh/2+.5,hw*2-1,hh-1);
+        txt(x,String(i),X(z),yy+3,col,MONO8,'center');}
+      txtMath(x,bm?'← beam 2':'beam 1 →',L,yy+3,col,MONO9,'left');}
+    pairsAt(tau,nz).forEach(([a,b])=>{
+      const z1=-(a+0.5)+tau/2, z2=(b-0.5)-tau/2, zm=(b-a)/2;
+      x.strokeStyle=hexA(C.sq,0.85);x.lineWidth=1.5;
+      x.beginPath();x.moveTo(X(z1),yM-16);x.lineTo(X(zm),yM);x.lineTo(X(z2),yM+16);x.stroke();
+      x.fillStyle=C.sq;x.beginPath();x.arc(X(zm),yM,2.6,0,7);x.fill();});
+    txtMath(x,'k = '+tau+'   pairs: '+pairsAt(tau,nz).map(p=>'('+p[0]+','+p[1]+')').join(' '),
+      L,T+6,C.ink,MONO9,'left');
+    txtMath(x,'z / Δz',(L+R)/2,yM+86,C.faint,MONO9,'center');
+  } else if(SI===2||SI===3){
+    /* the two rates: k blocks subdivided by n_t */
+    const nt=4, nk=2*nz-1, bw=(R-L)/nk, yB=T+52;
+    txtMath(x,'crossing steps k — the pairing changes only at these edges',L,T+8,C.muted,MONO9,'left');
+    for(let k=0;k<nk;k++){const x0=L+k*bw;
+      x.fillStyle=k===3?hexA(C.sq,0.14):'#F7F6F2';x.fillRect(x0,yB,bw-2,26);
+      x.strokeStyle=k===3?C.sq:C.rule;x.lineWidth=k===3?1.5:1;x.strokeRect(x0+.5,yB+.5,bw-3,25);
+      for(let t=1;t<nt;t++){const xx=Math.round(x0+(bw-2)*t/nt)+0.5;
+        x.strokeStyle=hexA(C.cq,0.55);x.lineWidth=1;
+        x.beginPath();x.moveTo(xx,yB+4);x.lineTo(xx,yB+22);x.stroke();}
+      txt(x,String(k),x0+bw/2,yB+40,C.faint,MONO8,'center');}
+    txtMath(x,'n_t = 4 sub-steps inside every block  (amber)',L,yB+58,C.cq,MONO9,'left');
+    const yD=yB+116, hw=Math.max(3,(R-L)/26);
+    txtMath(x,'inside one block: the slabs creep by step_ each sub-step, the pairing does not move',
+      L,yD-40,C.muted,MONO9,'left');
+    for(let t=0;t<=nt;t++){
+      const frac=t/nt, xx=L+40+frac*(R-L-140);
+      const a=t===nt?1:0.25+0.2*t;
+      x.fillStyle=hexA(C.b1,a*0.5);x.fillRect(xx-hw,yD,hw*2,34);
+      x.strokeStyle=hexA(C.b1,a);x.lineWidth=1.2;x.strokeRect(xx-hw+.5,yD+.5,hw*2-1,33);
+      txtMath(x,t<nt?('i_0='+t):'→ k+1',xx,yD+48,t<nt?C.faint:C.cq,MONO8,'center');}
+    x.strokeStyle=C.cq;x.lineWidth=1.4;
+    const xa=L+40, xb=L+40+(R-L-140);
+    x.beginPath();x.moveTo(xa,yD-12);x.lineTo(xb,yD-12);
+    x.lineTo(xb-5,yD-15);x.moveTo(xb,yD-12);x.lineTo(xb-5,yD-9);x.stroke();
+    txtHalo(x,'n_t · step_ = Δz/2',(xa+xb)/2,yD-16,C.cq,MONO9,'center');
+  } else if(SI===4){
+    /* the plane, in miniature */
+    const L2=64,R2=w-30,T2=T+10,B2=h-52;
+    const px=v=>L2+(Math.log2(v)/5)*(R2-L2), py=v=>B2-(Math.log2(v)/5)*(B2-T2);
+    for(let a=0;a<40;a++)for(let c=0;c<40;c++){
+      const nt=Math.pow(2,(a+.5)/40*5), nzz=Math.pow(2,(c+.5)/40*5);
+      x.fillStyle=hexA(C.b1,0.05+0.6*Math.log2(nzz*nzz*nt)/15);
+      x.fillRect(L2+a/40*(R2-L2),B2-(c+1)/40*(B2-T2),(R2-L2)/40+0.7,(B2-T2)/40+0.7);}
+    [16,128].forEach(Pn=>{const pts=[];
+      for(let nt=1;nt<=32;nt*=1.06){const nzz=Pn/nt;if(nzz<1||nzz>32)continue;pts.push([px(nt),py(nzz)]);}
+      if(pts.length<2)return;
+      for(const pass of [0,1]){x.strokeStyle=pass?C.ink:C.paper;x.lineWidth=pass?1.3:3.4;
+        x.beginPath();pts.forEach(([X,Y],i)=>i?x.lineTo(X,Y):x.moveTo(X,Y));x.stroke();}
+      const [lx,ly]=pts[Math.floor(pts.length/2)];
+      txtHalo(x,'n_z n_t = '+Pn,lx,ly-5,C.ink,MONO9,'center');});
+    frame(x,L2,T2,R2,B2);
+    [1,4,16,32].forEach(v=>{txt(x,String(v),px(v),B2+14,C.faint,MONO9,'center');
+      txt(x,String(v),L2-7,py(v)+3,C.faint,MONO9,'right');});
+    txtMath(x,'n_t',(L2+R2)/2,B2+30,C.muted,MONO9,'center');ylab(x,'n_z',T2,B2);
+    txtMath(x,'fill = cost n_z^2 n_t   ·   contours = constant step_',L2,T2-6,C.muted,MONO9,'left');
+  } else if(SI===5){
+    /* hourglass vs n_z */
+    const b=PRESETS.c3_250, L2=60,R2=w-24,T2=T+16,B2=h-50;
+    const NZ=[1,2,3,4,6,8,12,16,24,32], H=NZ.map(n=>hourglassDiscrete(n,b));
+    const lim=hourglassDiscrete(64,b);
+    const px=i=>L2+(Math.log2(NZ[i])/5)*(R2-L2);
+    /* n_z = 1 puts every pair at z = 0, i.e. NO hourglass at all — it must be
+       on the plot, because it is the most wrong point and the one that looks best */
+    const ylo=0.78, yhi=1.01, py=v=>B2-(v-ylo)/(yhi-ylo)*(B2-T2);
+    const yt=niceTicks(ylo,yhi,4);
+    axes(x,L2,T2,R2,B2,[1,2,4,8,16,32].map(v=>({x:L2+(Math.log2(v)/5)*(R2-L2),l:String(v)})),
+      yt.vals.map(v=>({y:py(v),l:v.toFixed(yt.dec)})),'n_z','hourglass factor');
+    x.strokeStyle=C.warn;x.lineWidth=1.5;x.setLineDash([4,4]);
+    x.beginPath();x.moveTo(L2,py(lim));x.lineTo(R2,py(lim));x.stroke();x.setLineDash([]);
+    txtHalo(x,'limit '+lim.toFixed(3),R2-4,py(lim)-5,C.warn,MONO9,'right');
+    x.strokeStyle=C.b1;x.lineWidth=2;x.beginPath();
+    H.forEach((v,i)=>i?x.lineTo(px(i),py(v)):x.moveTo(px(i),py(v)));x.stroke();
+    H.forEach((v,i)=>{x.fillStyle=C.b1;x.beginPath();x.arc(px(i),py(v),3.2,0,7);x.fill();});
+    const p1=px(0);
+    txtHalo(x,'n_z = 1: every pair meets at z = 0,',p1+10,py(H[0])-14,C.warn,MONO8,'left');
+    txtHalo(x,'so the hourglass is entirely absent',p1+10,py(H[0])-4,C.warn,MONO8,'left');
+    txtHalo(x,'n_t does not appear in this plot',R2-8,B2-12,C.muted,MONO9,'right');
+    frame(x,L2,T2,R2,B2);
+  } else if(SI===6){
+    /* macroparticles per slice */
+    const L2=60,R2=w-24,T2=T+16,B2=h-50, NM=8000;
+    const NZ=[1,2,4,8,16,32];
+    const px=i=>L2+(i+0.5)/NZ.length*(R2-L2), bw=(R2-L2)/NZ.length*0.5;
+    const mx=NM;
+    const py=v=>B2-(v/mx)*(B2-T2);
+    const yt=niceTicks(0,mx,4);
+    axes(x,L2,T2,R2,B2,NZ.map((n,i)=>({x:px(i),l:String(n)})),
+      yt.vals.map(v=>({y:py(v),l:commas(v)})),'','macroparticles per slice');
+    txtMath(x,'n_z',(L2+R2)/2,B2+44,C.muted,MONO9,'center');
+    NZ.forEach((n,i)=>{const v=NM/n;
+      x.fillStyle=hexA(C.b1,0.55);x.fillRect(px(i)-bw/2,py(v),bw,B2-py(v));
+      const lab=Math.round(100*Math.sqrt(n/NM))+'% cell noise';
+      if(B2-py(v)>30) txtMath(x,commas(v),px(i),py(v)+16,'#fff',MONO8,'center');
+      else txtHalo(x,commas(v),px(i),py(v)-5,C.ink,MONO8,'center');
+      txtMath(x,lab,px(i),B2+27,C.faint,MONO8,'center');});
+    /* the tall bar owns the top-left, so annotate on the right */
+    txtHalo(x,'integrated L is far quieter: 0.31 % measured at n_m = 8000',
+      R2-8,T2+18,C.muted,MONO9,'right');
+    frame(x,L2,T2,R2,B2);
+  } else {
+    /* FFT size is fixed */
+    const yM=(T+B)/2;
+    const boxes=[['n_z = 4','16 solves'],['n_z = 8','64 solves'],['n_z = 16','256 solves']];
+    const bwid=Math.min(150,(R-L-40)/3);
+    boxes.forEach((bx,i)=>{
+      const x0=L+20+i*(bwid+18);
+      x.fillStyle=hexA(C.b1,0.10);x.fillRect(x0,yM-58,bwid,52);
+      x.strokeStyle=C.b1;x.lineWidth=1.2;x.strokeRect(x0+.5,yM-57.5,bwid-1,51);
+      const g=6;
+      x.strokeStyle=hexA(C.b1,0.5);x.lineWidth=1;
+      for(let t=0;t<=g;t++){
+        x.beginPath();x.moveTo(x0+8+(bwid-16)*t/g,yM-50);x.lineTo(x0+8+(bwid-16)*t/g,yM-16);x.stroke();
+        x.beginPath();x.moveTo(x0+8,yM-50+34*t/g);x.lineTo(x0+bwid-8,yM-50+34*t/g);x.stroke();}
+      txtMath(x,'2n_x × 2n_y',x0+bwid/2,yM-2,C.ink,MONO9,'center');
+      txtMath(x,bx[0],x0+bwid/2,yM+18,C.muted,MONO9,'center');
+      txtMath(x,bx[1],x0+bwid/2,yM+33,C.faint,MONO8,'center');});
+    txtMath(x,'the mesh is the same object every time — only the count changes',
+      L+20,yM+62,C.muted,MONO9,'left');
+  }
+  $('#figtag').textContent='Fig. '+String(SI+1).padStart(2,'0');
+  $('#figcap').textContent=STEPS[SI].cap;
+}
+function showStep(){
+  const s=STEPS[SI];
+  $('#stepnum').textContent='Step '+(SI+1)+' / '+STEPS.length;
+  const d=$('#stepdir'); d.className='tagpill '+s.d;
+  d.textContent=s.d==='a'?'n_z — geometry':'n_t — integration';
+  $('#steptitle').innerHTML=s.t.replace(/n_z/g,'n<sub>z</sub>').replace(/n_t/g,'n<sub>t</sub>');
+  $('#steptext').innerHTML=s.x;
+  $('#prev').disabled=SI===0; $('#next').disabled=SI===STEPS.length-1;
+  $$('#dots i').forEach((e,i)=>e.classList.toggle('on',i===SI));
+  drawFig();
+}
+
+/* =================================================================
+   WIRING
+   ================================================================= */
+const draws={};
+$$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  $$('nav.tabs button').forEach(o=>o.setAttribute('aria-selected',o===b?'true':'false'));
+  $$('section.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.panel));
+  if(draws[b.dataset.panel])draws[b.dataset.panel]();
+}));
+let rt=null;
+window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{
+  const id=$('nav.tabs button[aria-selected="true"]').dataset.panel;
+  if(draws[id])draws[id]();},160);});
+
+draws.walk=drawFig;
+draws.cross=drawAnim;
+draws.plane=drawPlane;
+draws.run=()=>{drawRun();drawPinch();drawZ();};
+draws.conv=()=>{drawSweeps();};
+draws.ref=()=>{};
+
+/* ---- walkthrough nav ---- */
+STEPS.forEach((_,i)=>{const e=document.createElement('i');
+  e.addEventListener('click',()=>{SI=i;showStep();});$('#dots').appendChild(e);});
+$('#prev').addEventListener('click',()=>{if(SI>0){SI--;showStep();}});
+$('#next').addEventListener('click',()=>{if(SI<STEPS.length-1){SI++;showStep();}});
+
+/* ---- crossing panel ---- */
+let animTimer=null;
+function setPlay(on){
+  A.playing=on;
+  $('#aplay').innerHTML=on?'&#10073;&#10073; Pause':'&#9654; Play';
+  if(animTimer){clearInterval(animTimer);animTimer=null;}
+  if(on) animTimer=setInterval(()=>{animTick();drawAnim();},1000/A.fps);
+}
+$$('.subtabs button[data-xmode]').forEach(b=>b.addEventListener('click',()=>{
+  $$('.subtabs button[data-xmode]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  A.mode=b.dataset.xmode;
+  const tg=$('#animtag');
+  tg.textContent=A.mode==='concept'?'two ways to discretise a collision'
+    :A.mode==='table'?'the n_z × n_z pair table':'x–z plane · slice-based PIC';
+  drawAnim();
+}));
+$('#aplay').addEventListener('click',()=>setPlay(!A.playing));
+$('#astepk').addEventListener('click',()=>{setPlay(false);animTickK();drawAnim();});
+$('#astepi').addEventListener('click',()=>{setPlay(false);animTickI();drawAnim();});
+$('#arew').addEventListener('click',()=>{setPlay(false);A.k=0;A.i0=0;A.pi=0;A.solves=0;drawAnim();});
+$('#em_nz').addEventListener('click',()=>{A.emph='nz';
+  $('#em_nz').setAttribute('aria-pressed','true');$('#em_nt').setAttribute('aria-pressed','false');drawAnim();});
+$('#em_nt').addEventListener('click',()=>{A.emph='nt';
+  $('#em_nt').setAttribute('aria-pressed','true');$('#em_nz').setAttribute('aria-pressed','false');drawAnim();});
+function bindA(id,key,fmtf){const inp=$('#s_'+id),out=$('#v_'+id);
+  const set=()=>{A[key]=+inp.value;out.textContent=fmtf?fmtf(A[key]):A[key];};
+  inp.addEventListener('input',()=>{set();
+    if(A.k>2*A.nz-2){A.k=0;A.i0=0;A.pi=0;A.solves=0;}
+    if(A.pi>=pairsAt(A.k,A.nz).length)A.pi=0;
+    if(A.i0>=A.nt)A.i0=0;
+    if(key==='fps'&&A.playing)setPlay(true);
+    drawAnim();});
+  set();}
+bindA('anz','nz'); bindA('ant','nt'); bindA('afps','fps');
+
+/* ---- plane ---- */
+(function(){const c=document.getElementById('planec');
+  let down=false;
+  c.addEventListener('pointerdown',e=>{down=true;c.setPointerCapture(e.pointerId);planeProbe(e);e.preventDefault();});
+  c.addEventListener('pointermove',e=>{if(down){planeProbe(e);e.preventDefault();}});
+  c.addEventListener('pointerup',e=>{down=false;});
+  c.addEventListener('pointercancel',()=>{down=false;});
+})();
+$('#p_preset').addEventListener('change',e=>{PL.preset=e.target.value;drawPlane();});
+
+/* ---- toy collision ---- */
+function bindR(id,key,pow2,fmtf){const inp=$('#s_'+id),out=$('#v_'+id);
+  const set=()=>{RUN[key]=pow2?Math.pow(2,+inp.value):+inp.value;
+    out.textContent=fmtf?fmtf(RUN[key]):RUN[key];};
+  inp.addEventListener('input',()=>{set();runStatus();});set();}
+function runStatus(){
+  const p=runParams(), g=geom(p), b=p.beam;
+  const solves=RUN.nz*RUN.nz*RUN.nt;
+  const est=solves*(4*RUN.nx*RUN.ny)*2*Math.log2(4*RUN.nx*RUN.ny)/3.5e7;
+  $('#rstat').innerHTML=commas(solves)+' solves of '+(2*RUN.nx)+'×'+(2*RUN.ny)+
+    ' &middot; &asymp;'+(est<1?'<1':fmt(est,0))+' s<br>'+
+    fmt(b.sx/g.dx,1)+', '+fmt(b.sy/g.dy,1)+' cells per σ*<sub>x</sub>, σ*<sub>y</sub><br>'+
+    'Δz = '+fmt(g.dz/1000,1)+' µm &middot; step_ = '+fmt(g.step/1000,2)+' µm<br>'+
+    commas(RUN.nm/RUN.nz)+' macroparticles per slice';
+}
+bindR('nx','nx',true); bindR('ny','ny',true); bindR('nz','nz'); bindR('nt','nt');
+bindR('nm','nm',false,commas);
+$('#r_preset').addEventListener('change',e=>{RUN.preset=e.target.value;runStatus();});
+['kick','div'].forEach(k=>{const b=$('#t_'+k);
+  b.addEventListener('click',()=>{RUN[k]=!RUN[k];b.setAttribute('aria-pressed',RUN[k]?'true':'false');runStatus();});});
+const setProg=(id,f)=>{$('#'+id).style.transform='scaleX('+Math.max(0,Math.min(1,f))+')';};
+$('#rgo').addEventListener('click',async()=>{
+  if(RUN.busy)return; RUN.busy=true;RUN.cancel=false;
+  $('#rgo').disabled=true;$('#rstop').disabled=false;setProg('rprog',0);
+  const t0=performance.now();
+  const res=await doRun(runParams(),f=>setProg('rprog',f));
+  RUN.busy=false;$('#rgo').disabled=false;$('#rstop').disabled=true;
+  if(!res){setProg('rprog',0);return;}
+  setProg('rprog',1); res.ms=performance.now()-t0; RUN.res=res;
+  const hd=res.lumi/res.L0, p=res.p, b=p.beam;
+  $('#ro_h').textContent=hd.toFixed(4);
+  $('#ro_h').className=p.kick?'hi':'';
+  $('#ro_s').textContent=res.finalSy[0][0].toFixed(2)+' → '+res.finalSy[0][p.nz-1].toFixed(2);
+  $('#ro_o').textContent=fmt(100*res.outFrac,2)+' %';
+  $('#ro_o').className=res.outFrac>0.005?'bad':'';
+  $('#ro_t').textContent=commas(res.solves)+' · '+fmt(res.ms/1000,1)+' s';
+  const H=hourglassDiscrete(p.nz,b);
+  let msg;
+  if(!p.kick&&!p.diverg) msg='Rigid, parallel beams. Target is the ±3σ_z truncation factor <b>0.9946</b>; '+
+    'the shortfall of <b>'+fmt((1-hd/0.9946)*100,2)+' %</b> is CIC grid bias plus shot noise, nothing else.';
+  else if(!p.kick) msg='Force off, divergence on. Analytic hourglass factor at n<sub>z</sub> = '+p.nz+
+    ' is <b>'+H.toFixed(4)+'</b>; toy/analytic = <b>'+(hd/H).toFixed(4)+
+    '</b>. This is the test of <code>backSlices()</code>.';
+  else msg='H_D = <b>'+hd.toFixed(3)+'</b>. Converged reference for C³-250 is 1.692 (extrapolated). '+
+    'Hourglass alone would give '+H.toFixed(3)+', so the pinch is worth ×<b>'+(hd/H).toFixed(2)+'</b>.';
+  $('#ro_live').innerHTML=msg;
+  draws.run();
+});
+$('#rstop').addEventListener('click',()=>{RUN.cancel=true;});
+
+/* ---- sweep ---- */
+function bindS(id,key,pow2,fmtf){const inp=$('#s_'+id),out=$('#v_'+id);
+  const set=()=>{SW[key]=pow2?Math.pow(2,+inp.value):+inp.value;
+    out.textContent=fmtf?fmtf(SW[key]):SW[key];};
+  inp.addEventListener('input',()=>{set();sweepStatus();});set();}
+function sweepStatus(){
+  let s=0;for(const nz of SNZ)for(const nt of SNT)s+=nz*nz*nt;
+  const est=s*(4*SW.nx*SW.ny)*2*Math.log2(4*SW.nx*SW.ny)/3.5e7;
+  $('#sstat').innerHTML=commas(s)+' solves of '+(2*SW.nx)+'×'+(2*SW.ny)+
+    ' &middot; &asymp;'+fmt(est,0)+' s total.<br>'+
+    fmt(PRESETS.c3_250.sy/(2*CUTY*PRESETS.c3_250.sy/SW.ny),1)+' cells per σ*<sub>y</sub> — '+
+    (SW.ny>=128?'near-converged absolute scale.':'absolute scale biased low; compare shapes.');
+}
+bindS('snx','nx',true); bindS('sny','ny',true); bindS('snm','nm',false,commas);
+$('#sgo').addEventListener('click',async()=>{
+  if(SW.busy)return; SW.busy=true;RUN.cancel=false;
+  $('#sgo').disabled=true;$('#sstop').disabled=false;
+  let tot=0;for(const nz of SNZ)for(const nt of SNT)tot+=nz*nz*nt;
+  let done=0; const out=[];
+  for(const nz of SNZ){for(const nt of SNT){
+    if(RUN.cancel)break;
+    const res=await doRun(runParams({nx:SW.nx,ny:SW.ny,nz,nt,nm:SW.nm,kick:true,div:true}));
+    if(!res)break;
+    out.push({nz,nt,hd:res.lumi/res.L0,step:res.g.step});
+    done+=nz*nz*nt; setProg('sprog',done/tot);
+    SW.data=out.slice(); drawSweeps();
+    await new Promise(r=>setTimeout(r,0));}
+    if(RUN.cancel)break;}
+  SW.busy=false;$('#sgo').disabled=false;$('#sstop').disabled=true;
+});
+$('#sstop').addEventListener('click',()=>{RUN.cancel=true;});
+$$('.subtabs button[data-cmode]').forEach(b=>b.addEventListener('click',()=>{
+  $$('.subtabs button[data-cmode]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  const sw=b.dataset.cmode==='sweep';
+  $('#c_sweep').style.display=sw?'':'none';
+  $('#c_fid').style.display=sw?'none':'';
+  if(sw)drawSweeps();
+}));
+
+/* ---- footer ---- */
+$('#foot').innerHTML='<b>Methods.</b> Every formula and line reference is read off the GUINEA-PIG++ source in '+
+  'this repository. The toy collision re-implements the beam-beam kernel only &mdash; crossing schedule, CIC '+
+  'deposit, cell-integrated Green kernel, packed 2n<sub>x</sub>&times;2n<sub>y</sub> FFT, '+
+  '<code>ElectricFieldCIC</code> stencil, <code>backSlices</code> pre-drift and the n<sub>t</sub>-normalised '+
+  'luminosity estimator &mdash; in double precision where GUINEA-PIG uses <code>float</code>. It contains no '+
+  'beamstrahlung, pairs, hadrons, energy spread, ISR, crossing angle or offsets, so absolute luminosities are '+
+  'discretisation studies and not predictions. Four quantities were checked against known answers before release '+
+  '(schedule counts, the Bassetti&ndash;Erskine field limit, the rigid-beam luminosity closure and the analytic '+
+  'hourglass factor); the pinch enhancement has no closed form and is self-converged and Richardson-extrapolated '+
+  'only. Beam parameters are the published C&sup3;-250 and ILC-250 sets. Full ledger, error budget and the list '+
+  'of what was not verified are in <code>VALIDATION.md</code> beside this file.';
+
+/* ---- boot ---- */
+showStep(); fidTables(); srcTables(); runStatus(); sweepStatus(); drawSweeps();
+})();
+</script>
+</body>
+</html>
