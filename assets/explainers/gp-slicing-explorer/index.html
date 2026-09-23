@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GUINEA-PIG slicing explorer — n_x, n_y, n_z, n_t, n_m</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --plane:     #f9f9f7;
+  --ink-1:     #0b0b0b;
+  --ink-2:     #52514e;
+  --ink-3:     #898781;
+  --grid:      #e1e0d9;
+  --axis:      #c3c2b7;
+  --hair:      rgba(11,11,11,0.10);
+  --b1:        #2a78d6;   /* beam 1 - categorical slot 1 */
+  --b2:        #eb6834;   /* beam 2 - categorical slot 2 */
+  --b3:        #1baf7a;   /* luminosity - categorical slot 3 */
+  --warn:      #fab219;
+  --crit:      #d03b3b;
+  --good:      #0ca30c;
+  --seq-100:#cde2fb; --seq-200:#9ec5f4; --seq-300:#6da7ec;
+  --seq-400:#3987e5; --seq-500:#256abf; --seq-600:#184f95; --seq-700:#0d366b;
+  /* ordinal ramp for the n_z families (an ordered quantity, not categories) */
+  --ord-1:#86b6ef; --ord-2:#3987e5; --ord-3:#1c5cab; --ord-4:#0d366b;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --plane: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+    --grid: #2c2c2a; --axis: #383835; --hair: rgba(255,255,255,0.10);
+    --b1: #3987e5; --b2: #d95926; --b3: #199e70;
+    /* sequential ramp re-stepped for the dark surface: dark = low, light = high */
+    --seq-100:#0d366b; --seq-200:#184f95; --seq-300:#256abf;
+    --seq-400:#3987e5; --seq-500:#6da7ec; --seq-600:#9ec5f4; --seq-700:#cde2fb;
+    --ord-1:#184f95; --ord-2:#2a78d6; --ord-3:#6da7ec; --ord-4:#b7d3f6;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --plane: #0d0d0d;
+  --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+  --grid: #2c2c2a; --axis: #383835; --hair: rgba(255,255,255,0.10);
+  --b1: #3987e5; --b2: #d95926; --b3: #199e70;
+  --seq-100:#0d366b; --seq-200:#184f95; --seq-300:#256abf;
+  --seq-400:#3987e5; --seq-500:#6da7ec; --seq-600:#9ec5f4; --seq-700:#cde2fb;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink-1);
+  font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 96px; }
+h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -0.01em; }
+h2 { font-size: 19px; margin: 0 0 4px; letter-spacing: -0.005em; }
+h3 { font-size: 14px; margin: 0 0 10px; color: var(--ink-2); font-weight: 600; }
+p  { margin: 0 0 12px; color: var(--ink-2); max-width: 78ch; }
+a  { color: var(--b1); }
+code, .mono { font-family: var(--mono); font-size: 0.9em; }
+code { background: color-mix(in srgb, var(--ink-1) 6%, transparent); padding: 1px 5px; border-radius: 4px; }
+
+.sub { color: var(--ink-3); font-size: 13px; margin: 0 0 22px; }
+.card {
+  background: var(--surface-1); border: 1px solid var(--hair);
+  border-radius: 12px; padding: 20px 22px; margin: 0 0 20px;
+}
+.card > header { margin-bottom: 14px; }
+.card > header p { margin: 6px 0 0; font-size: 13.5px; }
+.eyebrow {
+  font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600; margin-bottom: 3px;
+}
+
+/* ---- controls ---- */
+.controls { position: sticky; top: 0; z-index: 40; margin-bottom: 20px; }
+.ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px,1fr)); gap: 14px 18px; }
+.ctl label { display: block; font-size: 12px; color: var(--ink-2); font-weight: 600; margin-bottom: 3px; }
+.ctl .val { font-family: var(--mono); color: var(--ink-1); font-size: 13px; }
+.ctl .hint { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+input[type=range] { width: 100%; accent-color: var(--b1); margin: 2px 0 0; }
+select, button {
+  font-family: var(--sans); font-size: 13px; color: var(--ink-1);
+  background: var(--surface-1); border: 1px solid var(--axis);
+  border-radius: 7px; padding: 6px 11px; cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--ink-3); }
+button.primary { background: var(--b1); border-color: var(--b1); color: #fff; font-weight: 600; }
+button.primary:hover { filter: brightness(1.08); }
+button:disabled { opacity: 0.45; cursor: default; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* ---- stat tiles ---- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px,1fr)); gap: 1px;
+         background: var(--hair); border: 1px solid var(--hair); border-radius: 10px; overflow: hidden; }
+.tile { background: var(--surface-1); padding: 12px 14px; }
+.tile .k { font-size: 11px; color: var(--ink-3); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.tile .v { font-size: 21px; font-family: var(--mono); margin-top: 3px; letter-spacing: -0.02em; }
+.tile .u { font-size: 11px; color: var(--ink-3); font-family: var(--mono); }
+.tile.hi .v { color: var(--b1); }
+.tile.warnv .v { color: var(--crit); }
+
+/* ---- layout helpers ---- */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.two-a { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; }
+@media (max-width: 860px) { .two, .two-a { grid-template-columns: 1fr; } }
+
+figure { margin: 0; }
+figcaption { font-size: 12px; color: var(--ink-3); margin-top: 7px; }
+canvas { display: block; max-width: 100%; }
+svg { display: block; overflow: visible; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); margin-bottom: 8px; }
+.legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+.legend .ln { width: 14px; height: 2px; border-radius: 1px; display:inline-block; margin-right:5px; vertical-align: 4px;}
+
+.tip {
+  position: fixed; pointer-events: none; z-index: 90; opacity: 0; transition: opacity .08s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 7px 10px; font-size: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.14);
+  max-width: 280px; line-height: 1.45;
+}
+.tip b { font-family: var(--mono); font-weight: 600; }
+
+/* recessed panel rather than an accent rule — the two callouts are peers, not a
+   colour-coded taxonomy, so nothing needs to carry hue here */
+.callout {
+  background: color-mix(in srgb, var(--ink-1) 3.5%, transparent);
+  border-radius: 10px; padding: 14px 16px; margin: 16px 0;
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout .eq { background: var(--surface-1); }
+.eq { font-family: var(--mono); font-size: 14px; background: color-mix(in srgb, var(--ink-1) 5%, transparent);
+      padding: 9px 13px; border-radius: 8px; display: inline-block; margin: 2px 0 12px; }
+table.tbl { border-collapse: collapse; font-size: 12.5px; width: 100%; }
+table.tbl th, table.tbl td { text-align: right; padding: 5px 9px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+table.tbl th:first-child, table.tbl td:first-child { text-align: left; }
+table.tbl th { color: var(--ink-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+details { margin-top: 12px; }
+summary { cursor: pointer; font-size: 12.5px; color: var(--ink-2); }
+.bar { height: 6px; background: var(--grid); border-radius: 3px; overflow: hidden; }
+/* scaleX rather than width: these tick during the field-solve loop, so keeping
+   the fill off the layout path matters */
+.bar > i { display: block; height: 100%; width: 100%; background: var(--b1);
+           transform: scaleX(0); transform-origin: left center; transition: transform .1s linear; }
+.src { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+.toggle { position: fixed; top: 14px; right: 16px; z-index: 100; }
+</style>
+</head>
+<body>
+<button class="toggle" id="themeBtn">◐ theme</button>
+<div class="wrap">
+
+<div class="eyebrow">GUINEA-PIG++ · src/guineapigCPP.{h,cc} · src/gridCPP.cc · src/fieldCPP.cc</div>
+<h1>How GUINEA-PIG slices a collision: <span class="mono">n_z</span> vs <span class="mono">n_t</span></h1>
+<p class="sub">Every number and formula below is read off the source in this repository. Line references are given inline. The
+toy collision at the bottom re-implements GUINEA-PIG's actual crossing schedule, deposit, Green's-function field solve and
+push in JavaScript so you can watch the discretization converge.</p>
+
+<!-- ======================= THE ANSWER ======================= -->
+<section class="card">
+  <header><h2>The short answer</h2></header>
+  <p><b>Neither all-to-all nor slice-<i>i</i>-with-slice-<i>i</i>.</b> It is a <b>sliding crossing</b>. Slices are indexed
+  from the <b>head</b> of each bunch (index 0) to the <b>tail</b> (index <span class="mono">n_z−1</span>). At crossing step
+  <span class="mono">k</span> the pairs that overlap are exactly those with</p>
+  <div class="eq">i<sub>1</sub> + i<sub>2</sub> = k &nbsp;&nbsp;(k = 0 … 2·n_z − 2)</div>
+  <p>so over the full crossing every slice of beam 1 does meet every slice of beam 2 — <b>each pair exactly once</b>, at its
+  own step, never simultaneously. Total <code>make_step()</code> calls per bunch crossing = <b>n_z² · n_t</b>.</p>
+  <div class="callout">
+    <p><b>Your follow-up — do the beams move longitudinally during the <span class="mono">n_t</span> iterations?</b>
+    Physical time <i>does</i> advance (each sub-step drifts every active particle by <code>step_</code>, and
+    <span class="mono">n_t·step_ = Δz/2</span> — exactly the lab distance that slides the crossing on by one <span class="mono">k</span>),
+    but the <b>slice bookkeeping is frozen</b>: the same pair list, the same <code>min_z</code> luminosity z-bin, for all
+    <span class="mono">n_t</span> sub-steps. Beam particles never carry a <code>z</code> at all — their longitudinal position
+    <i>is</i> their slice index (<code>advancePosition()</code> touches only <code>xpos_</code>/<code>ypos_</code>,
+    <span class="src">abstractParticle.h:122</span>). Slices not in the current pair list are frozen solid — they do not drift.</p>
+  </div>
+  <div class="callout">
+    <p><b>The one identity that ties them together.</b> <code>deltaz = 2·cut_z/n_z</code> (<span class="src">gridCPP.cc:138</span>)
+    and <code>step_ = deltaz/(2·n_t)</code> (<span class="src">gridCPP.cc:146</span>), so the integration step is</p>
+    <div class="eq">step_ = cut_z / (n_z · n_t)</div>
+    <p>Integration accuracy is governed by the <b>product</b> <span class="mono">n_z·n_t</span>; CPU cost is governed by
+    <span class="mono">n_z²·n_t</span>. At a fixed product, cost ∝ <span class="mono">n_z</span> — so buying a shorter push step
+    with <span class="mono">n_t</span> is <span class="mono">n_z</span>× cheaper than buying it with <span class="mono">n_z</span>.
+    What only <span class="mono">n_z</span> can buy is longitudinal <i>geometry</i>: z-resolution of the pinch, and the
+    <span class="mono">Δz</span> bin width of every z-differential output.</p>
+  </div>
+  <p style="margin-top:14px"><b>Correction to what I said earlier:</b> I claimed <span class="mono">n_t</span> "does not multiply the
+  FFT-solve count". It does — <code>iteration_on_overlaping_slices</code> loops <code>for(i0=0;i0&lt;get_timestep();i0++)</code>
+  around <code>make_time_step_on_slices</code> (<span class="src">guineapigCPP.cc:819-822</span>), so field solves scale as
+  <b>n_z²·n_t</b>: quadratic in <span class="mono">n_z</span>, linear in <span class="mono">n_t</span>. Both multiply; only the power differs.</p>
+</section>
+
+<!-- ======================= CONTROLS ======================= -->
+<section class="card controls">
+  <div class="row" style="justify-content:space-between;margin-bottom:14px">
+    <h2 style="margin:0">Parameters</h2>
+    <div class="row">
+      <select id="preset" title="beam parameter set">
+        <option value="c3_250">C³-250 (125 GeV/beam)</option>
+        <option value="ilc_250">ILC-250 (125 GeV/beam)</option>
+        <option value="weak">Weak-disruption toy</option>
+      </select>
+      <button id="resetBtn">reset grid</button>
+    </div>
+  </div>
+  <div class="ctl-grid">
+    <div class="ctl"><label for="nx">n_x <span class="val" id="nxv"></span></label>
+      <input type="range" id="nx" min="3" max="8" step="1"><div class="hint">transverse grid cells, x</div></div>
+    <div class="ctl"><label for="ny">n_y <span class="val" id="nyv"></span></label>
+      <input type="range" id="ny" min="3" max="8" step="1"><div class="hint">transverse grid cells, y</div></div>
+    <div class="ctl"><label for="nz">n_z <span class="val" id="nzv"></span></label>
+      <input type="range" id="nz" min="1" max="32" step="1"><div class="hint">longitudinal slices per bunch</div></div>
+    <div class="ctl"><label for="nt">n_t <span class="val" id="ntv"></span></label>
+      <input type="range" id="nt" min="1" max="32" step="1"><div class="hint">sub-steps per crossing step</div></div>
+    <div class="ctl"><label for="nm">n_m <span class="val" id="nmv"></span></label>
+      <input type="range" id="nm" min="500" max="40000" step="500"><div class="hint">macroparticles per bunch</div></div>
+    <div class="ctl"><label for="kick">beam-beam force <span class="val" id="kickv"></span></label>
+      <input type="range" id="kick" min="0" max="100" step="5"><div class="hint">0 % = rigid beams (L/L₀ must → 1)</div></div>
+  </div>
+</section>
+
+<!-- ======================= TILES ======================= -->
+<section class="card">
+  <header>
+    <div class="eyebrow">derived directly from the source formulas</div>
+    <h2>What your settings actually mean</h2>
+  </header>
+  <div class="tiles" id="tiles"></div>
+  <details>
+    <summary>Where each number comes from</summary>
+    <table class="tbl" style="margin-top:10px">
+      <thead><tr><th>Quantity</th><th>Expression</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Δz (slice thickness)</td><td class="mono">2·cut_z / n_z</td><td class="src">gridCPP.cc:138</td></tr>
+        <tr><td>Δx, Δy (cell size)</td><td class="mono">2·cut_x / n_x, 2·cut_y / n_y</td><td class="src">gridCPP.cc:136-137</td></tr>
+        <tr><td>step_ (push length)</td><td class="mono">Δz / (2·n_t) = cut_z/(n_z·n_t)</td><td class="src">gridCPP.cc:146</td></tr>
+        <tr><td>crossing steps</td><td class="mono">2·n_z − 1</td><td class="src">guineapigCPP.h:464-471</td></tr>
+        <tr><td>slice pairs at step k</td><td class="mono">min(k, 2n_z−2−k) + 1</td><td class="src">guineapigCPP.h:513-517</td></tr>
+        <tr><td>make_step() calls</td><td class="mono">n_z² · n_t</td><td class="src">guineapigCPP.cc:819 + .h:513</td></tr>
+        <tr><td>complex FFTs</td><td class="mono">2 per make_step, size 2n_x × 2n_y</td><td class="src">fieldCPP.h:40-43, fieldCPP.cc:95,104</td></tr>
+        <tr><td>particle pushes</td><td class="mono">2 · n_z · n_t · n_m</td><td class="src">gridCPP.h:1172-1178</td></tr>
+        <tr><td>macroparticles / slice</td><td class="mono">≈ n_m / n_z (Gaussian-weighted)</td><td class="src">particleBeamCPP.h:298</td></tr>
+        <tr><td>total drift per particle</td><td class="mono">n_z · n_t · step_ = cut_z</td><td class="src">— (identity)</td></tr>
+      </tbody>
+    </table>
+  </details>
+</section>
+
+<!-- ======================= SCHEDULE ======================= -->
+<section class="card">
+  <header>
+    <div class="eyebrow">guineapigCPP.h:460–524</div>
+    <h2>Who meets whom, and when</h2>
+    <p>Left: the two bunches sliding through each other, one <span class="mono">k</span> per frame. Slices currently paired are
+    joined by a link. Right: the full <span class="mono">n_z × n_z</span> pair table — every cell is computed exactly once,
+    on the anti-diagonal <span class="mono">i₁+i₂=k</span>. Hover either panel.</p>
+  </header>
+
+  <div class="row" style="margin-bottom:14px">
+    <button class="primary" id="playBtn">▶ play crossing</button>
+    <button id="stepBtn">step k</button>
+    <button id="subBtn">step sub-step (n_t)</button>
+    <button id="rewBtn">⟲ reset</button>
+    <span class="mono" id="schedLabel" style="font-size:13px;color:var(--ink-2)"></span>
+  </div>
+
+  <div class="two-a">
+    <figure>
+      <div class="legend">
+        <span><i style="background:var(--b1)"></i>beam 1 &rarr; (head = slice 0)</span>
+        <span><i style="background:var(--b2)"></i>&larr; beam 2 (head = slice 0)</span>
+        <span><i style="background:var(--axis)"></i>frozen (not in a pair this step)</span>
+      </div>
+      <canvas id="ladder" width="640" height="330"></canvas>
+      <figcaption>Beam 1 slice <span class="mono">i₁</span> starts at <span class="mono">z = −(i₁+½)Δz</span>, beam 2 slice
+      <span class="mono">i₂</span> at <span class="mono">z = +(i₂−½)Δz</span>; both advance <span class="mono">Δz/2</span> per
+      crossing step. Their meeting point <span class="mono">z = ½(i₂−i₁−1)Δz</span> is exactly GUINEA-PIG's
+      <code>min_z</code> (<span class="src">guineapigCPP.cc:677</span>, consumed at <span class="src">meshCPP.h:34</span>).</figcaption>
+    </figure>
+    <figure>
+      <div class="legend"><span><i style="background:var(--seq-100)"></i>early k</span><span><i style="background:var(--seq-700)"></i>late k</span><span><i style="background:var(--b3)"></i>computing now</span></div>
+      <canvas id="matrix" width="420" height="420"></canvas>
+      <figcaption>Rows = beam 1 slice, columns = beam 2 slice. Shade = crossing step <span class="mono">k = i₁+i₂</span>.
+      All <span class="mono">n_z²</span> cells fill in; each is visited <span class="mono">n_t</span> times back-to-back.</figcaption>
+    </figure>
+  </div>
+
+  <details>
+    <summary>The loop nest, verbatim</summary>
+<pre class="mono" style="font-size:12px;background:color-mix(in srgb,var(--ink-1) 5%,transparent);padding:14px;border-radius:8px;overflow-x:auto;color:var(--ink-2)">
+// guineapigCPP.h:460  — the crossing schedule
+for (k=0; k&lt;n_slice; k++)                 iteration_on_overlaping_slices(0, k, sor);
+for (k=n_slice; k&lt;2*n_slice-1; k++)       iteration_on_overlaping_slices(k-n_slice+1, n_slice-1, sor);
+
+// guineapigCPP.cc:819 — n_t sub-steps, pairing FROZEN inside this loop
+for (i0=0; i0&lt;grid_.get_timestep(); i0++) make_time_step_on_slices(firstSliceOfBeam1, lastSliceOfBeam2, sor);
+
+// guineapigCPP.h:513 — the pairs of one step: indices run in OPPOSITE directions
+slice_beam_2 = lastSliceOfBeam2;
+for (slice_beam_1 = firstSliceOfBeam1; slice_beam_1 &lt;= lastSliceOfBeam2; slice_beam_1++) {
+    make_step(slice_beam_1, slice_beam_2, sor);      // deposit -> FFT solve -> interp -> kick+drift
+    slice_beam_2--;                                  // => i1 + i2 = k is invariant
+}
+</pre>
+  </details>
+</section>
+
+<!-- ======================= THE PLANE ======================= -->
+<section class="card">
+  <header>
+    <div class="eyebrow">the interplay</div>
+    <h2>The (n_z, n_t) plane</h2>
+    <p>Fill colour is cost (<span class="mono">n_z²·n_t</span> field solves). The contour lines are lines of constant push length
+    <span class="mono">step_ = cut_z/(n_z·n_t)</span> — i.e. lines of roughly equal <i>integration</i> accuracy. Because the
+    contours have slope −1 in log–log while cost climbs twice as fast along <span class="mono">n_z</span>, the cheapest point on
+    any accuracy contour is always its <b>bottom-right</b> corner: small <span class="mono">n_z</span>, large
+    <span class="mono">n_t</span>. You move up and left only to buy longitudinal resolution.</p>
+  </header>
+  <div class="two-a">
+    <figure>
+      <canvas id="plane" width="560" height="420"></canvas>
+      <figcaption>Hover for cost, push length and Δz at any (n_z, n_t). ✚ marks your current setting.</figcaption>
+    </figure>
+    <div>
+      <h3>What each knob alone controls</h3>
+      <table class="tbl">
+        <thead><tr><th></th><th>n_z</th><th>n_t</th></tr></thead>
+        <tbody>
+          <tr><td>push length <span class="mono">step_</span></td><td>∝ 1/n_z</td><td>∝ 1/n_t</td></tr>
+          <tr><td>field solves</td><td>∝ n_z²</td><td>∝ n_t</td></tr>
+          <tr><td>particle pushes</td><td>∝ n_z</td><td>∝ n_t</td></tr>
+          <tr><td>Δz output bin</td><td>∝ 1/n_z</td><td>—</td></tr>
+          <tr><td>distinct lumi z-bins</td><td>2n_z−1</td><td>—</td></tr>
+          <tr><td>macro / slice (noise)</td><td>∝ 1/n_z <b>↑noise</b></td><td>—</td></tr>
+          <tr><td>hourglass / pinch geometry</td><td>resolves it</td><td>—</td></tr>
+          <tr><td>2-D FFT size</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;margin-top:12px">The last row is the point about <span class="mono">n_x</span>/<span class="mono">n_y</span>:
+      the transform is always <span class="mono">2n_x × 2n_y</span> (<span class="src">fieldCPP.h:40-41</span>) regardless of
+      <span class="mono">n_z</span> or <span class="mono">n_t</span> — they set how <i>many</i> transforms, never how big.</p>
+      <p style="font-size:13px"><b>The n_z trap:</b> raising <span class="mono">n_z</span> improves geometry <i>and</i> the push step,
+      but simultaneously divides your macroparticles among more slices. Charge-deposit shot noise per slice grows like
+      <span class="mono">√(n_z/n_m)</span>, so <span class="mono">n_z</span> and <span class="mono">n_m</span> have to be raised together.
+      Watch it happen in the run below.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TOY COLLISION ======================= -->
+<section class="card">
+  <header>
+    <div class="eyebrow">a faithful miniature: same schedule, same deposit, same Green's function</div>
+    <h2>Run the collision</h2>
+    <p>This runs GUINEA-PIG's algorithm at reduced fidelity in your browser: CIC charge assignment
+    (<span class="src">gridCPP.cc:763</span>), the cell-integrated 2-D Green's kernel
+    <span class="mono">f_potential_2</span> (<span class="src">fieldCPP.cc:275</span>), both beams packed into one complex
+    FFT of size <span class="mono">2n_x×2n_y</span> (<span class="src">fieldCPP.cc:47-104</span>), the
+    <code>backSlices</code> pre-drift (<span class="src">particleBeamCPP.h:232</span>), and the luminosity estimator
+    <span class="mono">Σρ₁ρ₂ /(Δx·Δy·n_t)</span> (<span class="src">gridCPP.cc:916</span>). Beamstrahlung, pairs, coherent
+    production and energy spread are omitted.</p>
+  </header>
+
+  <div class="row" style="margin-bottom:6px">
+    <button class="primary" id="runBtn">▶ run</button>
+    <button id="cancelBtn" disabled>stop</button>
+    <span id="costEst" style="font-size:12.5px;color:var(--ink-3)"></span>
+  </div>
+  <div class="bar" style="margin-bottom:18px"><i id="prog"></i></div>
+
+  <div class="tiles" id="runTiles" style="margin-bottom:20px"></div>
+
+  <div class="two">
+    <figure>
+      <h3>Cumulative luminosity through the crossing</h3>
+      <div class="legend"><span><span class="ln" style="background:var(--b3)"></span>L(k) / L₀</span>
+      <span><span class="ln" style="background:var(--axis)"></span>rigid-beam reference = 1</span></div>
+      <svg id="chLumi" width="520" height="230"></svg>
+      <figcaption>Rises past 1 as the pinch focuses the beams. With the force slider at 0 % this must land on 1.000 — any
+      residual is pure <span class="mono">n_x,n_y</span> grid bias plus <span class="mono">n_m</span> shot noise.</figcaption>
+    </figure>
+    <figure>
+      <h3>Vertical beam size, slice by slice</h3>
+      <div class="legend"><span><span class="ln" style="background:var(--b1)"></span>beam 1, final</span>
+      <span><span class="ln" style="background:var(--b2)"></span>beam 2, final</span>
+      <span><span class="ln" style="background:var(--axis);height:0;border-top:2px dashed var(--axis)"></span>initial</span></div>
+      <svg id="chPinch" width="520" height="230"></svg>
+      <figcaption>Head slices (index 0) pass through an undisturbed opposing bunch; tail slices are focused by the field of an
+      already-pinched partner. Resolving this gradient is what <span class="mono">n_z</span> is <i>for</i> — it is invisible at n_z = 1.</figcaption>
+    </figure>
+  </div>
+
+  <figure style="margin-top:22px">
+    <h3>Where the luminosity happens along z</h3>
+    <div class="legend"><span><i style="background:var(--b3)"></i>dL/dz, binned at Δz/2 = cut_z/n_z</span></div>
+    <svg id="chZ" width="1090" height="200"></svg>
+    <figcaption>The <span class="mono">2n_z−1</span> discrete values of <code>min_z = ½(i₂−i₁−1)</code>
+    (<span class="src">guineapigCPP.cc:677</span>) are the <i>only</i> longitudinal positions GUINEA-PIG can report, each smeared
+    uniformly over one Δz (<span class="src">meshCPP.h:34</span>). Drop n_z to 2 and this histogram — and every z-differential
+    background distribution built on it — collapses to three spikes. <span class="mono">n_t</span> changes nothing here.</figcaption>
+  </figure>
+  <details>
+    <summary>Table view of the run</summary>
+    <div id="runTable" style="margin-top:10px"></div>
+  </details>
+</section>
+
+<!-- ======================= SWEEP ======================= -->
+<section class="card">
+  <header>
+    <div class="eyebrow">the money plot</div>
+    <h2>Convergence sweep: is it n_z, n_t, or the product?</h2>
+    <p>Runs the toy collision over a grid of <span class="mono">(n_z, n_t)</span> at your current
+    <span class="mono">n_x, n_y, n_m</span>. Left: L/L₀ against the product <span class="mono">n_z·n_t</span> — if the push step
+    were the only thing that mattered, all four curves would lie on top of each other. Where they <i>don't</i> is the part of the
+    answer that only <span class="mono">n_z</span> can supply. Right: the same points against what they cost you.</p>
+  </header>
+  <div class="row" style="margin-bottom:6px">
+    <button class="primary" id="sweepBtn">▶ run sweep (16 collisions)</button>
+    <span id="sweepEst" style="font-size:12.5px;color:var(--ink-3)"></span>
+  </div>
+  <div class="bar" style="margin-bottom:18px"><i id="sweepProg"></i></div>
+  <div class="legend" id="sweepLegend"></div>
+  <div class="two">
+    <figure><h3>Accuracy vs the product n_z·n_t</h3><svg id="chSweepA" width="520" height="260"></svg>
+      <figcaption>x is the thing that sets <span class="mono">step_</span>. Vertical spread at fixed x = the genuinely
+      longitudinal part of the physics.</figcaption></figure>
+    <figure><h3>Accuracy vs cost (field solves = n_z²·n_t)</h3><svg id="chSweepB" width="520" height="260"></svg>
+      <figcaption>The efficient frontier hugs the low-<span class="mono">n_z</span> curves until longitudinal structure starts
+      to matter, then jumps.</figcaption></figure>
+  </div>
+  <details><summary>Table view of the sweep</summary><div id="sweepTable" style="margin-top:10px"></div></details>
+</section>
+
+<!-- ======================= SOURCE MAP ======================= -->
+<section class="card">
+  <header><h2>Source map</h2><p>Everything asserted above, with the file and line to check it against.</p></header>
+  <table class="tbl">
+    <thead><tr><th>Claim</th><th>Location</th><th>Code</th></tr></thead>
+    <tbody>
+      <tr><td>crossing schedule, 2n_z−1 steps</td><td class="src">guineapigCPP.h:460</td><td class="mono">beam_interaction()</td></tr>
+      <tr><td>pairs satisfy i₁+i₂=k</td><td class="src">guineapigCPP.h:513</td><td class="mono">slice_beam_2--</td></tr>
+      <tr><td>n_t sub-steps, pairing frozen</td><td class="src">guineapigCPP.cc:819</td><td class="mono">for(i0&lt;get_timestep())</td></tr>
+      <tr><td>push length</td><td class="src">gridCPP.cc:146</td><td class="mono">step_=deltaz/(2.0*timestep_)</td></tr>
+      <tr><td>slice thickness</td><td class="src">gridCPP.cc:138</td><td class="mono">deltaz=2.0*cut_z/n_cell_z_</td></tr>
+      <tr><td>particles have no z motion</td><td class="src">abstractParticle.h:122</td><td class="mono">advancePosition(): xpos_,ypos_ only</td></tr>
+      <tr><td>only the paired slices are pushed</td><td class="src">gridCPP.h:1172</td><td class="mono">moveAllParticles(i_slice1,i_slice2)</td></tr>
+      <tr><td>per-slice pre-drift uses n_t</td><td class="src">particleBeamCPP.h:232</td><td class="mono">backSlices()</td></tr>
+      <tr><td>collision z-bin from index difference</td><td class="src">guineapigCPP.cc:677</td><td class="mono">min_z=0.5*(i2-i1-1)</td></tr>
+      <tr><td>z smeared over one Δz</td><td class="src">meshCPP.h:34</td><td class="mono">z=(min_z+rndm())*delta_z_</td></tr>
+      <tr><td>lumi normalised by n_t</td><td class="src">gridCPP.cc:916</td><td class="mono">sum*1e18/(dx*dy*timestep_)</td></tr>
+      <tr><td>pair weights normalised by n_t</td><td class="src">gridCPP.cc:515</td><td class="mono">/sqrt(dx*dy*timestep_)</td></tr>
+      <tr><td>FFT size independent of n_z, n_t</td><td class="src">fieldCPP.h:40</td><td class="mono">nn[0]=2*n_y; nn[1]=2*n_x</td></tr>
+      <tr><td>2 FFTs per make_step, beams packed</td><td class="src">fieldCPP.cc:56,95,104</td><td class="mono">temp[j]=rho1; temp[j+1]=rho2</td></tr>
+      <tr><td>parameter names</td><td class="src">gridCPP.cc:265-279</td><td class="mono">n_x n_y n_z n_t n_m.1 n_m.2</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:14px;font-size:13px"><b>Unrelated snag found while reading:</b> <code>src/particleBeamCPP.cc</code> is
+  ISO-8859 encoded, not UTF-8. Plain <code>grep</code> treats it as binary and silently reports no matches — use
+  <code>grep -a</code> or you will conclude functions like <code>backstep</code> don't exist.</p>
+</section>
+
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   0. small utilities
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = (v, d=2) => {
+  if (!isFinite(v)) return "—";
+  const a = Math.abs(v);
+  if (a === 0) return "0";
+  if (a >= 1e6 || a < 1e-3) return v.toExponential(d).replace("e+","e");
+  return v.toFixed(a >= 100 ? 0 : a >= 10 ? 1 : d);
+};
+const commas = n => n.toLocaleString("en-US");
+const tip = $("tip");
+function showTip(ev, html) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + r.width > innerWidth - 8)  x = ev.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 14;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+const hideTip = () => tip.style.opacity = 0;
+// progress fills are scaled, not resized, so they never touch layout
+const setProg = (id, frac) => { $(id).style.transform = "scaleX(" + Math.max(0, Math.min(1, frac)) + ")"; };
+
+// deterministic RNG so runs are reproducible
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gauss(rng){let u=0,v=0;while(u===0)u=rng();while(v===0)v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+/* ============================================================
+   1. physics constants + presets
+   ============================================================ */
+const RE_NM  = 2.8179403262e-6;      // classical electron radius in nm
+const MEC2   = 0.51099895e-3;        // GeV
+
+const PRESETS = {
+  c3_250: { label:"C³-250", E:125, N:6.24e9,  sx:210, sy:3.1, sz:100000 },
+  ilc_250:{ label:"ILC-250",     E:125, N:2.0e10,  sx:515, sy:7.7, sz:300000 },
+  weak:   { label:"Weak toy",    E:125, N:1.0e9,   sx:500, sy:50,  sz:100000 }
+};
+const CUTX = 6, CUTY = 8, CUTZ = 3;   // grid half-widths in sigmas
+
+/* ============================================================
+   2. state
+   ============================================================ */
+const S = {
+  nx:64, ny:64, nz:8, nt:4, nm:8000, kick:100,
+  preset:"c3_250",
+  k:0, sub:0, playing:false,
+  run:null, sweep:null
+};
+function beam(){ return PRESETS[S.preset]; }
+function geo(){
+  const b = beam();
+  const cutx = CUTX*b.sx, cuty = CUTY*b.sy, cutz = CUTZ*b.sz;
+  return { cutx, cuty, cutz,
+           dx: 2*cutx/S.nx, dy: 2*cuty/S.ny, dz: 2*cutz/S.nz,
+           step: cutz/(S.nz*S.nt),
+           gamma: b.E/MEC2 };
+}
+function disruptionY(){
+  const b = beam(), g = b.E/MEC2;
+  return 2*b.N*RE_NM*b.sz/(g*b.sy*(b.sx+b.sy));
+}
+
+/* ============================================================
+   3. FFT  (radix-2, in-place, interleaved complex not used —
+      separate re/im arrays for speed)
+   ============================================================ */
+function fft1(re, im, n, off, stride, inv) {
+  // bit reversal
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      const a = off + i*stride, b = off + j*stride;
+      let t = re[a]; re[a] = re[b]; re[b] = t;
+      t = im[a]; im[a] = im[b]; im[b] = t;
+    }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = (inv ? 2 : -2) * Math.PI / len;
+    const wr = Math.cos(ang), wi = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let cwr = 1, cwi = 0;
+      for (let j = 0; j < len/2; j++) {
+        const a = off + (i+j)*stride, b = off + (i+j+len/2)*stride;
+        const xr = re[b]*cwr - im[b]*cwi, xi = re[b]*cwi + im[b]*cwr;
+        re[b] = re[a] - xr; im[b] = im[a] - xi;
+        re[a] += xr;        im[a] += xi;
+        const nwr = cwr*wr - cwi*wi; cwi = cwr*wi + cwi*wr; cwr = nwr;
+      }
+    }
+  }
+}
+function fft2(re, im, nx, ny, inv) {
+  for (let i = 0; i < nx; i++) fft1(re, im, ny, i*ny, 1, inv);
+  for (let j = 0; j < ny; j++) fft1(re, im, nx, j, ny, inv);
+  if (inv) { const s = 1/(nx*ny); for (let i = 0; i < nx*ny; i++) { re[i]*=s; im[i]*=s; } }
+}
+
+/* ---- GUINEA-PIG's cell-integrated 2-D Green's kernel (fieldCPP.cc:275) ---- */
+function fpot(x, y) {
+  const r2 = x*x + y*y;
+  if (r2 === 0) return 0;                       // x^2*atan(y/x) -> 0 as x -> 0
+  const ax = (x === 0) ? 0 : x*x*Math.atan(y/x);
+  const ay = (y === 0) ? 0 : y*y*Math.atan(x/y);
+  return x*y*(Math.log(r2) - 3.0) + ax + ay;
+}
+function fpot2(x0, y0, dx, dy) {
+  return fpot(x0+dx, y0+dy) - fpot(x0+dx, y0-dy) - fpot(x0-dx, y0+dy) + fpot(x0-dx, y0-dy);
+}
+
+/* ---- Poisson solver: padded 2n_x x 2n_y convolution, both beams in one FFT ---- */
+function makeSolver(nx, ny, dx, dy) {
+  const NX = 2*nx, NY = 2*ny, N = NX*NY;
+  const kre = new Float64Array(N), kim = new Float64Array(N);
+  const hx = dx/2, hy = dy/2, cell = dx*dy;
+  for (let i = 0; i < NX; i++) {
+    const ii = (i < nx ? i : i - NX);
+    for (let j = 0; j < NY; j++) {
+      const jj = (j < ny ? j : j - NY);
+      // <ln|r|> averaged over the source cell  =  0.5 * <ln r^2>
+      kre[i*NY+j] = 0.5 * fpot2(ii*dx, jj*dy, hx, hy) / cell;
+    }
+  }
+  fft2(kre, kim, NX, NY, false);
+
+  const wre = new Float64Array(N), wim = new Float64Array(N);
+  const phi1 = new Float64Array(nx*ny), phi2 = new Float64Array(nx*ny);
+  return {
+    nx, ny, dx, dy, phi1, phi2,
+    /* rho1, rho2: nx*ny weighted particle counts. Result: phi1 = potential
+       made by rho1 (felt by beam 2) and phi2 = potential made by rho2. */
+    solve(rho1, rho2) {
+      wre.fill(0); wim.fill(0);
+      for (let i = 0; i < nx; i++) {
+        const src = i*ny, dst = i*NY;
+        for (let j = 0; j < ny; j++) { wre[dst+j] = rho1[src+j]; wim[dst+j] = rho2[src+j]; }
+      }
+      fft2(wre, wim, NX, NY, false);
+      for (let i = 0; i < N; i++) {
+        const a = wre[i], b = wim[i], c = kre[i], d = kim[i];
+        wre[i] = a*c - b*d; wim[i] = a*d + b*c;
+      }
+      fft2(wre, wim, NX, NY, true);
+      for (let i = 0; i < nx; i++) {
+        const src = i*NY, dst = i*ny;
+        for (let j = 0; j < ny; j++) { phi1[dst+j] = wre[src+j]; phi2[dst+j] = wim[src+j]; }
+      }
+    }
+  };
+}
+
+/* ============================================================
+   4. the toy collision — GUINEA-PIG's schedule, verbatim
+   ============================================================ */
+function buildBeams(p) {
+  const { nx, ny, nz, nt, nm, sx, sy, sz, cutz, dz } = p;
+  const rng = mulberry32(20260811);
+  const B = [];
+  for (let b = 0; b < 2; b++) {
+    const slices = Array.from({length: nz}, () => ({ x:[], y:[], vx:[], vy:[] }));
+    let placed = 0;
+    for (let i = 0; i < nm; i++) {
+      const z = gauss(rng)*sz;
+      // particleBeamCPP.h:298 -> j = floor(z/dz + nz/2)
+      const j = Math.floor(z/dz + 0.5*nz);
+      if (j < 0 || j >= nz) continue;              // outside +-cut_z: dropped, as in GP
+      const s = slices[j];
+      s.x.push(gauss(rng)*sx); s.y.push(gauss(rng)*sy);
+      s.vx.push(0); s.vy.push(0);
+      placed++;
+    }
+    // particleBeamCPP.h:232 backSlices(): per-slice transverse pre-drift.
+    // dist_0 = 0.5*(1-1/n_t)*step*n_t ; increments by step*n_t = dz/2 per slice.
+    let dist = 0.5*(1 - 1/nt)*(dz/2);
+    for (let j = 0; j < nz; j++) {
+      const s = slices[j];
+      for (let q = 0; q < s.x.length; q++) { s.x[q] -= s.vx[q]*dist; s.y[q] -= s.vy[q]*dist; }
+      dist += dz/2;
+    }
+    B.push({ slices, placed });
+  }
+  return B;
+}
+
+function makeRun(p) {
+  const { nx, ny, nz, nt, dx, dy, dz, step, gamma, N, nm, kick } = p;
+  const B = buildBeams(p);
+  const solver = makeSolver(nx, ny, dx, dy);
+  const rho1 = new Float64Array(nx*ny), rho2 = new Float64Array(nx*ny);
+  const Ex = new Float64Array(nx*ny), Ey = new Float64Array(nx*ny);
+  const w = N / nm;                        // particles per macroparticle
+  const kickCoef = kick * 2 * RE_NM / gamma / nt;   // per sub-step: 1/n_t of the collapsed kick
+
+  const halfX = nx/2, halfY = ny/2;
+  let lumi = 0, outside = 0, inside = 0;
+  const lumiK = [], zHist = new Map();
+  const initSy = B.map(b => b.slices.map(s => rms(s.y)));
+
+  function rms(a){ if(!a.length) return 0; let m=0,s=0; for(const v of a) m+=v; m/=a.length; for(const v of a) s+=(v-m)*(v-m); return Math.sqrt(s/a.length); }
+
+  function deposit(slice, rho) {
+    rho.fill(0);
+    const {x,y} = slice;
+    for (let q = 0; q < x.length; q++) {
+      const fx = x[q]/dx + halfX - 0.5, fy = y[q]/dy + halfY - 0.5;
+      const i = Math.floor(fx), j = Math.floor(fy);
+      if (i < 0 || i >= nx-1 || j < 0 || j >= ny-1) { outside++; continue; }
+      inside++;
+      const a = fx - i, b = fy - j;
+      rho[ i   *ny + j  ] += (1-a)*(1-b);
+      rho[(i+1)*ny + j  ] +=    a *(1-b);
+      rho[ i   *ny + j+1] += (1-a)*   b;
+      rho[(i+1)*ny + j+1] +=    a *   b;
+    }
+  }
+  function gradient(phi) {                 // E = -grad(phi), central differences
+    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+      const ip = Math.min(i+1,nx-1), im = Math.max(i-1,0);
+      const jp = Math.min(j+1,ny-1), jm = Math.max(j-1,0);
+      Ex[i*ny+j] = (phi[ip*ny+j] - phi[im*ny+j]) / ((ip-im)*dx);
+      Ey[i*ny+j] = (phi[i*ny+jp] - phi[i*ny+jm]) / ((jp-jm)*dy);
+    }
+  }
+  function push(slice) {
+    const {x,y,vx,vy} = slice;
+    for (let q = 0; q < x.length; q++) {
+      const fx = x[q]/dx + halfX - 0.5, fy = y[q]/dy + halfY - 0.5;
+      const i = Math.floor(fx), j = Math.floor(fy);
+      if (i >= 0 && i < nx-1 && j >= 0 && j < ny-1) {
+        const a = fx - i, b = fy - j;
+        const gx = Ex[i*ny+j]*(1-a)*(1-b) + Ex[(i+1)*ny+j]*a*(1-b) + Ex[i*ny+j+1]*(1-a)*b + Ex[(i+1)*ny+j+1]*a*b;
+        const gy = Ey[i*ny+j]*(1-a)*(1-b) + Ey[(i+1)*ny+j]*a*(1-b) + Ey[i*ny+j+1]*(1-a)*b + Ey[(i+1)*ny+j+1]*a*b;
+        vx[q] -= kickCoef * w * gx;        // dv = -(2 re/gamma) grad(phi) / n_t
+        vy[q] -= kickCoef * w * gy;
+      }
+      x[q] += vx[q]*step;                  // advancePosition(step_)
+      y[q] += vy[q]*step;
+    }
+  }
+
+  // ---- the schedule (guineapigCPP.h:460) ----
+  const totalK = 2*nz - 1;
+  let k = 0;
+  return {
+    totalK, lumiK, zHist, B, initSy,
+    get lumi(){ return lumi; },
+    get outFrac(){ return inside+outside ? outside/(inside+outside) : 0; },
+    done(){ return k >= totalK; },
+    /* advance one crossing step, i.e. n_t sub-steps over its whole pair list */
+    stepOnce() {
+      const first = k < nz ? 0 : k - nz + 1;
+      const last  = k < nz ? k : nz - 1;
+      for (let i0 = 0; i0 < nt; i0++) {                // pairing FROZEN in here
+        let i2 = last;
+        for (let i1 = first; i1 <= last; i1++, i2--) {
+          deposit(B[0].slices[i1], rho1);
+          deposit(B[1].slices[i2], rho2);
+          // gridCPP.cc:916 -- note the 1/n_t that cancels this loop
+          let s = 0; for (let q = 0; q < nx*ny; q++) s += rho1[q]*rho2[q];
+          const dL = s*w*w/(dx*dy*nt);
+          lumi += dL;
+          const minz = 0.5*(i2 - i1 - 1);              // guineapigCPP.cc:677
+          zHist.set(minz, (zHist.get(minz)||0) + dL);
+          solver.solve(rho1, rho2);
+          gradient(solver.phi2); push(B[0].slices[i1]);   // beam 1 feels beam 2's field
+          gradient(solver.phi1); push(B[1].slices[i2]);
+        }
+      }
+      lumiK.push(lumi);
+      k++;
+    }
+  };
+}
+
+function runParams() {
+  const b = beam(), g = geo();
+  return { nx:S.nx, ny:S.ny, nz:S.nz, nt:S.nt, nm:S.nm, kick:S.kick/100,
+           sx:b.sx, sy:b.sy, sz:b.sz, N:b.N,
+           cutx:g.cutx, cuty:g.cuty, cutz:g.cutz,
+           dx:g.dx, dy:g.dy, dz:g.dz, step:g.step, gamma:g.gamma };
+}
+function L0() { const b = beam(); return b.N*b.N/(4*Math.PI*b.sx*b.sy); }
+
+/* ============================================================
+   5. tiles
+   ============================================================ */
+function tile(k, v, u, cls="") {
+  return `<div class="tile ${cls}"><div class="k">${k}</div><div class="v">${v}</div><div class="u">${u||"&nbsp;"}</div></div>`;
+}
+function renderTiles() {
+  const g = geo(), b = beam();
+  const solves = S.nz*S.nz*S.nt;
+  const fftPts = 4*S.nx*S.ny;
+  const butter = solves*2*2*fftPts*Math.log2(fftPts);   // rough butterfly count
+  const pushes = 2*S.nz*S.nt*S.nm;
+  const perSlice = S.nm/S.nz;
+  const noise = Math.sqrt(S.nz/S.nm);
+  const stepTxt = g.step >= 1000 ? fmt(g.step/1000,2) : fmt(g.step,2);
+  const stepUnit = (g.step >= 1000 ? "µm" : "nm") + " &nbsp;= cut_z/(n_z·n_t)";
+  $("tiles").innerHTML =
+    tile("slice thickness", fmt(g.dz/1000,2), "µm &nbsp;(Δz)") +
+    tile("push length", stepTxt, stepUnit, "hi") +
+    tile("cell size", fmt(g.dx,1)+" × "+fmt(g.dy,2), "nm &nbsp;(Δx × Δy)") +
+    tile("beam width in cells", fmt(b.sx/g.dx,1)+", "+fmt(b.sy/g.dy,1), "cells per σ_x, σ_y", b.sy/g.dy < 2 ? "warnv":"") +
+    tile("crossing steps", commas(2*S.nz-1), "values of k") +
+    tile("make_step() calls", commas(solves), "= n_z²·n_t", "hi") +
+    tile("complex FFTs", commas(2*solves), "of "+(2*S.nx)+"×"+(2*S.ny)) +
+    tile("particle pushes", commas(pushes), "= 2·n_z·n_t·n_m") +
+    tile("macro / slice", fmt(perSlice,0), "≈ n_m/n_z", perSlice < 200 ? "warnv":"") +
+    tile("deposit shot noise", fmt(100*noise,1)+" %", "∝ √(n_z/n_m)", noise>0.05?"warnv":"") +
+    tile("relative FFT work", fmt(butter/1e6,1), "M butterflies") +
+    tile("disruption D_y", fmt(disruptionY(),1), b.label);
+  const est = solves * (4*S.nx*S.ny) * 2 * Math.log2(4*S.nx*S.ny) / 4.5e7;
+  $("costEst").textContent = `${commas(solves)} field solves of ${2*S.nx}×${2*S.ny} — roughly ${est<1?"<1":fmt(est,0)} s`;
+}
+
+/* ============================================================
+   6. schedule visuals
+   ============================================================ */
+function pairsAt(k, nz) {
+  const first = k < nz ? 0 : k - nz + 1;
+  const last  = k < nz ? k : nz - 1;
+  const out = [];
+  let i2 = last;
+  for (let i1 = first; i1 <= last; i1++, i2--) out.push([i1, i2]);
+  return out;
+}
+
+function drawLadder() {
+  const c = $("ladder"), g = c.getContext("2d");
+  const DPR = devicePixelRatio || 1;
+  const W = 640, H = 330;
+  c.width = W*DPR; c.height = H*DPR; c.style.width = W+"px"; c.style.height = H+"px";
+  g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W,H);
+
+  const nz = S.nz, k = S.k;
+  const geoz = geo();
+  const zmax = (nz + 1);                              // in units of dz
+  const x0 = 46, x1 = W - 20, mid = (x0+x1)/2;
+  const sc = (x1-x0)/(2*zmax);
+  const X = z => mid + z*sc;
+  const yb1 = 92, yb2 = 176, yz = 262;
+
+  const c1 = css("--b1"), c2 = css("--b2"), c3 = css("--b3");
+  const inkm = css("--ink-3"), grid = css("--grid"), pale = css("--axis");
+
+  // z axis
+  g.strokeStyle = grid; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(x0, yz); g.lineTo(x1, yz); g.stroke();
+  g.fillStyle = inkm; g.font = "11px "+css("--mono");
+  for (let t = -zmax; t <= zmax; t += Math.max(1, Math.round(zmax/6))) {
+    g.beginPath(); g.moveTo(X(t), yz); g.lineTo(X(t), yz+4); g.stroke();
+    g.textAlign = "center"; g.fillText(t.toFixed(0), X(t), yz+16);
+  }
+  g.fillText("z / Δz", X(0), yz+32);
+  g.save(); g.strokeStyle = css("--axis"); g.setLineDash([3,3]);
+  g.beginPath(); g.moveTo(X(0), 60); g.lineTo(X(0), yz); g.stroke(); g.restore();
+
+  const tau = k;                                       // crossing step index = tau in units of dz
+  const set = new Map();  pairsAt(k, nz).forEach(([a,b]) => { set.set("1_"+a, b); set.set("2_"+b, a); });
+
+  const hh = 22, hw = Math.max(2.5, sc*0.42);
+  function slab(z, yc, col, active, label) {
+    g.fillStyle = active ? col : pale;
+    g.globalAlpha = active ? 1 : 0.85;
+    g.fillRect(X(z)-hw, yc-hh/2, hw*2, hh);
+    g.globalAlpha = 1;
+    if (nz <= 14) {
+      g.fillStyle = active ? "#fff" : css("--ink-3");
+      g.font = "10px "+css("--mono"); g.textAlign = "center"; g.textBaseline = "middle";
+      if (hw > 6) g.fillText(label, X(z), yc);
+    }
+  }
+  // beam 1 slices: z = -(i+0.5) + tau/2 ; beam 2: z = (i-0.5) - tau/2
+  const b1z = i => -(i + 0.5) + tau/2;
+  const b2z = i =>  (i - 0.5) - tau/2;
+
+  for (let i = nz-1; i >= 0; i--) slab(b1z(i), yb1, c1, set.has("1_"+i), i);
+  for (let i = nz-1; i >= 0; i--) slab(b2z(i), yb2, c2, set.has("2_"+i), i);
+
+  // links between paired slices, drawn at their meeting z
+  g.strokeStyle = c3; g.lineWidth = 1.6;
+  pairsAt(k, nz).forEach(([i1,i2]) => {
+    const zm = 0.5*(i2 - i1 - 1) + 0.5;
+    g.beginPath();
+    g.moveTo(X(b1z(i1)), yb1+hh/2); g.lineTo(X(zm), (yb1+yb2)/2); g.lineTo(X(b2z(i2)), yb2-hh/2);
+    g.stroke();
+    g.fillStyle = c3; g.beginPath(); g.arc(X(zm), (yb1+yb2)/2, 2.6, 0, 7); g.fill();
+    g.beginPath(); g.moveTo(X(zm), (yb1+yb2)/2); g.lineTo(X(zm), yz); g.stroke();
+  });
+
+  // labels
+  g.fillStyle = css("--ink-2"); g.font = "12px "+css("--sans"); g.textAlign = "left"; g.textBaseline="middle";
+  g.fillText("beam 1 →", 6, yb1);
+  g.fillText("← beam 2", 6, yb2);
+  g.fillStyle = css("--ink-3"); g.font = "11px "+css("--mono");
+  g.fillText("collision z", 6, (yb1+yb2)/2);
+
+  // header
+  g.fillStyle = css("--ink-1"); g.font = "600 13px "+css("--sans"); g.textAlign="left"; g.textBaseline="alphabetic";
+  const P = pairsAt(k, nz);
+  g.fillText(`crossing step k = ${k} / ${2*nz-2}`, 6, 24);
+  g.fillStyle = css("--ink-3"); g.font = "11.5px "+css("--mono");
+  const list = P.length <= 6 ? P.map(p=>`(${p[0]},${p[1]})`).join(" ")
+                             : `(${P[0][0]},${P[0][1]}) … (${P[P.length-1][0]},${P[P.length-1][1]})`;
+  g.fillText(`${P.length} pair${P.length>1?"s":""}: ${list}`, 6, 41);
+  g.fillText(`sub-step ${S.sub+1} of n_t = ${S.nt}  ·  same pairs, particles drift ${fmt(geoz.step,2)} nm each`, 6, 56);
+
+  c.onmousemove = ev => {
+    const r = c.getBoundingClientRect();
+    const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+    let hit = null;
+    for (let i = 0; i < nz; i++) {
+      if (Math.abs(my-yb1) < hh/2 && Math.abs(mx - X(b1z(i))) < hw+2) hit = [1,i];
+      if (Math.abs(my-yb2) < hh/2 && Math.abs(mx - X(b2z(i))) < hw+2) hit = [2,i];
+    }
+    if (!hit) { hideTip(); return; }
+    const [bm,i] = hit;
+    const partner = set.get(bm+"_"+i);
+    const meets = bm===1 ? `steps k = ${i} … ${i+nz-1}` : `steps k = ${i} … ${i+nz-1}`;
+    showTip(ev, `<b>beam ${bm}, slice ${i}</b><br>${i===0?"head of the bunch":i===nz-1?"tail of the bunch":"interior"}<br>
+      pairs with every slice of the other beam, one per step (${meets})<br>
+      ${partner!==undefined ? `<span style="color:${c3}">now paired with slice ${partner}</span>` : "frozen this step — not pushed at all"}`);
+  };
+  c.onmouseleave = hideTip;
+}
+
+function drawMatrix() {
+  const c = $("matrix"), g = c.getContext("2d");
+  const DPR = devicePixelRatio || 1, W = 420, H = 420;
+  c.width = W*DPR; c.height = H*DPR; c.style.width = W+"px"; c.style.height = H+"px";
+  g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W,H);
+
+  const nz = S.nz, pad = 46, size = Math.min(W-pad-14, H-pad-30), cw = size/nz;
+  const ramp = ["--seq-100","--seq-200","--seq-300","--seq-400","--seq-500","--seq-600","--seq-700"].map(css);
+  const active = new Set(pairsAt(S.k, nz).map(p => p[0]+","+p[1]));
+  const c3 = css("--b3");
+
+  for (let i1 = 0; i1 < nz; i1++) for (let i2 = 0; i2 < nz; i2++) {
+    const k = i1 + i2;
+    const done = k < S.k, now = active.has(i1+","+i2);
+    const x = pad + i2*cw, y = pad + i1*cw;
+    if (now)        g.fillStyle = c3;
+    else if (done)  g.fillStyle = ramp[Math.min(6, Math.floor(k/(2*nz-1)*7))];
+    else            g.fillStyle = css("--grid");
+    const gap = cw > 6 ? 1 : 0;
+    g.fillRect(x+gap, y+gap, cw-2*gap, cw-2*gap);
+  }
+  g.strokeStyle = css("--axis"); g.lineWidth = 1;
+  g.strokeRect(pad, pad, nz*cw, nz*cw);
+
+  g.fillStyle = css("--ink-3"); g.font = "11px "+css("--mono");
+  g.textAlign = "right"; g.textBaseline = "middle";
+  const skip = Math.ceil(nz/12);
+  for (let i = 0; i < nz; i += skip) g.fillText(i, pad-6, pad+(i+0.5)*cw);
+  g.textAlign = "center"; g.textBaseline = "bottom";
+  for (let i = 0; i < nz; i += skip) g.fillText(i, pad+(i+0.5)*cw, pad-6);
+  g.fillStyle = css("--ink-2"); g.font = "12px "+css("--sans");
+  g.textAlign = "center"; g.fillText("beam 2 slice i₂", pad+nz*cw/2, pad-24);
+  g.save(); g.translate(14, pad+nz*cw/2); g.rotate(-Math.PI/2);
+  g.textBaseline = "middle"; g.fillText("beam 1 slice i₁", 0, 0); g.restore();
+  g.textAlign="left"; g.fillStyle = css("--ink-3"); g.font = "11.5px "+css("--mono");
+  g.fillText(`${nz*nz} cells × n_t=${S.nt} = ${commas(nz*nz*S.nt)} make_step calls`, pad, pad+nz*cw+22);
+
+  c.onmousemove = ev => {
+    const r = c.getBoundingClientRect();
+    const i2 = Math.floor((ev.clientX - r.left - pad)/cw), i1 = Math.floor((ev.clientY - r.top - pad)/cw);
+    if (i1 < 0 || i1 >= nz || i2 < 0 || i2 >= nz) { hideTip(); return; }
+    const gz = geo(), minz = 0.5*(i2-i1-1);
+    showTip(ev, `<b>beam1 slice ${i1} × beam2 slice ${i2}</b><br>
+      crossing step k = ${i1+i2}<br>
+      computed ${S.nt}× (n_t sub-steps)<br>
+      min_z = ${minz.toFixed(1)} → lumi z ∈ [${fmt(minz*gz.dz/1000,2)}, ${fmt((minz+1)*gz.dz/1000,2)}] µm`);
+  };
+  c.onmouseleave = hideTip;
+}
+
+function drawPlane() {
+  const c = $("plane"), g = c.getContext("2d");
+  const DPR = devicePixelRatio||1, W=560, H=420;
+  c.width=W*DPR; c.height=H*DPR; c.style.width=W+"px"; c.style.height=H+"px";
+  g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W,H);
+
+  const L=56, R=W-18, T=18, Bm=H-46;
+  const lo=Math.log2(1), hi=Math.log2(32);
+  const px = v => L + (Math.log2(v)-lo)/(hi-lo)*(R-L);
+  const py = v => Bm - (Math.log2(v)-lo)/(hi-lo)*(Bm-T);
+  const cutz = geo().cutz;
+
+  const maxCost = Math.log2(32*32*32);
+  const ramp = ["--seq-100","--seq-200","--seq-300","--seq-400","--seq-500","--seq-600","--seq-700"].map(css);
+  const NS = 64;
+  for (let a = 0; a < NS; a++) for (let b = 0; b < NS; b++) {
+    const nt = Math.pow(2, lo + (a+0.5)/NS*(hi-lo));
+    const nz = Math.pow(2, lo + (b+0.5)/NS*(hi-lo));
+    const cost = Math.log2(nz*nz*nt)/maxCost;
+    g.fillStyle = ramp[Math.min(6, Math.floor(cost*7))];
+    const x0 = L + a/NS*(R-L), x1 = L + (a+1)/NS*(R-L);
+    const y0 = Bm - b/NS*(Bm-T), y1 = Bm - (b+1)/NS*(Bm-T);
+    g.fillRect(x0, y1, x1-x0+0.6, y0-y1+0.6);
+  }
+  // iso-step_ contours: n_z*n_t = const  ->  straight lines in log-log.
+  // Drawn twice (surface-coloured halo, then ink) so they read over any ramp step.
+  g.setLineDash([]); g.font = "600 10.5px "+css("--mono");
+  g.lineJoin = "round";
+  [4, 16, 64, 256, 1024].forEach(P => {
+    const pts = [];
+    for (let nt = 1; nt <= 32; nt *= 1.06) {
+      const nz = P/nt; if (nz < 1 || nz > 32) continue;
+      pts.push([px(nt), py(nz)]);
+    }
+    if (!pts.length) return;
+    for (const pass of [0,1]) {
+      g.strokeStyle = pass ? css("--ink-1") : css("--surface-1");
+      g.lineWidth = pass ? 1.4 : 3.6;
+      g.beginPath();
+      pts.forEach(([X,Y],i) => i ? g.lineTo(X,Y) : g.moveTo(X,Y));
+      g.stroke();
+    }
+    // label at the midpoint of the contour so it never collides with the plot border
+    const [lx,ly] = pts[Math.floor(pts.length/2)];
+    const sp = cutz/P;
+    const txt = sp >= 1000 ? fmt(sp/1000,1)+" µm" : fmt(sp,0)+" nm";
+    g.textAlign = "center"; g.textBaseline = "bottom";
+    g.lineWidth = 3.2; g.strokeStyle = css("--surface-1");
+    g.strokeText(txt, lx, ly-4);
+    g.fillStyle = css("--ink-1");
+    g.fillText(txt, lx, ly-4);
+  });
+
+  // axes
+  g.strokeStyle = css("--axis"); g.lineWidth = 1; g.setLineDash([]);
+  g.strokeRect(L, T, R-L, Bm-T);
+  g.fillStyle = css("--ink-3"); g.font = "11px "+css("--mono");
+  [1,2,4,8,16,32].forEach(v => {
+    g.textAlign="center"; g.textBaseline="top"; g.fillText(v, px(v), Bm+6);
+    g.textAlign="right"; g.textBaseline="middle"; g.fillText(v, L-7, py(v));
+  });
+  g.fillStyle = css("--ink-2"); g.font = "12px "+css("--sans");
+  g.textAlign="center"; g.textBaseline="top"; g.fillText("n_t  (sub-steps per crossing step)", (L+R)/2, Bm+24);
+  g.save(); g.translate(15, (T+Bm)/2); g.rotate(-Math.PI/2); g.textBaseline="middle"; g.fillText("n_z  (slices)", 0, 0); g.restore();
+
+  // current marker
+  const cx = px(Math.min(32,Math.max(1,S.nt))), cy = py(Math.min(32,Math.max(1,S.nz)));
+  g.strokeStyle = css("--b2"); g.lineWidth = 2.4;
+  g.beginPath(); g.moveTo(cx-7,cy); g.lineTo(cx+7,cy); g.moveTo(cx,cy-7); g.lineTo(cx,cy+7); g.stroke();
+  g.strokeStyle = css("--surface-1"); g.lineWidth = 1;
+  g.beginPath(); g.arc(cx,cy,9,0,7); g.stroke();
+
+  c.onmousemove = ev => {
+    const r = c.getBoundingClientRect();
+    const mx = ev.clientX-r.left, my = ev.clientY-r.top;
+    if (mx<L||mx>R||my<T||my>Bm) { hideTip(); return; }
+    const nt = Math.round(Math.pow(2, lo + (mx-L)/(R-L)*(hi-lo)));
+    const nz = Math.round(Math.pow(2, lo + (Bm-my)/(Bm-T)*(hi-lo)));
+    const gg = geo();
+    showTip(ev, `<b>n_z = ${nz}, n_t = ${nt}</b><br>
+      field solves = n_z²·n_t = <b>${commas(nz*nz*nt)}</b><br>
+      step_ = cut_z/(n_z·n_t) = <b>${fmt(gg.cutz/(nz*nt),2)} nm</b><br>
+      Δz = <b>${fmt(2*gg.cutz/nz/1000,2)} µm</b> · lumi z-bins = ${2*nz-1}<br>
+      macro/slice ≈ ${commas(Math.round(S.nm/nz))}`);
+  };
+  c.onmouseleave = hideTip;
+}
+
+/* ============================================================
+   7. tiny SVG chart helpers
+   ============================================================ */
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(n, at) { const e = document.createElementNS(SVGNS,n); for (const k in at) e.setAttribute(k, at[k]); return e; }
+function axes(svg, L,R,T,B, xt, yt, xlab, ylab) {
+  const g = css("--grid"), a = css("--axis"), m = css("--ink-3"), s2 = css("--ink-2");
+  yt.forEach(t => {
+    svg.appendChild(el("line",{x1:L,x2:R,y1:t.y,y2:t.y,stroke:g,"stroke-width":1}));
+    const tx = el("text",{x:L-8,y:t.y+4,fill:m,"font-size":11,"text-anchor":"end","font-family":css("--mono")});
+    tx.textContent = t.l; svg.appendChild(tx);
+  });
+  xt.forEach(t => {
+    const tx = el("text",{x:t.x,y:B+16,fill:m,"font-size":11,"text-anchor":"middle","font-family":css("--mono")});
+    tx.textContent = t.l; svg.appendChild(tx);
+  });
+  svg.appendChild(el("line",{x1:L,x2:R,y1:B,y2:B,stroke:a,"stroke-width":1}));
+  if (xlab) { const t=el("text",{x:(L+R)/2,y:B+34,fill:s2,"font-size":12,"text-anchor":"middle"}); t.textContent=xlab; svg.appendChild(t); }
+  if (ylab) { const t=el("text",{x:0,y:0,fill:s2,"font-size":12,"text-anchor":"middle",transform:`translate(13,${(T+B)/2}) rotate(-90)`}); t.textContent=ylab; svg.appendChild(t); }
+}
+function clear(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+/* round-number ticks (1/2/5 x 10^n) inside [min,max], plus the decimals needed to label them */
+function ticks(min, max, n=5) {
+  const span = max - min;
+  if (!(span > 0)) return { vals:[min], dec:2 };
+  const mag = Math.pow(10, Math.floor(Math.log10(span/n)));
+  // try every 1/2/2.5/5/10 step around that magnitude, keep the one closest to n ticks
+  let best = null;
+  for (const m of [1, 2, 2.5, 5, 10, 20]) {
+    const stepv = m*mag;
+    const count = Math.floor(max/stepv) - Math.ceil(min/stepv) + 1;
+    if (count < 3 || count > 12) continue;
+    const score = Math.abs(count - (n+1));
+    if (!best || score < best.score) best = { stepv, score };
+  }
+  const stepv = best ? best.stepv : span/n;
+  const vals = [];
+  for (let v = Math.ceil(min/stepv - 1e-9)*stepv; v <= max + stepv*1e-9; v += stepv) vals.push(v);
+  // just enough decimals to write the step exactly (0.5 -> 1, 0.025 -> 3, 100 -> 0)
+  let dec = 0;
+  while (dec < 6 && Math.abs(stepv*Math.pow(10,dec) - Math.round(stepv*Math.pow(10,dec))) > 1e-9) dec++;
+  return { vals, dec };
+}
+const tickLabel = (v, dec) => v.toFixed(dec);
+/* integer ticks for index axes (crossing step, slice index) */
+function intTicks(max, n=6) {
+  const step = Math.max(1, Math.ceil((max||1)/n));
+  const out = []; for (let v = 0; v <= max; v += step) out.push(v);
+  if (out[out.length-1] !== max) out.push(max);
+  return out;
+}
+const yTicks = (lo, hi, py, n=5) => { const t = ticks(lo,hi,n); return t.vals.map(v=>({y:py(v), l:tickLabel(v,t.dec)})); };
+
+/* ============================================================
+   8. run + charts
+   ============================================================ */
+let cancelFlag = false;
+
+function drawLumiChart(res) {
+  const svg = $("chLumi"); clear(svg);
+  const W=520,H=230,L=56,R=W-14,T=14,B=H-44;
+  if (!res) return;
+  const y = res.lumiK.map(v => v/res.L0);
+  const ymax = Math.max(1.05, ...y)*1.04, ymin = 0;
+  const px = i => L + (y.length<2?0.5:i/(y.length-1))*(R-L);
+  const py = v => B - (v-ymin)/(ymax-ymin)*(B-T);
+  axes(svg,L,R,T,B,
+    intTicks(y.length-1).map(v=>({x:px(v),l:v})),
+    yTicks(ymin,ymax,py),
+    "crossing step k", "cumulative L / L₀");
+  svg.appendChild(el("line",{x1:L,x2:R,y1:py(1),y2:py(1),stroke:css("--axis"),"stroke-width":2,"stroke-dasharray":"4 4"}));
+  let d = ""; y.forEach((v,i)=> d += (i?"L":"M")+px(i)+","+py(v));
+  svg.appendChild(el("path",{d,fill:"none",stroke:css("--b3"),"stroke-width":2,"stroke-linejoin":"round"}));
+  const last = y[y.length-1];
+  svg.appendChild(el("circle",{cx:px(y.length-1),cy:py(last),r:4,fill:css("--b3"),stroke:css("--surface-1"),"stroke-width":2}));
+  const t = el("text",{x:px(y.length-1)-6,y:py(last)-10,fill:css("--ink-1"),"font-size":13,"font-weight":600,"text-anchor":"end","font-family":css("--mono")});
+  t.textContent = "H_D = "+last.toFixed(3); svg.appendChild(t);
+
+  const hit = el("rect",{x:L,y:T,width:R-L,height:B-T,fill:"transparent"});
+  hit.addEventListener("mousemove", ev => {
+    const r = svg.getBoundingClientRect();
+    const i = Math.round(((ev.clientX-r.left)-L)/(R-L)*(y.length-1));
+    if (i<0||i>=y.length) return;
+    showTip(ev, `<b>k = ${i}</b><br>L/L₀ = <b>${y[i].toFixed(4)}</b><br>${pairsAt(i,res.nz).length} slice pairs · ${res.nt} sub-steps each`);
+  });
+  hit.addEventListener("mouseleave", hideTip);
+  svg.appendChild(hit);
+}
+
+function drawPinchChart(res) {
+  const svg = $("chPinch"); clear(svg);
+  const W=520,H=230,L=56,R=W-14,T=14,B=H-44;
+  if (!res) return;
+  const nz = res.nz;
+  const all = [...res.finalSy[0], ...res.finalSy[1], ...res.initSy[0]].filter(v=>v>0);
+  const ymax = Math.max(...all)*1.08, ymin = 0;
+  const px = i => L + (nz<2?0.5:i/(nz-1))*(R-L);
+  const py = v => B - (v-ymin)/(ymax-ymin)*(B-T);
+  axes(svg,L,R,T,B,
+    intTicks(nz-1).map(v=>({x:px(v),l:v})),
+    yTicks(ymin,ymax,py),
+    "slice index (0 = head, "+(nz-1)+" = tail)", "σ_y  [nm]");
+  const mk = (arr,col,dash) => {
+    let d=""; arr.forEach((v,i)=> d += (i?"L":"M")+px(i)+","+py(v));
+    svg.appendChild(el("path",Object.assign({d,fill:"none",stroke:col,"stroke-width":2,"stroke-linejoin":"round"}, dash?{"stroke-dasharray":"4 4"}:{})));
+    if (nz<=24) arr.forEach((v,i)=> svg.appendChild(el("circle",{cx:px(i),cy:py(v),r:3,fill:col,stroke:css("--surface-1"),"stroke-width":1.5})));
+  };
+  mk(res.initSy[0], css("--axis"), true);
+  mk(res.finalSy[0], css("--b1"));
+  mk(res.finalSy[1], css("--b2"));
+
+  const hit = el("rect",{x:L,y:T,width:R-L,height:B-T,fill:"transparent"});
+  hit.addEventListener("mousemove", ev => {
+    const r = svg.getBoundingClientRect();
+    const i = Math.round(((ev.clientX-r.left)-L)/(R-L)*(nz-1));
+    if (i<0||i>=nz) return;
+    showTip(ev, `<b>slice ${i}</b> ${i===0?"(head)":i===nz-1?"(tail)":""}<br>
+      initial σ_y = ${res.initSy[0][i].toFixed(2)} nm<br>
+      <span style="color:${css("--b1")}">beam 1 final = ${res.finalSy[0][i].toFixed(2)} nm</span><br>
+      <span style="color:${css("--b2")}">beam 2 final = ${res.finalSy[1][i].toFixed(2)} nm</span>`);
+  });
+  hit.addEventListener("mouseleave", hideTip);
+  svg.appendChild(hit);
+}
+
+function drawZChart(res) {
+  const svg = $("chZ"); clear(svg);
+  const W=1090,H=200,L=60,R=W-14,T=14,B=H-46;
+  if (!res) return;
+  const keys = [...res.zHist.keys()].sort((a,b)=>a-b);
+  if (!keys.length) return;
+  const dzum = res.dz/1000;
+  const vals = keys.map(k => res.zHist.get(k)/res.L0);   // normalised so the axis reads in L/L₀
+  const vmax = Math.max(...vals)*1.06;
+  const zlo = (keys[0])*dzum, zhi = (keys[keys.length-1]+1)*dzum;
+  const px = z => L + (z-zlo)/(zhi-zlo)*(R-L);
+  const py = v => B - v/vmax*(B-T);
+  const xt = ticks(zlo, zhi, 8);
+  axes(svg,L,R,T,B,
+    xt.vals.map(v=>({x:px(v),l:tickLabel(v,xt.dec)})),
+    yTicks(0,vmax,py,4),
+    "collision point z  [µm]   —   bin centres are the "+(2*res.nz-1)+" allowed values of min_z", "dL / L₀  per bin");
+  const bw = Math.max(1, (px(zlo+dzum/2)-px(zlo)) - 2);
+  keys.forEach((k,i) => {
+    const x = px(k*dzum), v = vals[i];
+    const rc = el("rect",{x:x, y:py(v), width:Math.max(1,bw), height:Math.max(0,B-py(v)), fill:css("--b3"), rx:Math.min(3,bw/2)});
+    rc.addEventListener("mousemove", ev => showTip(ev,
+      `<b>min_z = ${k.toFixed(1)}</b><br>z ∈ [${(k*dzum).toFixed(1)}, ${((k+1)*dzum).toFixed(1)}] µm<br>
+       dL/L₀ = ${v.toExponential(2)}<br>from pairs with i₂−i₁ = ${(2*k+1).toFixed(0)}`));
+    rc.addEventListener("mouseleave", hideTip);
+    svg.appendChild(rc);
+  });
+}
+
+function runTiles(res) {
+  if (!res) { $("runTiles").innerHTML = tile("status","not run yet",""); return; }
+  const hd = res.lumi/res.L0;
+  const cls = S.kick === 0 ? (Math.abs(hd-1) > 0.02 ? "warnv" : "") : "hi";
+  $("runTiles").innerHTML =
+    tile("L / L₀ (H_D)", hd.toFixed(4), S.kick===0 ? "force off → target 1.0000" : "pinch enhancement", cls) +
+    tile("head → tail width", res.finalSy[0][0].toFixed(2)+" → "+res.finalSy[0][res.nz-1].toFixed(2), "nm &nbsp;(σ_y, beam 1)") +
+    tile("max disruption", fmt(res.maxDefl*1e6,1), "µrad deflection") +
+    tile("outside grid", fmt(100*res.outFrac,2)+" %", "raise n_x/n_y or cuts", res.outFrac>0.01?"warnv":"") +
+    tile("lumi z-bins used", commas(res.zHist.size), "= 2n_z−1") +
+    tile("wall time", fmt(res.ms/1000,2)+" s", commas(res.nz*res.nz*res.nt)+" solves");
+  const rows = res.lumiK.map((v,i)=>`<tr><td>${i}</td><td>${pairsAt(i,res.nz).length}</td><td>${(v/res.L0).toFixed(4)}</td></tr>`).join("");
+  $("runTable").innerHTML = `<table class="tbl"><thead><tr><th>k</th><th>pairs</th><th>cum. L/L₀</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function doRun(p, onProg) {
+  const t0 = performance.now();
+  const R = makeRun(p);
+  let k = 0;
+  while (!R.done()) {
+    if (cancelFlag) return null;
+    R.stepOnce(); k++;
+    if (k % Math.max(1, Math.floor(R.totalK/40)) === 0) {
+      onProg && onProg(k/R.totalK);
+      await new Promise(r => setTimeout(r, 0));
+    }
+  }
+  const rms = a => { if(!a.length) return 0; let m=0,s=0; for(const v of a) m+=v; m/=a.length; for(const v of a) s+=(v-m)*(v-m); return Math.sqrt(s/a.length); };
+  let maxDefl = 0;
+  for (const b of R.B) for (const s of b.slices) for (let q=0;q<s.vy.length;q++) maxDefl = Math.max(maxDefl, Math.abs(s.vy[q]));
+  return {
+    nz:p.nz, nt:p.nt, dz:p.dz, L0:L0(), lumi:R.lumi, lumiK:R.lumiK, zHist:R.zHist,
+    initSy: R.initSy, finalSy: R.B.map(b => b.slices.map(s => rms(s.y))),
+    outFrac: R.outFrac, maxDefl, ms: performance.now()-t0
+  };
+}
+
+/* ---- sweep ---- */
+const SWEEP_NZ = [2,4,8,16], SWEEP_NT = [1,2,4,8];
+function drawSweep() {
+  const data = S.sweep;
+  const legend = $("sweepLegend");
+  legend.innerHTML = SWEEP_NZ.map((nz,i) =>
+    `<span><span class="ln" style="background:${sweepColor(i)}"></span>n_z = ${nz}</span>`).join("");
+  drawSweepPanel($("chSweepA"), data, d => d.nz*d.nt, "n_z · n_t   (sets step_)", true);
+  drawSweepPanel($("chSweepB"), data, d => d.nz*d.nz*d.nt, "field solves  n_z²·n_t", true);
+  if (data) {
+    const rows = data.map(d=>`<tr><td>${d.nz}</td><td>${d.nt}</td><td>${d.nz*d.nt}</td><td>${d.nz*d.nz*d.nt}</td><td>${fmt(d.step,2)}</td><td>${d.hd.toFixed(4)}</td></tr>`).join("");
+    $("sweepTable").innerHTML = `<table class="tbl"><thead><tr><th>n_z</th><th>n_t</th><th>n_z·n_t</th><th>solves</th><th>step_ [nm]</th><th>L/L₀</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+}
+/* n_z is an ordered quantity, so the families get a single-hue ordinal ramp
+   (light = few slices, dark = many), not four categorical hues. */
+function sweepColor(i){ return [css("--ord-1"), css("--ord-2"), css("--ord-3"), css("--ord-4")][i]; }
+function drawSweepPanel(svg, data, xf, xlab, logx) {
+  clear(svg);
+  const W=520,H=260,L=58,R=W-58,T=14,B=H-48;
+  if (!data || !data.length) {
+    const t = el("text",{x:W/2,y:H/2,fill:css("--ink-3"),"font-size":13,"text-anchor":"middle"});
+    t.textContent = "run the sweep to populate"; svg.appendChild(t); return;
+  }
+  const xs = data.map(xf), ys = data.map(d=>d.hd);
+  const xlo = Math.log2(Math.min(...xs)), xhi = Math.log2(Math.max(...xs));
+  const ylo = Math.min(...ys), yhi = Math.max(...ys);
+  const pad = (yhi-ylo)*0.15 || 0.01;
+  const px = v => L + (Math.log2(v)-xlo)/((xhi-xlo)||1)*(R-L);
+  const py = v => B - (v-(ylo-pad))/((yhi-ylo+2*pad)||1)*(B-T);
+  let xtv = []; for (let e = Math.floor(xlo); e <= Math.ceil(xhi); e++) { const v = Math.pow(2,e); if (v>=Math.min(...xs)&&v<=Math.max(...xs)) xtv.push(v); }
+  if (xtv.length > 7) xtv = xtv.filter((_,i)=> i % 2 === 0 || i === xtv.length-1);   // declutter powers of two
+  axes(svg,L,R,T,B, xtv.map(v=>({x:px(v),l:v})),
+    yTicks(ylo-pad,yhi+pad,py,4), xlab, "L / L₀");
+
+  SWEEP_NZ.forEach((nz,i) => {
+    const fam = data.filter(d=>d.nz===nz).sort((a,b)=>xf(a)-xf(b));
+    if (!fam.length) return;
+    let d0=""; fam.forEach((d,j)=> d0 += (j?"L":"M")+px(xf(d))+","+py(d.hd));
+    svg.appendChild(el("path",{d:d0,fill:"none",stroke:sweepColor(i),"stroke-width":2,"stroke-linejoin":"round"}));
+    fam.forEach(d => {
+      const c = el("circle",{cx:px(xf(d)),cy:py(d.hd),r:4.5,fill:sweepColor(i),stroke:css("--surface-1"),"stroke-width":2});
+      c.addEventListener("mousemove", ev => showTip(ev,
+        `<b>n_z = ${d.nz}, n_t = ${d.nt}</b><br>L/L₀ = <b>${d.hd.toFixed(4)}</b><br>
+         step_ = ${fmt(d.step,2)} nm · product = ${d.nz*d.nt}<br>
+         cost = ${commas(d.nz*d.nz*d.nt)} solves · ${fmt(d.ms/1000,2)} s<br>
+         macro/slice ≈ ${commas(Math.round(S.nm/d.nz))}`));
+      c.addEventListener("mouseleave", hideTip);
+      svg.appendChild(c);
+    });
+    const lastP = fam[fam.length-1];
+    const t = el("text",{x:px(xf(lastP))+8,y:py(lastP.hd)+4,fill:sweepColor(i),"font-size":11,"font-weight":600,"font-family":css("--mono")});
+    t.textContent = "n_z="+nz; svg.appendChild(t);
+  });
+}
+
+/* ============================================================
+   9. wiring
+   ============================================================ */
+function redrawAll() {
+  renderTiles(); drawLadder(); drawMatrix(); drawPlane();
+  $("schedLabel").textContent = `k = ${S.k}/${2*S.nz-2} · sub-step ${S.sub+1}/${S.nt}`;
+}
+function bindRange(id, key, disp, pow2) {
+  const inp = $(id), out = $(id+"v");
+  const set = () => {
+    S[key] = pow2 ? Math.pow(2, +inp.value) : +inp.value;
+    out.textContent = disp ? disp(S[key]) : S[key];
+  };
+  inp.addEventListener("input", () => { set(); S.k = Math.min(S.k, 2*S.nz-2); S.sub = 0; redrawAll(); });
+  return set;
+}
+const setNx = bindRange("nx","nx",null,true);
+const setNy = bindRange("ny","ny",null,true);
+const setNz = bindRange("nz","nz");
+const setNt = bindRange("nt","nt");
+const setNm = bindRange("nm","nm", v => commas(v));
+const setKick = bindRange("kick","kick", v => v+" %");
+
+function applyState() {
+  $("nx").value = Math.log2(S.nx); $("ny").value = Math.log2(S.ny);
+  $("nz").value = S.nz; $("nt").value = S.nt; $("nm").value = S.nm; $("kick").value = S.kick;
+  setNx(); setNy(); setNz(); setNt(); setNm(); setKick();
+  redrawAll();
+}
+$("preset").addEventListener("change", e => { S.preset = e.target.value; redrawAll(); });
+$("resetBtn").addEventListener("click", () => {
+  Object.assign(S, { nx:64, ny:64, nz:8, nt:4, nm:8000, kick:100, k:0, sub:0 });
+  applyState();
+});
+
+/* schedule playback */
+let timer = null;
+function advanceSub() {
+  S.sub++;
+  if (S.sub >= S.nt) { S.sub = 0; S.k++; if (S.k > 2*S.nz-2) S.k = 0; }
+  redrawAll();
+}
+$("stepBtn").addEventListener("click", () => { S.sub = 0; S.k = (S.k+1) % (2*S.nz-1); redrawAll(); });
+$("subBtn").addEventListener("click", advanceSub);
+$("rewBtn").addEventListener("click", () => { S.k = 0; S.sub = 0; redrawAll(); });
+$("playBtn").addEventListener("click", () => {
+  S.playing = !S.playing;
+  $("playBtn").textContent = S.playing ? "⏸ pause" : "▶ play crossing";
+  if (timer) { clearInterval(timer); timer = null; }
+  if (S.playing) timer = setInterval(advanceSub, Math.max(60, 700/Math.max(1,S.nt)));
+});
+
+/* run */
+$("runBtn").addEventListener("click", async () => {
+  cancelFlag = false;
+  $("runBtn").disabled = true; $("cancelBtn").disabled = false; $("sweepBtn").disabled = true;
+  setProg("prog", 0);
+  const res = await doRun(runParams(), f => setProg("prog", f));
+  setProg("prog", 1);
+  $("runBtn").disabled = false; $("cancelBtn").disabled = true; $("sweepBtn").disabled = false;
+  if (!res) { setProg("prog", 0); return; }
+  S.run = res; runTiles(res); drawLumiChart(res); drawPinchChart(res); drawZChart(res);
+});
+$("cancelBtn").addEventListener("click", () => { cancelFlag = true; });
+
+/* sweep */
+function sweepCost() {
+  let s = 0; for (const nz of SWEEP_NZ) for (const nt of SWEEP_NT) s += nz*nz*nt;
+  return s;
+}
+$("sweepEst").textContent = `${commas(sweepCost())} field solves total at your current n_x, n_y, n_m`;
+$("sweepBtn").addEventListener("click", async () => {
+  cancelFlag = false;
+  $("sweepBtn").disabled = true; $("runBtn").disabled = true; $("cancelBtn").disabled = false;
+  const out = [], total = sweepCost(); let done = 0;
+  for (const nz of SWEEP_NZ) for (const nt of SWEEP_NT) {
+    if (cancelFlag) break;
+    const p = runParams(); p.nz = nz; p.nt = nt;
+    const g = geo(); p.dz = 2*g.cutz/nz; p.step = g.cutz/(nz*nt);
+    const res = await doRun(p);
+    if (!res) break;
+    out.push({ nz, nt, hd: res.lumi/res.L0, step: p.step, ms: res.ms });
+    done += nz*nz*nt;
+    setProg("sweepProg", done/total);
+    S.sweep = out.slice(); drawSweep();
+    await new Promise(r => setTimeout(r, 0));
+  }
+  $("sweepBtn").disabled = false; $("runBtn").disabled = false; $("cancelBtn").disabled = true;
+});
+
+/* theme */
+$("themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const dark = cur ? cur === "dark"
+             : !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  redrawAll(); runTiles(S.run); drawLumiChart(S.run); drawPinchChart(S.run); drawZChart(S.run); drawSweep();
+});
+
+applyState();
+runTiles(null); drawSweep();
+</script>
+</body>
+</html>

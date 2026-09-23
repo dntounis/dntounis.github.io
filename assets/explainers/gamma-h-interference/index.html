@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading the Higgs width off a 40 MeV wobble</title>
+<style>
+
+:root{
+  --paper:#FCFCFA;
+  --panel:#F3F3EF;
+  --ink:#17181B;
+  --muted:#6E7076;
+  --faint:#9B9C9F;
+  --rule:#DDDCD6;
+  --bq:#2E4E7E;
+  --cq:#B26A2C;
+  --sq:#3F7A5B;
+  --gq:#7A4A8C;
+  --bkgc:#9B9C9F;
+  --e240:#2E4E7E;
+  --e365:#9B4A2F;
+  --warn:#9B4A2F;
+  --serif: "Iowan Old Style","Charter","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --mono: ui-monospace,"SF Mono",Menlo,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--serif); font-size:16.5px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1040px;margin:0 auto;padding:0 28px 90px}
+
+/* ---------- masthead ---------- */
+header.top{padding:56px 0 22px;border-bottom:1px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.08;margin:14px 0 10px;font-weight:600;letter-spacing:-.015em}
+h1 em{font-style:italic;color:var(--muted)}
+.standfirst{max-width:64ch;color:#3A3B3E;margin:0}
+
+/* ---------- tabs ---------- */
+nav.tabs{display:flex;gap:0;border-bottom:1px solid var(--rule);margin-bottom:34px;flex-wrap:wrap}
+nav.tabs button{
+  appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding:16px 15px 13px;cursor:pointer;margin-bottom:-1px;
+}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+nav.tabs button:focus-visible{outline:2px solid var(--bq);outline-offset:-4px}
+section.panel{display:none}
+section.panel.on{display:block}
+
+/* ---------- figure frame ---------- */
+.figframe{border:1px solid var(--rule);background:#fff;position:relative}
+.figframe canvas{display:block;width:100%;height:330px}
+/* any canvas the reader drags on: claim the gesture so a touch-drag probes the
+   plot instead of scrolling the page, and hint that it is draggable */
+.figframe canvas.drag{touch-action:none;cursor:crosshair}
+/* the tag overlays the top-left of the canvas — canvas code must reserve that
+   band (see tagH/TAGH in the script), and it wraps to two lines on a phone */
+.figtag{
+  position:absolute;top:0;left:0;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);padding:9px 12px;pointer-events:none;
+}
+.figcap{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;padding:9px 2px 0;text-align:right}
+
+/* ---------- walkthrough ---------- */
+.step-head{display:flex;align-items:baseline;gap:14px;margin:26px 0 6px}
+.step-num{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em}
+.step-head h2{font-size:25px;margin:0;font-weight:600;letter-spacing:-.01em}
+.step-body{max-width:68ch;color:#333437;margin:0}
+.step-body b{font-weight:600}
+.step-body code,code{font-family:var(--mono);font-size:.86em;background:var(--panel);padding:1px 5px;border-radius:2px}
+.tagpill{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border:1px solid;border-radius:2px}
+.tagpill.a{color:var(--e240);border-color:var(--e240)}
+.tagpill.b{color:var(--e365);border-color:var(--e365)}
+.stepnav{display:flex;align-items:center;gap:16px;margin-top:30px;padding-top:18px;border-top:1px solid var(--rule)}
+.stepnav button{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);color:var(--ink);padding:9px 15px;cursor:pointer;border-radius:2px;
+}
+.stepnav button:hover:not(:disabled){border-color:var(--ink)}
+.stepnav button:disabled{color:var(--faint);cursor:default}
+.dots{display:flex;gap:7px;margin-left:auto}
+.dots i{width:7px;height:7px;border:1px solid var(--faint);border-radius:50%;cursor:pointer;display:block}
+.dots i.on{background:var(--ink);border-color:var(--ink)}
+
+/* ---------- playground ---------- */
+.pg{display:grid;grid-template-columns:308px 1fr;gap:26px;align-items:start}
+.ctrl{border:1px solid var(--rule);padding:18px;background:var(--panel)}
+.ctrl h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:400}
+.ctrl h3+h3,.ctrl h3.gap{margin-top:22px}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.btnrow button,.shapes button{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  background:#fff;border:1px solid var(--rule);padding:7px 10px;cursor:pointer;border-radius:2px;color:var(--ink);
+}
+.btnrow button:hover,.shapes button:hover{border-color:var(--ink)}
+.btnrow button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btnrow button.primary:hover{background:#000}
+.btnrow button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+label.slider{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-top:15px}
+label.slider span.v{float:right;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ink);margin-top:5px}
+.subtabs{display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:18px;flex-wrap:wrap}
+.subtabs button{
+  flex:1;background:#fff;border:0;padding:11px 6px;cursor:pointer;min-width:120px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.subtabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.readouts{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);border-top:0}
+.readouts div{padding:11px 12px;border-right:1px solid var(--rule)}
+.readouts div:last-child{border-right:0}
+.readouts span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.readouts strong{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:-.02em}
+.sidecanvas{border:1px solid var(--rule);border-top:0;background:#fff}
+.sidecanvas canvas{display:block;width:100%;height:170px}
+/* the categories figure carries two stacked sub-plots, each with its own axis
+   labels and caption, so 330px is not enough vertical room for it */
+#catc{height:384px}
+.note{font-size:14.2px;color:var(--muted);max-width:70ch;margin-top:20px}
+.status{font-family:var(--mono);font-size:11px;color:var(--muted);min-height:1.5em;margin-top:12px;letter-spacing:.03em;line-height:1.5}
+.legend{display:flex;gap:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+.legend i{width:9px;height:9px;display:inline-block;margin-right:6px;border-radius:50%;vertical-align:-1px}
+
+/* ---------- equation slab ---------- */
+/* nowrap so a formula scrolls rather than breaking mid-expression on a phone;
+   the prose annotations inside still wrap */
+.eq{border-left:2px solid var(--ink);background:var(--panel);padding:14px 18px;margin:22px 0;font-family:var(--mono);font-size:13.5px;line-height:1.9;overflow-x:auto;white-space:nowrap}
+.eq b{color:var(--ink);font-weight:600}
+.eq .an{color:var(--muted);font-family:var(--serif);font-size:14.5px;display:block;margin-top:6px;white-space:normal}
+/* display maths: native MathML, no library. Inline <math> inside a flex row so
+   equations stay left-aligned with the slab and can carry a trailing note;
+   math-style:normal gives display-size fractions, radicals and sum limits.
+   (display="block" would centre them and justify-content cannot override it.) */
+.eq math{font-size:16.5px;math-style:normal;color:var(--ink)}
+.eqrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:4px 0;line-height:normal}
+.eqrow .key{font-weight:600}
+.eqlead,.eqnote{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:normal}
+/* symbol glossary under an equation: every slab should be able to say what its
+   letters mean without leaving the slab */
+dl.sym{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:10px 0 2px;white-space:normal}
+dl.sym dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);text-align:right}
+dl.sym dd{margin:0;font-family:var(--serif);font-size:14.2px;color:var(--muted);line-height:1.45}
+/* vector accent for plain-HTML maths: U+20D7 (combining right arrow above) has
+   no glyph in either font stack and renders as a .notdef box, so draw it */
+.vec{position:relative}
+.vec::after{content:"→";position:absolute;left:-.06em;right:-.06em;top:-.62em;
+  font-size:.62em;line-height:1;text-align:center;font-weight:400;pointer-events:none}
+.eqlive{font-family:var(--mono);font-size:12.5px;color:var(--muted);border:1px solid var(--rule);border-top:0;padding:12px 14px;background:#fff;line-height:1.8}
+.eqlive b{color:var(--ink)}
+
+/* ---------- challenge ---------- */
+details.ch{border:1px solid var(--rule);border-left:2px solid var(--cq);background:#fff;margin:18px 0;padding:0}
+details.ch>summary{
+  cursor:pointer;padding:13px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--cq);list-style:none;
+}
+details.ch>summary::-webkit-details-marker{display:none}
+details.ch>summary::before{content:"▸ ";}
+details.ch[open]>summary::before{content:"▾ ";}
+details.ch .q{padding:0 18px 4px;font-size:15.4px;max-width:72ch}
+details.ch .a{padding:12px 18px 18px;font-size:14.8px;color:#333437;border-top:1px solid var(--rule);margin-top:12px;background:var(--panel);max-width:none}
+details.ch .a b{font-weight:600}
+
+/* ---------- tables ---------- */
+table.cmp{width:100%;border-collapse:collapse;margin-top:20px;font-size:14.4px}
+table.cmp th,table.cmp td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp thead th{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--ink)}
+table.cmp td:first-child{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:12px}
+table.num{width:100%;border-collapse:collapse;margin-top:18px;font-family:var(--mono);font-size:12.5px}
+table.num th,table.num td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:right}
+table.num th:first-child,table.num td:first-child{text-align:left;color:var(--muted);letter-spacing:.06em}
+table.num thead th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--ink)}
+table.num tbody tr:hover{background:var(--panel)}
+.hi{color:var(--warn)}
+h3.sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;margin:46px 0 0;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+h3.sec:first-child{margin-top:0}
+.crit{border:1px solid var(--rule);border-left:2px solid var(--warn);padding:15px 18px;margin:16px 0;background:#fff}
+.crit b{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin-bottom:6px;font-weight:400}
+.crit p{margin:0;font-size:14.8px;color:#333437;max-width:76ch}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:24px;border:1px solid var(--rule)}
+.pipeline div{padding:15px 15px 17px;border-right:1px solid var(--rule)}
+.pipeline div:last-child{border-right:0}
+.pipeline b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:7px;font-weight:400}
+.pipeline p{margin:0;font-size:13.8px;line-height:1.5}
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.4px;color:var(--muted);max-width:74ch}
+.twoup{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);border-top:0}
+.twoup>div{border-right:1px solid var(--rule)}
+.twoup>div:last-child{border-right:0}
+.twoup canvas{display:block;width:100%;height:190px}
+/* ---------- focus ---------- */
+/* every control, not just the tabs — sub-tabs, buttons and sliders are all
+   keyboard-reachable and their custom borders swallow the UA ring */
+.subtabs button:focus-visible,
+.btnrow button:focus-visible,
+.shapes button:focus-visible,
+.stepnav button:focus-visible{outline:2px solid var(--bq);outline-offset:-3px}
+details.ch>summary:focus-visible{outline:2px solid var(--bq);outline-offset:-3px}
+input[type=range]:focus-visible{outline:2px solid var(--bq);outline-offset:3px;border-radius:2px}
+
+@media (max-width:880px){
+  .pg{grid-template-columns:1fr}
+  .pipeline{grid-template-columns:1fr}
+  .pipeline div{border-right:0;border-bottom:1px solid var(--rule)}
+  .readouts{grid-template-columns:1fr 1fr}
+  .readouts div:nth-child(2){border-right:0}
+  .twoup{grid-template-columns:1fr}
+  .twoup>div{border-right:0;border-bottom:1px solid var(--rule)}
+  .wrap{padding:0 18px 60px}
+  /* wide results tables scroll on their own rather than pushing the whole
+     page sideways */
+  table.num,table.cmp{display:block;overflow-x:auto}
+  /* every multi-part figure stacks below this breakpoint and needs the room */
+  #catc{height:460px}
+  .figframe canvas{height:430px}
+  .sidecanvas canvas{height:200px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">ATLAS ANA-HIGP-2024-12 &nbsp;·&nbsp; draft 1.0, 26 July 2026 &nbsp;·&nbsp; interactive re-derivation</div>
+  <h1>Reading the Higgs width off a 40&nbsp;MeV wobble <em>— and what the draft doesn't tell you</em></h1>
+  <p class="standfirst">The Higgs is 4&nbsp;MeV wide and the detector is 1.6&nbsp;GeV wide, so the lineshape is useless — except
+  that the resonance interferes with the continuum underneath it, and the cross term drags the peak sideways by an
+  amount that grows as &radic;&Gamma;<sub>H</sub>. This letter turns that drag into a limit. Every panel below rebuilds
+  a piece of it from the paper's own Table 1 and checks itself against the paper's own published limits. One number
+  in the draft contradicts its own table, and the observable the whole method rests on is never quoted.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-panel="walk">Walkthrough</button>
+  <button role="tab" aria-selected="false" data-panel="shape">The distortion</button>
+  <button role="tab" aria-selected="false" data-panel="fit">The fit</button>
+  <button role="tab" aria-selected="false" data-panel="budget">Error budget</button>
+  <button role="tab" aria-selected="false" data-panel="cats">Categories</button>
+  <button role="tab" aria-selected="false" data-panel="ref">Reference &amp; critique</button>
+</nav>
+
+<!-- ============================ WALKTHROUGH ============================ -->
+<section class="panel on" id="walk">
+  <div class="figframe">
+    <canvas id="figc"></canvas>
+    <div class="figtag" id="figtag">Fig. 01</div>
+  </div>
+  <div class="figcap" id="figcap"></div>
+  <div class="step-head">
+    <span class="step-num" id="stepnum"></span>
+    <span class="tagpill a" id="stepdir"></span>
+  </div>
+  <div class="step-head" style="margin-top:2px"><h2 id="steptitle"></h2></div>
+  <p class="step-body" id="steptext"></p>
+  <div class="stepnav">
+    <button id="prev">&larr; Back</button>
+    <button id="next">Next &rarr;</button>
+    <div class="dots" id="dots"></div>
+  </div>
+</section>
+
+<!-- ============================ LINESHAPE ============================ -->
+<section class="panel" id="shape">
+  <div class="subtabs" style="max-width:640px">
+    <button data-smode="parts" aria-pressed="true">Build the cross term</button>
+    <button data-smode="fig1" aria-pressed="false">Reproduce Fig. 1</button>
+    <button data-smode="scale" aria-pressed="false">Scaling with &Gamma;<sub>H</sub></button>
+  </div>
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Physics</h3>
+      <label class="slider">&Gamma;<sub>H</sub> / &Gamma;<sub>H</sub><sup>SM</sup> <span class="v" id="v_sg">1</span>
+        <input type="range" id="s_sg" min="0" max="100" value="0" step="1"></label>
+      <label class="slider">Dispersive / absorptive &beta; <span class="v" id="v_sb">0.505</span>
+        <input type="range" id="s_sb" min="0" max="300" value="50" step="1"></label>
+      <label class="slider">m<sub>&gamma;&gamma;</sub> resolution &sigma; <span class="v" id="v_sr">1.60 GeV</span>
+        <input type="range" id="s_sr" min="60" max="320" value="160" step="5"></label>
+      <h3 class="gap">Display</h3>
+      <label class="slider">Interference magnification <span class="v" id="v_sx">&times;10</span>
+        <input type="range" id="s_sx" min="1" max="40" value="10" step="1"></label>
+      <div class="btnrow">
+        <button class="primary" id="s_reset">Reset to SM</button>
+        <button id="s_paper">Paper working point</button>
+      </div>
+      <div class="status" id="s_stat"></div>
+    </div>
+    <div>
+      <div class="figframe"><canvas id="shapec"></canvas><div class="figtag">Expected events / GeV vs m<sub>&gamma;&gamma;</sub> [GeV]</div></div>
+      <div class="readouts">
+        <div><span>Net interference</span><strong id="s_r1">&mdash;</strong></div>
+        <div><span>as % of signal</span><strong id="s_r2">&mdash;</strong></div>
+        <div><span>Peak shift</span><strong id="s_r3">&mdash;</strong></div>
+        <div><span>Paper, &Gamma;<sub>SM</sub></span><strong id="s_r4">&minus;2.05 %</strong></div>
+      </div>
+      <div class="eqlive" id="s_live"></div>
+      <div class="sidecanvas"><canvas id="shapes"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--bq)"></i>signal</span>
+        <span><i style="background:var(--cq)"></i>gg-interference</span>
+        <span><i style="background:var(--gq)"></i>qg-interference</span>
+        <span><i style="background:var(--sq)"></i>gg + qg</span>
+        <span><i style="background:var(--warn)"></i>paper's value</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eq">
+    <div class="eqrow"><span class="eqlead">Eq. 1 &mdash;</span>
+      <math><mrow><msub><mi>&#8499;</mi><mrow><mi>g</mi><mi>g</mi><mo>&#8594;</mo><mi>&gamma;</mi><mi>&gamma;</mi></mrow></msub><mo>=</mo>
+      <mfrac><msub><mi>&#8499;</mi><mtext>sig</mtext></msub>
+      <mrow><msubsup><mi>m</mi><mrow><mi>&gamma;</mi><mi>&gamma;</mi></mrow><mn>2</mn></msubsup><mo>&#8722;</mo>
+      <msubsup><mi>m</mi><mi>H</mi><mn>2</mn></msubsup><mo>+</mo><mi>i</mi><msub><mi>&Gamma;</mi><mi>H</mi></msub><msub><mi>m</mi><mi>H</mi></msub></mrow></mfrac>
+      <mo>+</mo><msub><mi>&#8499;</mi><mtext>bkg</mtext></msub></mrow></math></div>
+    <div class="eqrow"><span class="eqlead">cross term &mdash;</span>
+      <math><mrow><mn>2</mn><mtext>Re</mtext><mo>[</mo><mfrac><msub><mi>&#8499;</mi><mtext>sig</mtext></msub>
+      <mrow><msubsup><mi>m</mi><mrow><mi>&gamma;</mi><mi>&gamma;</mi></mrow><mn>2</mn></msubsup><mo>&#8722;</mo>
+      <msubsup><mi>m</mi><mi>H</mi><mn>2</mn></msubsup><mo>+</mo><mi>i</mi><msub><mi>&Gamma;</mi><mi>H</mi></msub><msub><mi>m</mi><mi>H</mi></msub></mrow></mfrac>
+      <msubsup><mi>&#8499;</mi><mtext>bkg</mtext><mo>&#8727;</mo></msubsup><mo>]</mo></mrow></math>
+      <span class="eqnote">= antisymmetric &times; Re + symmetric &times; Im</span></div>
+    <span class="an">Because &Gamma;<sub>H</sub> is four hundred times smaller than the mass resolution, the two pieces of the cross
+    term collapse onto distributions. The symmetric piece becomes a &delta;-function at m<sub>H</sub> — after smearing, a copy of
+    the signal's own lineshape, scaled negative: it removes about 2&nbsp;% of the events. The antisymmetric piece becomes a
+    principal value 1/(m<sup>2</sup> &minus; m<sub>H</sub><sup>2</sup>) — after smearing, an odd function that integrates to zero but
+    moves events from one side of the peak to the other. That is the whole measurement.</span>
+  </div>
+
+  <div class="eq">
+    <div class="eqrow"><span class="eqlead">smeared &mdash;</span>
+      <math><mrow><mi>I</mi><mo>(</mo><mi>m</mi><mo>)</mo><mo>=</mo>
+      <msqrt><mfrac><mrow><mi>&mu;</mi><msub><mi>&Gamma;</mi><mi>H</mi></msub></mrow><msubsup><mi>&Gamma;</mi><mi>H</mi><mtext>SM</mtext></msubsup></mfrac></msqrt>
+      <mo>&#8290;</mo><msub><mi>N</mi><mi>I</mi></msub><mo>[</mo><mi>R</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>+</mo>
+      <mi>&beta;</mi><mo>&#8290;</mo><mi>H</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>]</mo><mo>,</mo><mspace width="1em"/>
+      <mi>x</mi><mo>=</mo><mi>m</mi><mo>&#8722;</mo><msub><mi>m</mi><mi>H</mi></msub></mrow></math></div>
+    <div class="eqrow"><span class="eqlead">with &mdash;</span>
+      <math><mrow><mi>H</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mtext>PV</mtext><mo>&#8747;</mo>
+      <mfrac><mrow><mi>R</mi><mo>(</mo><mi>t</mi><mo>)</mo></mrow><mrow><mi>x</mi><mo>&#8722;</mo><mi>t</mi></mrow></mfrac>
+      <mi>d</mi><mi>t</mi><mo>&#8776;</mo><mfrac><msqrt><mn>2</mn></msqrt><mi>&sigma;</mi></mfrac><mo>&#8290;</mo>
+      <mi>F</mi><mrow><mo>(</mo><mfrac><mi>x</mi><mrow><mi>&sigma;</mi><msqrt><mn>2</mn></msqrt></mrow></mfrac><mo>)</mo></mrow></mrow></math>
+      <span class="eqnote">F = Dawson function</span></div>
+    <div class="eqrow"><span class="eqlead">peak shift &mdash;</span>
+      <math><mrow><mi>&delta;</mi><mo>=</mo><mfrac><mrow><mi>&beta;</mi><mo>&#8290;</mo><msub><mi>N</mi><mi>I</mi></msub>
+      <mo>&#8290;</mo><mi>&sigma;</mi><msqrt><mrow><mn>2</mn><mi>&pi;</mi></mrow></msqrt></mrow>
+      <msub><mi>N</mi><mi>S</mi></msub></mfrac></mrow></math>
+      <span class="eqnote">&#8733; &sigma;: a blunter detector sees a bigger shift</span></div>
+    <dl class="sym">
+      <dt>R(x)</dt><dd>the detector resolution function — the paper's double-sided Crystal Ball. The signal, and the symmetric half of the interference, both have exactly this shape.</dd>
+      <dt>H(x)</dt><dd>its Hilbert transform: odd, zero-integral, peaking at x = 1.31&sigma; and falling as 1/x. This is the smeared principal value, and it is what tilts the peak.</dd>
+      <dt>&beta;</dt><dd>how much dispersive there is per unit absorptive — equivalently the relative phase of the two amplitudes. <b>The paper never gives this, or the shift it implies.</b> The fit panel infers it.</dd>
+      <dt>N<sub>I</sub></dt><dd>the integrated interference yield: Table 1's &minus;60.3 (gg) and +2.4 (qg) in the low-p<sub>T</sub> category.</dd>
+      <dt>&mu;</dt><dd>signal strength, floated in the fit. It is what makes the rate uninformative and the shape everything.</dd>
+    </dl>
+    <span class="an">Worked example, low-p<sub>T</sub> category, at the SM width. N<sub>I</sub> = &minus;60.3 + 2.4 = &minus;57.9 events on
+    N<sub>S</sub> = 3045, so the rate change is &minus;57.9/3045 = &minus;1.90&nbsp;%. With &sigma; = 1.60 GeV and &beta; = 0.505 the shift is
+    0.505 &times; (&minus;57.9) &times; 1.60 &times; &radic;(2&pi;) / 3045 = &minus;0.0385 GeV = <b>&minus;38.5 MeV</b>. Set the sliders to those values and the
+    readouts land on both numbers.</span>
+  </div>
+
+  <details class="ch"><summary>Check yourself &mdash; why does a worse detector see a bigger shift?</summary>
+    <div class="q">Drag the resolution slider from 1.6 GeV to 3.2 GeV at fixed &beta;. The apparent peak shift doubles. A detector
+    that measures the mass <em>worse</em> reports a <em>larger</em> interference shift. Why is that not absurd — and why does the
+    measurement still get worse, not better?</div>
+    <div class="a"><p>Both halves follow from the fact that the dispersive term is scale-free.</p>
+    <p><b>Why the shift grows.</b> The true interference distortion is a principal value, 1/(m<sup>2</sup> &minus; m<sub>H</sub><sup>2</sup>),
+    which has no width of its own — it is equally large at every distance from the resonance, in the sense that x·H(x) &rarr; 1 for
+    any x. Convolving it with a resolution of width &sigma; produces a curve whose extremum sits at x = 1.31&sigma; and whose height is
+    0.765/&sigma;. Meanwhile the signal peak height is N<sub>S</sub>/(&sigma;&radic;2&pi;), also falling as 1/&sigma;. So the ratio of
+    dispersive amplitude to peak <em>curvature</em> — which is what sets where the maximum of the sum lands — carries one net factor
+    of &sigma;. Algebraically: near the peak the sum is N<sub>S</sub>R(x) + A·H(x), and expanding to first order, R&prime;(x) &asymp;
+    &minus;x·R(0)/&sigma;<sup>2</sup> while H&prime;(0) = 1/&sigma;<sup>2</sup>. Setting the derivative to zero, the &sigma;<sup>&minus;2</sup>
+    cancels and &delta; = A/(N<sub>S</sub>R(0)) = A&sigma;&radic;(2&pi;)/N<sub>S</sub>. One factor of &sigma; survives, from R(0).</p>
+    <p><b>Why the measurement still degrades.</b> The quantity that matters is the shift divided by the statistical uncertainty on
+    the fitted peak position. For a peak of N<sub>S</sub> events on a locally flat background of density b, that uncertainty goes as
+    &sigma;<sup>3/2</sup>&radic;b/N<sub>S</sub>: one power of &sigma; because the peak is wider, and half a power because a wider peak
+    admits more background into the region that constrains it. So the significance of the shift scales as
+    &sigma;/&sigma;<sup>3/2</sup> = &sigma;<sup>&minus;1/2</sup>. Blunter detector, bigger shift, worse measurement — by half a power.</p>
+    <p>The toy confirms the exponent empirically: holding the expected stat-only limit fixed at the paper's 34 MeV and re-solving
+    for the shift at each resolution gives &minus;38.5 MeV at 1.6 GeV, &minus;74 MeV at 2.4 GeV and &minus;108 MeV at 3.0 GeV,
+    i.e. shift &prop; &sigma;<sup>1.64</sup>. The naive argument above predicts &sigma;<sup>1.5</sup>; the extra 0.14 comes from the
+    Crystal Ball tails and from the finite [105,160] GeV fit window, neither of which is scale-free.</p>
+    <p><b>The judgement call.</b> This is why the paper's silence on its own mass resolution matters. Because shift and resolution
+    are degenerate along &sigma;<sup>1.64</sup>, no reader can convert the published limit into a statement about the interference
+    calculation without knowing both. A single line — "the interference shifts the peak by &minus;X MeV at the SM width for our
+    &sigma;<sub>eff</sub> of Y GeV" — would make the letter self-contained. Whether that omission is an oversight or a deliberate
+    choice not to quote a number that depends on the parton shower is not something the draft lets you tell.</p></div>
+  </details>
+</section>
+
+<!-- ============================ FIT ============================ -->
+<section class="panel" id="fit">
+  <div class="subtabs" style="max-width:640px">
+    <button data-fmode="scan" aria-pressed="true">Likelihood scan</button>
+    <button data-fmode="spec" aria-pressed="false">The fitted spectrum</button>
+    <button data-fmode="deg" aria-pressed="false">Shift &times; resolution degeneracy</button>
+  </div>
+  <div class="pg">
+    <div class="ctrl">
+      <h3>What the paper doesn't publish</h3>
+      <label class="slider">Peak shift at &Gamma;<sub>SM</sub> <span class="v" id="v_fd">&minus;38.5 MeV</span>
+        <input type="range" id="s_fd" min="5" max="200" value="385" step="5"></label>
+      <label class="slider">m<sub>&gamma;&gamma;</sub> resolution &sigma; <span class="v" id="v_fr">1.60 GeV</span>
+        <input type="range" id="s_fr" min="100" max="300" value="160" step="10"></label>
+      <h3 class="gap">Systematics (paper's values)</h3>
+      <label class="slider">Peak position &sigma;<sub>pos</sub> <span class="v" id="v_fp">0.221 GeV</span>
+        <input type="range" id="s_fp" min="0" max="400" value="221" step="10"></label>
+      <label class="slider">K<sub>I</sub> prior on gg-interference <span class="v" id="v_fk">39 %</span>
+        <input type="range" id="s_fk" min="0" max="80" value="39" step="1"></label>
+      <h3 class="gap">Asimov truth</h3>
+      <div class="btnrow">
+        <button aria-pressed="true" data-ftruth="4.1">Expected (&Gamma; = 4.1)</button>
+        <button aria-pressed="false" data-ftruth="12">Observed (&Gamma;&#770; = 12.0)</button>
+      </div>
+      <div class="btnrow"><button class="primary" id="s_frun">Re-fit</button>
+        <button id="s_fdef">Paper working point</button></div>
+      <div class="status" id="f_stat">Fitting&hellip;</div>
+    </div>
+    <div>
+      <div class="figframe"><canvas id="fitc"></canvas><div class="figtag" id="fittag">&minus;2 &Delta;ln L vs &Gamma;<sub>H</sub> [MeV]</div></div>
+      <div class="readouts">
+        <div><span>68 % UL, stat only</span><strong id="f_r1">&mdash;</strong></div>
+        <div><span>95 % UL, stat only</span><strong id="f_r2">&mdash;</strong></div>
+        <div><span>68 % UL, total</span><strong id="f_r3">&mdash;</strong></div>
+        <div><span>95 % UL, total</span><strong id="f_r4">&mdash;</strong></div>
+      </div>
+      <div class="eqlive" id="f_live"></div>
+      <div class="sidecanvas"><canvas id="fits"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--bq)"></i>stat only</span>
+        <span><i style="background:var(--gq)"></i>+ peak position</span>
+        <span><i style="background:var(--cq)"></i>total</span>
+        <span><i style="background:var(--warn)"></i>paper's limits</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eq">
+    <div class="eqrow"><span class="eqlead">Eq. 4 &mdash;</span>
+      <math><mrow><msup><mi>F</mi><mi>c</mi></msup><mo>(</mo><msub><mi>m</mi><mrow><mi>&gamma;</mi><mi>&gamma;</mi></mrow></msub><mo>)</mo><mo>=</mo>
+      <mi>&mu;</mi><msub><mi>K</mi><mi>S</mi></msub><msubsup><mi>N</mi><mi>S</mi><mi>c</mi></msubsup><msubsup><mi>f</mi><mi>S</mi><mi>c</mi></msubsup>
+      <mo>+</mo><msqrt><mfrac><mrow><mi>&mu;</mi><msub><mi>&Gamma;</mi><mi>H</mi></msub></mrow><msubsup><mi>&Gamma;</mi><mi>H</mi><mtext>SM</mtext></msubsup></mfrac></msqrt>
+      <mrow><mo>[</mo><msubsup><mi>N</mi><mrow><mi>I</mi><mo>,</mo><mi>g</mi><mi>g</mi></mrow><mi>c</mi></msubsup><msubsup><mi>f</mi><mrow><mi>I</mi><mo>,</mo><mi>g</mi><mi>g</mi></mrow><mi>c</mi></msubsup>
+      <mo>+</mo><msubsup><mi>N</mi><mrow><mi>I</mi><mo>,</mo><mi>q</mi><mi>g</mi></mrow><mi>c</mi></msubsup><msubsup><mi>f</mi><mrow><mi>I</mi><mo>,</mo><mi>q</mi><mi>g</mi></mrow><mi>c</mi></msubsup><mo>]</mo></mrow>
+      <mo>+</mo><msubsup><mi>N</mi><mi>B</mi><mi>c</mi></msubsup><msubsup><mi>f</mi><mi>B</mi><mi>c</mi></msubsup></mrow></math></div>
+    <div class="eqrow"><span class="eqlead">Eq. 5 &mdash;</span>
+      <math><mrow><mi>t</mi><mo>(</mo><msub><mi>&Gamma;</mi><mi>H</mi></msub><mo>)</mo><mo>=</mo><mo>&#8722;</mo><mn>2</mn><mo>&#8290;</mo><mi>ln</mi>
+      <mfrac><mrow><mi>L</mi><mo>(</mo><msub><mi>&Gamma;</mi><mi>H</mi></msub><mo>,</mo><mover accent="true"><mover accent="true"><mi>&mu;</mi><mo>^</mo></mover><mo>^</mo></mover><mo>,</mo>
+      <mover accent="true"><mover accent="true"><mi>&theta;</mi><mo>^</mo></mover><mo>^</mo></mover><mo>)</mo></mrow>
+      <mrow><mi>L</mi><mo>(</mo><mover accent="true"><msub><mi>&Gamma;</mi><mi>H</mi></msub><mo>^</mo></mover><mo>,</mo>
+      <mover accent="true"><mi>&mu;</mi><mo>^</mo></mover><mo>,</mo><mover accent="true"><mi>&theta;</mi><mo>^</mo></mover><mo>)</mo></mrow></mfrac></mrow></math>
+      <span class="eqnote">68 % at t = 1, 95 % at t = 3.84</span></div>
+    <span class="an">The panel builds this model bin by bin over 105–160 GeV in both categories with the Table 1 yields,
+    constructs an Asimov dataset at the paper's truth, and profiles seven parameters — the signal strength, and a
+    normalisation and two shape parameters for the continuum in each category — plus the peak position and the
+    interference normalisation when their systematics are switched on. Nothing is fitted to the paper's answer except one
+    number: the mass shift at the SM width, tuned once against the expected stat-only 68&nbsp;% limit. Every other limit
+    on the readout is then a prediction.</span>
+  </div>
+
+  <details class="ch"><summary>Check yourself &mdash; set &beta; to zero and the limit disappears entirely. Why?</summary>
+    <div class="q">In the distortion panel, set the dispersive fraction &beta; to 0. The interference is still there — it still
+    removes 2&nbsp;% of the signal events. Yet the fit returns no limit on &Gamma;<sub>H</sub> at all, at any width. Where did
+    a 2&nbsp;% effect go?</div>
+    <div class="a"><p>Into &mu;. This is the single most important structural fact about the measurement, and it is the
+    reason the paper can claim independence from the Higgs couplings.</p>
+    <p>With &beta; = 0 the interference contributes <em>exactly</em> the signal's own lineshape, scaled by
+    &minus;0.0205&radic;(&mu;&Gamma;/&Gamma;<sub>SM</sub>). The model's resonant part is then
+    &mu;N<sub>S</sub>R(x)&thinsp;[1 &minus; 0.0205&radic;(&Gamma;/&Gamma;<sub>SM</sub>)/&radic;&mu;], which is a single number
+    multiplying a single fixed shape. Any change in &Gamma; can be undone by a compensating change in &mu; — the likelihood has a
+    flat direction, and the profile likelihood ratio is identically zero along it. The toy shows this: at &beta; = 0,
+    t(1000 MeV) = 0.16, essentially flat, and no crossing of t = 1 exists.</p>
+    <p>That flat direction is the same one the paper describes in §1 in coupling language. The on-shell rate goes as
+    c<sub>g</sub><sup>2</sup>c<sub>&gamma;</sub><sup>2</sup>/&Gamma;<sub>H</sub>, so the rescaling c &rarr; &kappa;c,
+    &Gamma;<sub>H</sub> &rarr; &kappa;<sup>4</sup>&Gamma;<sub>H</sub> leaves it untouched. The interference goes as
+    c<sub>g</sub>c<sub>&gamma;</sub>, one power of each, so it scales as &kappa;<sup>2</sup> = &radic;(&Gamma;/&Gamma;<sub>SM</sub>)
+    at fixed rate — that is where the square root in Eq. 4 comes from. But scaling alone is not enough: a rate change and an
+    interference change are the same thing if they have the same shape. The degeneracy is broken only by the dispersive term,
+    which has a shape no amount of &mu; can imitate, because it is odd and &mu; multiplies something even.</p>
+    <p><b>Consequence for reading the paper.</b> Table 1's interference yields — the &minus;60.3 and &minus;62.9 — carry almost
+    none of the sensitivity by themselves. They fix the <em>normalisation</em> of a distortion whose <em>shape</em> is what gets
+    measured, and the paper never prints that shape's amplitude. A reader who tries to sanity-check the 250 MeV expected limit
+    from Table 1 alone will fail, not because the table is wrong but because the necessary number is not in the letter.</p>
+    <p><b>The judgement part.</b> Whether &beta; is closer to 0.5 or to 1.5 is a genuine theory question — it is the relative
+    phase between the resonant amplitude and the continuum box, and it depends on the order of the calculation and on the
+    p<sub>T</sub> selection. The toy can only say what the paper's <em>sensitivity</em> requires given an assumed resolution, and
+    that is a curve in the (shift, &sigma;) plane, not a point. The third sub-tab draws that curve.</p></div>
+  </details>
+
+  <details class="ch"><summary>Check yourself &mdash; the toy reproduces seven limits after tuning one number. Is that impressive?</summary>
+    <div class="q">One free parameter is fixed on the expected stat-only 68&nbsp;% limit (34 MeV). The toy then predicts
+    87.9 / 52.4 / 116.0 / 64.4 / 250.9 / 93.4 / 322.4 MeV where the paper has 91 / 52 / 115 / 61 / 250 / 90 / 319. How much of
+    that agreement is real, and how much is arithmetic that had to work?</div>
+    <div class="a"><p>Some of it had to work; the interesting part did not.</p>
+    <p><b>What was nearly guaranteed.</b> The three 68/95 pairs are not independent. Once the toy has the right likelihood
+    <em>shape</em>, one crossing determines the other. And the shape is forced: with only a statistical uncertainty, t is exactly
+    quadratic in &radic;&Gamma;, because the interference amplitude is linear in &radic;&Gamma; and everything else is Gaussian.
+    So "expected stat-only 95&nbsp;% = 87.9 against 91" is really a test of that functional form, not of the toy's physics. The
+    paper's own numbers pass the same test: from &Gamma;&#770; = 4.1 and the 34 MeV crossing, the &radic;&Gamma;-Gaussian predicts
+    90.0 where the paper prints 91.</p>
+    <p><b>What was not guaranteed, and this is the real result.</b> Switching the observed Asimov on — moving the truth from
+    4.1 to 12.0 MeV — changes both crossings in a way nothing was tuned to, and the toy gives 52.4 / 116.0 against 52 / 115.
+    More strikingly, adding the two systematics at the paper's published sizes takes the expected 95&nbsp;% limit from 88 to
+    251 MeV where the paper has 250. That is a factor of 2.9 inflation reproduced to 0.4&nbsp;%, and it is not a shape identity:
+    it is the specific way a multiplicative uncertainty on an amplitude that itself scales as &radic;&Gamma; blows up at large
+    &Gamma;, which is exactly the mechanism §7 describes in one sentence and never quantifies.</p>
+    <p><b>What genuinely does not work.</b> Group by group, the toy misses Table 2 badly: it implies an experimental
+    contribution of 50.7 / 139.4 MeV against the paper's 43 / 119, and a theory contribution of 34.8 / 165.7 against 50 / 264.
+    The totals agree and the decomposition does not, because Table 2 is built by progressively <em>fixing</em> groups on the
+    observed likelihood while the toy <em>adds</em> one nuisance at a time to a stat-only baseline. Those two operations agree
+    only when the nuisances are uncorrelated with each other and with &Gamma;, and here the interference normalisation is
+    strongly correlated with &Gamma; by construction. So: the toy reproduces the paper's answer and does not reproduce the
+    paper's accounting of it, and the second failure is honest information about how much a table like Table 2 can be read as a
+    set of independent contributions. It cannot.</p>
+    <p><b>The judgement part.</b> One tuned parameter against seven predictions sounds like a strong test, but the seven are
+    not seven degrees of freedom — closer to three. A sceptical reading is that the toy demonstrates the model class is right
+    (&radic;&Gamma; scaling, log-normal amplitude systematic, Asimov asymptotics) without demonstrating that any individual
+    ingredient is right. That is a fair reading, and it is why the resolution slider matters: it shows that a whole family of
+    (shift, &sigma;) pairs fits equally well, so the toy is genuinely not pinning down the physics the paper omitted.</p></div>
+  </details>
+</section>
+
+<!-- ============================ BUDGET ============================ -->
+<section class="panel" id="budget">
+  <div class="subtabs" style="max-width:640px">
+    <button data-bmode="stack" aria-pressed="true">Table 2, taken apart</button>
+    <button data-bmode="root" aria-pressed="false">Why &radic;&Gamma; breaks the parabola</button>
+    <button data-bmode="prior" aria-pressed="false">39 % prior &rarr; 27 % effective</button>
+  </div>
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Uncertainty groups (Table 2)</h3>
+      <label class="slider">Theory, K<sub>I</sub> NNLO<sub>sv</sub> <span class="v" id="v_bt">100 %</span>
+        <input type="range" id="s_bt" min="0" max="200" value="100" step="5"></label>
+      <label class="slider">m<sub>H</sub> from H&rarr;ZZ* <span class="v" id="v_bm">100 %</span>
+        <input type="range" id="s_bm" min="0" max="200" value="100" step="5"></label>
+      <label class="slider">Photon energy scale <span class="v" id="v_be">100 %</span>
+        <input type="range" id="s_be" min="0" max="200" value="100" step="5"></label>
+      <label class="slider">Statistical (dataset size) <span class="v" id="v_bs">140 fb<sup>&minus;1</sup></span>
+        <input type="range" id="s_bs" min="20" max="120" value="40" step="2"></label>
+      <div class="btnrow"><button class="primary" id="s_breset">Reset to Table 2</button>
+        <button id="s_bzero">Theory &rarr; 0</button></div>
+      <div class="status" id="b_stat"></div>
+    </div>
+    <div>
+      <div class="figframe"><canvas id="budc"></canvas><div class="figtag" id="budtag">Contribution to the limit on &Gamma;<sub>H</sub> [MeV]</div></div>
+      <div class="readouts">
+        <div><span>68 % half-width</span><strong id="b_r1">&mdash;</strong></div>
+        <div><span>95 % half-width</span><strong id="b_r2">&mdash;</strong></div>
+        <div><span>95 % CL upper limit</span><strong id="b_r3">&mdash;</strong></div>
+        <div><span>Paper (observed)</span><strong id="b_r4">319 MeV</strong></div>
+      </div>
+      <div class="eqlive" id="b_live"></div>
+      <div class="sidecanvas"><canvas id="buds"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--gq)"></i>theory</span>
+        <span><i style="background:var(--cq)"></i>experimental</span>
+        <span><i style="background:var(--bq)"></i>statistical</span>
+        <span><i style="background:var(--warn)"></i>paper's Table 2</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eq">
+    <div class="eqrow"><span class="eqlead">the shape of t &mdash;</span>
+      <math><mrow><mi>t</mi><mo>(</mo><msub><mi>&Gamma;</mi><mi>H</mi></msub><mo>)</mo><mo>=</mo>
+      <mfrac><msup><mrow><mo>(</mo><msqrt><msub><mi>&Gamma;</mi><mi>H</mi></msub></msqrt><mo>&#8722;</mo>
+      <msqrt><mover accent="true"><msub><mi>&Gamma;</mi><mi>H</mi></msub><mo>^</mo></mover></msqrt><mo>)</mo></mrow><mn>2</mn></msup>
+      <mrow><msubsup><mi>&sigma;</mi><mn>0</mn><mn>2</mn></msubsup><mo>+</mo><msup><mi>f</mi><mn>2</mn></msup><msub><mi>&Gamma;</mi><mi>H</mi></msub></mrow></mfrac></mrow></math>
+      <span class="eqnote">f = multiplicative error on the amplitude</span></div>
+    <dl class="sym">
+      <dt>&radic;&Gamma;<sub>H</sub></dt><dd>the natural variable. The interference amplitude is linear in it, so with only statistical errors the likelihood is an ordinary parabola here and nowhere else.</dd>
+      <dt>&sigma;<sub>0</sub></dt><dd>everything that is a constant uncertainty on the amplitude: the data statistics, the m<sub>H</sub> constraint, the energy scale. These do not grow with &Gamma;<sub>H</sub>.</dd>
+      <dt>f</dt><dd>the fractional uncertainty on the interference <em>normalisation</em>. Because it multiplies an amplitude that already grows as &radic;&Gamma;<sub>H</sub>, its absolute effect grows with &Gamma;<sub>H</sub> — the denominator opens up, the parabola flattens, and the 95 % crossing runs away.</dd>
+    </dl>
+    <span class="an">Fit this two-parameter form to the paper's own published limits and it closes exactly, because two numbers
+    determine two parameters. The check is that it closes with the <em>same</em> parameters for the expected and observed sets:
+    f = 29.1 % and &sigma;<sub>0</sub> = 5.32 from (61, 250), against f = 27.8 % and &sigma;<sub>0</sub> = 5.41 from (90, 319).
+    And that the independent binned toy, which knows nothing about these numbers, returns f = 27.1 %.</span>
+  </div>
+
+  <details class="ch"><summary>Check yourself &mdash; the K<sub>I</sub> prior is 39 %, so why does the fit behave like 27 %?</summary>
+    <div class="q">§6 puts a 39&nbsp;% uncertainty on the gg-interference normalisation and calls it the largest single
+    contribution to the error on &Gamma;<sub>H</sub>. Three independent routes — the paper's expected limits, the paper's
+    observed limits, and the binned toy — all say the interference amplitude behaves as though it carried about 27–29&nbsp;%.
+    Where do the missing twelve points go?</div>
+    <div class="a"><p>Two places, and they are worth separating because only one of them is physics.</p>
+    <p><b>Six points are a definition.</b> A normalisation systematic quoted as "39&nbsp;%" is implemented as a log-normal, not
+    as 1 + 0.39&theta;. The reason is structural: a linear Gaussian on a normalisation passes through zero at &theta; = &minus;2.56,
+    and an interference amplitude that can vanish makes &Gamma;<sub>H</sub> formally unbounded. The toy demonstrates this — with
+    a linear constraint the expected 95&nbsp;% limit came out at 610 MeV against the paper's 250, while the 68&nbsp;% limit was
+    barely affected, which is the signature of a tail pathology rather than a physics error. Switching to the log-normal
+    (1.39)<sup>&theta;</sup> fixes it, but that form has a log-slope of ln(1.39) = 0.329, so "39&nbsp;%" is really 32.9&nbsp;%
+    in the exponent that the likelihood actually sees.</p>
+    <p><b>The remaining six points are the fit constraining its own nuisance.</b> The 39&nbsp;% is a prior, and the data push
+    back on it. Two handles do the pushing. First, the qg-interference is <em>not</em> scaled by K<sub>I</sub> — it is a separate,
+    LO-accurate contribution of opposite sign — so the total distortion is not simply proportional to the nuisance, and a large
+    pull on K<sub>I</sub> changes the gg:qg balance in a way the two categories see differently. Second, and more importantly,
+    K<sub>I</sub> and &Gamma;<sub>H</sub> enter the amplitude in the fixed combination K<sub>I</sub>&radic;&Gamma;<sub>H</sub>
+    only for the gg piece, while the m<sub>H</sub> nuisance acts on the peak <em>position</em> rather than the amplitude; the
+    three-way correlation structure leaves the profiled interval narrower than the prior alone would give.</p>
+    <p>Numerically: prior 39&nbsp;% &rarr; log-slope 32.9&nbsp;% &rarr; profiled 27.1&nbsp;% in the toy, against 27.8&nbsp;%
+    and 29.1&nbsp;% inferred from the paper's two sets of published limits by an entirely different route. Three numbers within
+    two points of each other from three independent calculations is the strongest single consistency check in this file.</p>
+    <p><b>The judgement part.</b> None of this makes the 39&nbsp;% too conservative. It covers the gap between an NLO matrix
+    element and an NNLO<sub>sv</sub> calculation, which is a real and poorly controlled difference, and the paper is right that
+    it dominates. What the exercise does show is that "the largest single contribution to the total uncertainty" is being
+    reported at its prior width while the fit is using something meaningfully tighter — so a reader who mentally rescales the
+    limit by taking the 39&nbsp;% at face value will over-correct. Whether that distinction belongs in a letter, as opposed to
+    a supporting note, is a matter of taste.</p></div>
+  </details>
+</section>
+
+<!-- ============================ CATEGORIES ============================ -->
+<section class="panel" id="cats">
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Interference split between categories</h3>
+      <label class="slider">gg migration low &rarr; high <span class="v" id="v_cm">0 %</span>
+        <input type="range" id="s_cm" min="-30" max="30" value="0" step="1"></label>
+      <label class="slider">qg migration low &rarr; high <span class="v" id="v_cq">0 %</span>
+        <input type="range" id="s_cq" min="-30" max="30" value="0" step="1"></label>
+      <h3 class="gap">Which categories enter the fit</h3>
+      <div class="btnrow">
+        <button aria-pressed="true" data-cuse="both">Both</button>
+        <button aria-pressed="false" data-cuse="lo">p<sub>T</sub> &lt; 30 only</button>
+        <button aria-pressed="false" data-cuse="hi">p<sub>T</sub> &ge; 30 only</button>
+        <button aria-pressed="false" data-cuse="merge">Merged</button>
+      </div>
+      <div class="btnrow"><button class="primary" id="s_creset">Reset to Table 1</button></div>
+      <div class="status" id="c_stat"></div>
+    </div>
+    <div>
+      <div class="figframe"><canvas id="catc"></canvas><div class="figtag">Interference-to-signal ratio, and what each category buys</div></div>
+      <div class="readouts">
+        <div><span>I/S, p<sub>T</sub> &lt; 30</span><strong id="c_r1">&mdash;</strong></div>
+        <div><span>I/S, p<sub>T</sub> &ge; 30</span><strong id="c_r2">&mdash;</strong></div>
+        <div><span>95 % UL, stat only</span><strong id="c_r3">&mdash;</strong></div>
+        <div><span>vs merged</span><strong id="c_r4">&mdash;</strong></div>
+      </div>
+      <div class="eqlive" id="c_live"></div>
+      <div class="sidecanvas"><canvas id="cats2"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--bq)"></i>p<sub>T</sub> &lt; 30 GeV</span>
+        <span><i style="background:var(--cq)"></i>p<sub>T</sub> &ge; 30 GeV</span>
+        <span><i style="background:var(--sq)"></i>combined</span>
+        <span><i style="background:var(--warn)"></i>Table 1 / paper's claim</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="crit"><b>The sentence that does not match the table</b>
+    <p>§4, line 135: "The low-p<sub>T</sub><sup>&gamma;&gamma;</sup> category contains events with
+    p<sub>T</sub> &lt; 30 GeV, <em>where the size of the interference contribution relative to the signal is largest</em>".
+    Table 1, four lines later, gives |I<sub>gg</sub>|/S = 60.3/3045 = 1.98&nbsp;% at low p<sub>T</sub> and
+    62.9/2527 = 2.49&nbsp;% at high p<sub>T</sub>. Including the qg term: 1.90&nbsp;% against 2.23&nbsp;%. The relative
+    interference is larger in the <em>high</em>-p<sub>T</sub> category on either definition, and the toy fit agrees — run each
+    category alone and the high-p<sub>T</sub> one gives the better limit (137 MeV against 170 MeV) despite having 17&nbsp;% fewer
+    signal events. Either the sentence or the table needs fixing before submission.</p></div>
+
+  <details class="ch"><summary>Check yourself &mdash; the split into two categories is worth about 1 %. Should it be there?</summary>
+    <div class="q">Press "Merged" and watch the 95&nbsp;% limit move from 87.7 MeV to 89.1 MeV. The p<sub>T</sub>
+    categorisation — one of the two observables §1 says the measurement is built on — buys 1.6&nbsp;%. Is the categorisation
+    pointless, and if not, what is it actually for?</div>
+    <div class="a"><p>It is nearly pointless for sensitivity, and it is not there for sensitivity.</p>
+    <p><b>Why the gain is so small.</b> Splitting a dataset helps when the sub-samples have different signal-to-distortion
+    ratios, because then the fit can play them against each other. Here they barely differ: &minus;1.90&nbsp;% against
+    &minus;2.23&nbsp;%, a contrast of 17&nbsp;%. The information a two-bin split adds over a merged fit scales with the
+    <em>square</em> of that contrast weighted by the statistical power of each bin, and 17&nbsp;% squared is 3&nbsp;%. Getting
+    1.6&nbsp;% out of it is about right. The toy confirms the categories are otherwise statistically independent: combining the
+    two single-category amplitude precisions in quadrature, 1/&radic;(1/5.72<sup>2</sup> + 1/5.04<sup>2</sup>) = 3.779, against
+    3.782 measured from the simultaneous fit. To three decimal places the fit is doing nothing but adding two independent
+    measurements.</p>
+    <p><b>What the split is really for.</b> §4 says it plainly, in a clause that is easy to skim past: the boundary sits at
+    30 GeV "because predictions of the qg-interference obtained with different parton-shower algorithms diverge significantly
+    above this value". The categorisation is a <em>systematics containment</em> device, not a sensitivity device. It isolates
+    the region where the least-trusted component of the model is least trusted, so that a nuisance parameter can absorb it
+    without contaminating the region that carries the measurement. §6 backs this up with the migration uncertainties: 15.8&nbsp;%
+    on the qg-interference in the low-p<sub>T</sub> category and 23&nbsp;% from the parton-shower subtraction scheme — large
+    numbers attached to a small component, which is exactly what you would build a category to quarantine.</p>
+    <p><b>The internal tension this exposes.</b> §1 lines 60–62 say the sensitivity is "accessed through two observables: the
+    modification of the lineshape and the different interference-to-signal fractions in event categories". Three lines earlier
+    the same paragraph says the sensitivity "derives entirely from the interference-induced distortion". The toy sides with the
+    second sentence: 98&nbsp;% of the information is lineshape. The first sentence oversells the categorisation, and it does so
+    in the paragraph a reader is most likely to quote.</p>
+    <p><b>The judgement part, and a caveat on my own number.</b> The toy gives both categories the same mass resolution and the
+    same dispersive-to-absorptive ratio, differing only in yields. In reality the shift should differ between them — it depends
+    on the interference kinematics, which is the whole reason the two categories exist — and a genuine difference would raise
+    the categorisation's value above 1.6&nbsp;%. How far above, I cannot say from the letter, because the per-category
+    lineshapes are not published. So read "1.6&nbsp;%" as a lower bound derived under an explicitly stated simplification, and
+    the paper's own "at most 17&nbsp;%" for a finer binning as the other end of the plausible range.</p></div>
+  </details>
+</section>
+
+<!-- ============================ REFERENCE ============================ -->
+<section class="panel" id="ref">
+  <h3 class="sec">The paper's tables, transcribed</h3>
+  <p class="note">Table 1 — expected yields in m<sub>&gamma;&gamma;</sub> &isin; [105, 160] GeV at the SM hypothesis
+  (&Gamma;<sub>H</sub> = &Gamma;<sub>H</sub><sup>SM</sup>, &mu; = 1). Signal includes K<sub>S</sub> = 1.4;
+  gg-interference includes K<sub>I</sub> = 1.64. The last two columns are computed here, not in the paper.</p>
+  <table class="num">
+    <thead><tr><th>Process</th><th>p<sub>T</sub><sup>&gamma;&gamma;</sup> &lt; 30 GeV</th><th>p<sub>T</sub><sup>&gamma;&gamma;</sup> &ge; 30 GeV</th><th>Total</th><th>/ signal, low</th><th>/ signal, high</th></tr></thead>
+    <tbody>
+      <tr><td>Signal (ggF)</td><td>3045</td><td>2527</td><td>5572</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>gg-interference</td><td>&minus;60.3</td><td>&minus;62.9</td><td>&minus;123.2</td><td>&minus;1.98 %</td><td class="hi">&minus;2.49 %</td></tr>
+      <tr><td>qg-interference</td><td>+2.4</td><td>+6.5</td><td>+8.9</td><td>+0.08 %</td><td>+0.26 %</td></tr>
+      <tr><td>Net interference</td><td>&minus;57.9</td><td>&minus;56.4</td><td>&minus;114.3</td><td>&minus;1.90 %</td><td class="hi">&minus;2.23 %</td></tr>
+      <tr><td>Continuum background</td><td>6.7 &times; 10<sup>5</sup></td><td>5.1 &times; 10<sup>5</sup></td><td>1.18 &times; 10<sup>6</sup></td><td>&mdash;</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">Table 2 — decomposition of the uncertainty on &Gamma;<sub>H</sub>, in MeV. The quadrature column is
+  computed here: the groups close to 0.5 %, and each limit is exactly &Gamma;&#770;<sub>H</sub> = 12.0 MeV plus the entry.</p>
+  <table class="num">
+    <thead><tr><th>Source</th><th>68 % CL</th><th>95 % CL</th><th>68 % check</th><th>95 % check</th></tr></thead>
+    <tbody>
+      <tr><td>Theory</td><td>50</td><td>264</td><td>50.2</td><td>264.0</td></tr>
+      <tr><td>&nbsp;&nbsp;NNLO<sub>sv</sub> K-factor</td><td>50</td><td>263</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>&nbsp;&nbsp;Others</td><td>4</td><td>23</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Experimental</td><td>43</td><td>119</td><td>42.9</td><td>119.6</td></tr>
+      <tr><td>&nbsp;&nbsp;m<sub>H</sub> (from H&rarr;ZZ*)</td><td>35</td><td>97</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>&nbsp;&nbsp;Energy scale</td><td>24</td><td>66</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>&nbsp;&nbsp;Energy resolution</td><td>4</td><td>13</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>&nbsp;&nbsp;Others</td><td>5</td><td>19</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Statistical</td><td>40</td><td>103</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Total</td><td>77</td><td>307</td><td class="hi">77.1</td><td class="hi">307.4</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">Results, as published. "Half-width" is the Table 2 entry; the limit is
+  &Gamma;&#770;<sub>H</sub> + half-width for the observed column and &Gamma;<sub>SM</sub> + half-width for the expected one.</p>
+  <table class="num">
+    <thead><tr><th>Configuration</th><th>Obs. 68 %</th><th>Obs. 95 %</th><th>Exp. 68 %</th><th>Exp. 95 %</th><th>Toy 95 % (exp.)</th></tr></thead>
+    <tbody>
+      <tr><td>Statistical only</td><td>52</td><td>115</td><td>34</td><td>91</td><td>87.9</td></tr>
+      <tr><td>Total</td><td>90</td><td>319</td><td>61</td><td>250</td><td>250.9</td></tr>
+      <tr><td>In units of &Gamma;<sub>SM</sub> = 4.07 MeV</td><td>22&times;</td><td>78&times;</td><td>15&times;</td><td>61&times;</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sec">Everything the toys need that the paper does not give</h3>
+  <table class="cmp">
+    <thead><tr><th>Quantity</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Mass shift</td><td>Never quoted, at any width. It is the observable the entire measurement rests on. The fit panel infers &minus;38.5 MeV at &Gamma;<sub>SM</sub> for a 1.6 GeV resolution, degenerate with resolution along &sigma;<sup>1.64</sup>. Literature: &asymp;&minus;70 MeV inclusive at LO (Martin), O(&minus;200 MeV) under p<sub>T</sub> cuts (Dixon–Li).</td></tr>
+      <tr><td>m<sub>&gamma;&gamma;</sub> resolution</td><td>Only "O(1–3) GeV" in §1. No per-category value, no DSCB parameters, though §5 says six of them were fitted. The toy uses 1.60 / 1.55 GeV with typical ATLAS tails and exposes both as sliders.</td></tr>
+      <tr><td>Interference phase</td><td>Not given. Equivalent to the dispersive-to-absorptive ratio &beta;, and therefore to the shift above.</td></tr>
+      <tr><td>Non-ggF signal</td><td>§3 includes VBF, VH, tt&#772;H, bb&#772;H and tH as non-interfering signal; Table 1 lists none of them. The cross-check that Table 1 is ggF-only: 48.61 pb &times; 2.27&times;10<sup>&minus;3</sup> &times; 140.1 fb<sup>&minus;1</sup> = 15 460 produced, so &epsilon; = 5572/15 460 = 36 %, a normal H&rarr;&gamma;&gamma; efficiency; and 48.61/1.4 = 34.7 pb is the NLO ggF cross-section, confirming K<sub>S</sub> is NLO&rarr;N<sup>3</sup>LO on ggF alone.</td></tr>
+      <tr><td>Spurious signal</td><td>The criterion is stated (§5), the value is not. This is the standard H&rarr;&gamma;&gamma; background-modelling systematic.</td></tr>
+      <tr><td>Background shape</td><td>Functional form given, parameters not — they are fitted to data, so this is reasonable, but it means the local S/B under the peak cannot be checked. The toy assumes a continuum falling as m<sup>&minus;4.5</sup>, giving S/B &asymp; 4 % in &pm;2&sigma;.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sec">Critique</h3>
+  <div class="crit"><b>1 &mdash; §4 contradicts Table 1 on which category has the larger relative interference</b>
+    <p>The text says low-p<sub>T</sub>; the table says high-p<sub>T</sub>, by 1.98 % against 2.49 % on the gg term and
+    1.90 % against 2.23 % on the net. Running each category alone through the fit gives 170 MeV and 137 MeV respectively,
+    confirming the table. This is the one error in the draft that would change a reader's understanding of the analysis
+    design, and it sits in the sentence that justifies the design.</p></div>
+  <div class="crit"><b>2 &mdash; §1 claims two observables; the second contributes about 2 %</b>
+    <p>Lines 60–62 say the sensitivity is accessed "through two observables: the modification of the lineshape and the
+    different interference-to-signal fractions in event categories". Merging the two categories in the toy costs 1.6 % of the
+    limit. Three lines earlier the same paragraph says the sensitivity derives "entirely" from the lineshape distortion, which
+    is what the numbers support. The categorisation is a systematics-containment device — §4 says so, in the clause about
+    parton-shower divergence above 30 GeV — and describing it as a second observable oversells it.</p></div>
+  <div class="crit"><b>3 &mdash; the mass shift is never quantified</b>
+    <p>An interference measurement whose sensitivity comes entirely from an induced peak shift should state the size of that
+    shift, at least at the SM width, together with the effective mass resolution it is measured against. Neither appears.
+    The consequence is concrete: no reader can convert &Gamma;<sub>H</sub> &lt; 319 MeV into a statement about the underlying
+    interference calculation, and no reader can check the result against Martin or Dixon–Li without redoing the analysis.</p></div>
+  <div class="crit"><b>4 &mdash; Table 2's columns are half-widths presented as if they were limits</b>
+    <p>The caption says "the impact on the 68 % CL uncertainty and on the 95 % CL is given". The entries are neither limits nor
+    symmetric uncertainties: they are the amount each group adds to &Gamma;&#770;<sub>H</sub> = 12.0 MeV to reach the
+    corresponding one-sided limit. They do close in quadrature to 0.5 %, which is worth stating explicitly since it is the
+    only thing that makes the table readable as a decomposition — and even then, the toy shows that reproducing the total does
+    not mean the groups can be read independently.</p></div>
+  <div class="crit"><b>5 &mdash; the 39 % K<sub>I</sub> prior is reported at a width the fit does not use</b>
+    <p>Called "the largest single contribution to the total uncertainty in &Gamma;<sub>H</sub>". Implemented as a log-normal it
+    has a log-slope of 32.9 %, and after profiling the fit behaves as though the amplitude carried 27–29 % — a figure recoverable
+    three independent ways, including from the paper's own expected and observed limits. The 39 % is the right prior; quoting it
+    without the profiled width invites the reader to rescale the limit incorrectly.</p></div>
+  <div class="crit"><b>6 &mdash; the injection-test bias does not appear in Table 2</b>
+    <p>§6 quotes biases "of the order of 5 % of the injected value" at &Gamma;<sub>H</sub> = 400 MeV, i.e. about 20 MeV,
+    included in the likelihood as additional nuisance parameters. Table 2's smallest experimental subgroup is "Others" at 4 MeV
+    (68 %). Either the bias is much smaller than the 5 % headline in the region that matters, or it is not in the table.</p></div>
+  <div class="crit"><b>7 &mdash; "at most 17 %" is used to dismiss an improvement that is larger than most of the systematics</b>
+    <p>§4 rejects finer p<sub>T</sub> binning and the mass-measurement categories because they "improve the expected sensitivity
+    by at most 17 %", on the grounds of "reduced reliability of the interference modelling". Seventeen per cent on a 250 MeV
+    expected limit is 43 MeV, comparable to the entire experimental uncertainty. The reliability argument may well be right, but
+    it is asserted rather than quantified, and the asymmetry — a number for the gain, no number for the cost — is conspicuous.</p></div>
+  <div class="crit"><b>8 &mdash; small bookkeeping</b>
+    <p>The luminosity appears as 140.1 fb<sup>&minus;1</sup> in §3, "140 fb<sup>&minus;1</sup>" on both figures, and the
+    m<sub>H</sub> constraint is imported from a 139 fb<sup>&minus;1</sup> measurement; nothing tells the reader which was used
+    for Table 1. Table 1 omits the non-interfering production modes that §3 puts in the fit — harmless for the sensitivity, as
+    the toy shows, but it makes the table impossible to reconcile with a cross-section calculation without the check above.
+    §7 quotes "approximately 22 (15) and 78 (61) times the SM width" using &Gamma;<sub>SM</sub> = 4.07 MeV while the Asimov is
+    built at 4.1 MeV.</p></div>
+
+  <h3 class="sec">Problems</h3>
+  <details class="ch"><summary>Problem 1 &mdash; derive the &radic;&Gamma;<sub>H</sub> scaling from scratch</summary>
+    <div class="q">Show that at fixed observed signal rate the interference scales as &radic;(&mu;&Gamma;<sub>H</sub>/&Gamma;<sub>H</sub><sup>SM</sup>),
+    starting from the Breit–Wigner. Then explain why the naive answer — that the interference is
+    &Gamma;<sub>H</sub>-independent — is also correct, and why the two statements do not conflict.</div>
+    <div class="a"><p><b>The naive answer first, because it is the one that is actually calculated.</b> Take the resonant term of
+    Eq. 2 and integrate over m<sup>2</sup> in the narrow-width limit. The signal piece is
+    |M<sub>sig</sub>|<sup>2</sup>/[(m<sup>2</sup> &minus; m<sub>H</sub><sup>2</sup>)<sup>2</sup> + &Gamma;<sub>H</sub><sup>2</sup>m<sub>H</sub><sup>2</sup>],
+    and &int; dm<sup>2</sup> of the Lorentzian is &pi;/(&Gamma;<sub>H</sub>m<sub>H</sub>). So
+    S &prop; |M<sub>sig</sub>|<sup>2</sup>/&Gamma;<sub>H</sub> &prop; c<sub>g</sub><sup>2</sup>c<sub>&gamma;</sub><sup>2</sup>/&Gamma;<sub>H</sub>,
+    the familiar statement that a narrower resonance is a taller one. The symmetric interference piece carries an explicit
+    &Gamma;<sub>H</sub>m<sub>H</sub> in its numerator, which cancels the &pi;/(&Gamma;<sub>H</sub>m<sub>H</sub>) exactly:
+    I &prop; c<sub>g</sub>c<sub>&gamma;</sub>, with no &Gamma;<sub>H</sub> at all. The antisymmetric piece integrates to zero
+    but its <em>amplitude</em> is likewise &Gamma;<sub>H</sub>-independent, since the principal value has no scale. So at fixed
+    couplings, changing the width changes the signal and leaves the interference alone.</p>
+    <p><b>Now impose the experimental constraint.</b> We do not observe the couplings; we observe a rate, and the rate is fixed
+    to its measured value by floating &mu;. Setting S = &mu;S<sub>SM</sub> means
+    c<sub>g</sub><sup>2</sup>c<sub>&gamma;</sub><sup>2</sup>/&Gamma;<sub>H</sub> = &mu;
+    c<sub>g,SM</sub><sup>2</sup>c<sub>&gamma;,SM</sub><sup>2</sup>/&Gamma;<sub>H</sub><sup>SM</sup>, so
+    c<sub>g</sub>c<sub>&gamma;</sub> = c<sub>g,SM</sub>c<sub>&gamma;,SM</sub>&radic;(&mu;&Gamma;<sub>H</sub>/&Gamma;<sub>H</sub><sup>SM</sup>).
+    Since I &prop; c<sub>g</sub>c<sub>&gamma;</sub>, we get I/I<sub>SM</sub> = &radic;(&mu;&Gamma;<sub>H</sub>/&Gamma;<sub>H</sub><sup>SM</sup>),
+    which is Eq. 4.</p>
+    <p><b>Why they do not conflict.</b> They are answers to different questions. "The interference is width-independent" holds at
+    fixed couplings; "the interference grows as &radic;&Gamma;<sub>H</sub>" holds at fixed observed rate. The measurement lives in
+    the second frame because the rate is data. The invariance the paper exploits — c &rarr; &kappa;c,
+    &Gamma;<sub>H</sub> &rarr; &kappa;<sup>4</sup>&Gamma;<sub>H</sub> — is exactly the statement that moving along the first
+    frame's flat direction traces out the second frame's square root: under it, I &rarr; &kappa;<sup>2</sup>I and
+    &Gamma;<sub>H</sub> &rarr; &kappa;<sup>4</sup>&Gamma;<sub>H</sub>, so I &prop; &Gamma;<sub>H</sub><sup>1/2</sup>.</p>
+    <p><b>What this buys the analysis, and what it costs.</b> It buys total independence from the coupling values: any
+    enhancement of &Gamma;<sub>H</sub>, whether from invisible decays or from a rescaling of everything, moves the interference
+    the same way. It costs a square root, and that is expensive. A limit on the amplitude translates into a limit on
+    &Gamma;<sub>H</sub> that is the <em>square</em> of it, which is why a measurement sensitive to a few per cent distortion
+    ends up quoting a limit at 78&times; the SM width.</p></div>
+  </details>
+
+  <details class="ch"><summary>Problem 2 &mdash; how big would the dataset have to be to reach the SM width?</summary>
+    <div class="q">Using the toy's decomposition, estimate the integrated luminosity at which this method would reach
+    &Gamma;<sub>H</sub> &lt; 10 MeV at 95 % CL. Do it twice: once with the theory uncertainty as published, once with it
+    removed. Comment on which of the two answers is meaningful.</div>
+    <div class="a"><p><b>Set up the scaling.</b> Statistical uncertainty on the amplitude scales as 1/&radic;L, so
+    &sigma;<sub>0,stat</sub>(L) = 3.79 &times; &radic;(140/L) MeV<sup>1/2</sup>. The systematic pieces do not scale. Using the
+    parametrisation t = (&radic;&Gamma; &minus; &radic;&Gamma;&#770;)<sup>2</sup>/(&sigma;<sub>0</sub><sup>2</sup> +
+    f<sup>2</sup>&Gamma;) with an expected &Gamma;&#770; = &Gamma;<sub>SM</sub> = 4.07 MeV, the 95 % limit solves
+    (&radic;&Gamma;<sub>95</sub> &minus; 2.02)<sup>2</sup> = 3.84(&sigma;<sub>0</sub><sup>2</sup> + f<sup>2</sup>&Gamma;<sub>95</sub>).</p>
+    <p><b>Target.</b> &Gamma;<sub>95</sub> = 10 MeV means &radic;&Gamma;<sub>95</sub> = 3.162, so the left side is
+    (3.162 &minus; 2.018)<sup>2</sup> = 1.309, and we need
+    &sigma;<sub>0</sub><sup>2</sup> + 10f<sup>2</sup> = 1.309/3.84 = 0.341.</p>
+    <p><b>With theory as published.</b> f = 0.271, so 10f<sup>2</sup> = 0.734 — already more than 0.341 on its own, with
+    &sigma;<sub>0</sub> set to zero. <b>There is no luminosity that gets there.</b> The multiplicative uncertainty on the
+    interference normalisation imposes a floor: solving (&radic;&Gamma; &minus; 2.018)<sup>2</sup> = 3.84f<sup>2</sup>&Gamma;
+    with f = 0.271 gives &radic;&Gamma;(1 &minus; 1.96 &times; 0.271) = 2.018, i.e. &radic;&Gamma; = 4.28,
+    &Gamma;<sub>floor</sub> = 18.3 MeV. Infinite data, 18 MeV — four and a half times the SM width.</p>
+    <p><b>With theory removed.</b> Set f = 0 and keep only the constant terms. The experimental part of
+    &sigma;<sub>0</sub> is &radic;(5.59<sup>2</sup> &minus; 3.79<sup>2</sup>) = 4.11 MeV<sup>1/2</sup>, which also does not
+    scale with luminosity. That alone gives 4.11<sup>2</sup> = 16.9 &Gt; 0.341: still no solution. Push the m<sub>H</sub>
+    constraint and the energy scale down as well — plausible over a long run, since m<sub>H</sub> improves with data — and only
+    then does &sigma;<sub>0</sub><sup>2</sup> = 0.341 become reachable, requiring
+    3.79&radic;(140/L) = 0.584, i.e. L = 140 &times; (3.79/0.584)<sup>2</sup> = <b>5.9 ab<sup>&minus;1</sup></b>. That is roughly twice
+    the full HL-LHC dataset, in one experiment, with every systematic driven to zero.</p>
+    <p><b>Which answer is meaningful.</b> Neither as a projection, both as a diagnosis. The honest reading is that this method
+    is not a route to the SM width and was never going to be — it is three orders of magnitude away, and the square root in
+    Eq. 4 means closing a factor of 78 in &Gamma;<sub>H</sub> requires closing a factor of 8.8 in the amplitude. What the
+    exercise does establish is where the wall is: the theory normalisation, not the data. That is precisely the paper's own
+    conclusion, and this is the arithmetic behind its closing sentence about "motivating improved calculations of the
+    interference".</p>
+    <p><b>Caveat, flagged as judgement.</b> The floor calculation treats f as a fixed multiplicative constant. In reality a
+    future NNLO<sub>sv</sub>-matched-to-parton-shower calculation would reduce f, and the floor moves as
+    &Gamma;<sub>floor</sub> &asymp; &Gamma;<sub>SM</sub>/(1 &minus; 1.96f)<sup>2</sup> — at f = 0.10 the floor is 6.3 MeV, at
+    f = 0.05 it is 5.0 MeV. So the method's asymptotic reach is a direct, and quite steep, function of one theory number.</p></div>
+  </details>
+
+  <details class="ch"><summary>Problem 3 &mdash; why is the observed limit worse than the expected one, and by exactly how much?</summary>
+    <div class="q">The observed 95 % limit is 319 MeV against an expected 250 MeV. §7 attributes this to
+    &Gamma;&#770;<sub>H</sub> = 12.0 MeV being above the SM value assumed in the Asimov. Verify that quantitatively, and say
+    whether a 12.0 MeV best fit is in any tension with the SM.</div>
+    <div class="a"><p><b>Verify the shift.</b> Use t(&Gamma;) = (&radic;&Gamma; &minus; &radic;&Gamma;&#770;)<sup>2</sup>/(&sigma;<sub>0</sub><sup>2</sup> + f<sup>2</sup>&Gamma;).
+    From the expected pair (61, 250) with &Gamma;&#770; = 4.1: solving the two crossing conditions gives f = 0.291 and
+    &sigma;<sub>0</sub> = 5.32. Now hold those fixed and move &Gamma;&#770; to 12.0. The 95 % crossing solves
+    (&radic;&Gamma; &minus; 3.464)<sup>2</sup> = 3.84(5.32<sup>2</sup> + 0.291<sup>2</sup>&Gamma;), which gives
+    &radic;&Gamma; = 17.9, &Gamma; = <b>320 MeV</b> against the published 319. The 68 % crossing similarly gives 91 against 90.
+    §7's one-sentence explanation is exactly right and the numbers close to within a MeV.</p>
+    <p><b>Now the tension question, which is more interesting.</b> A best fit of 12.0 MeV against an SM of 4.07 MeV looks like a
+    factor of three, and means nothing. The likelihood is parabolic in &radic;&Gamma;, not in &Gamma;, and the relevant distance is
+    (&radic;12.0 &minus; &radic;4.07)/&sigma;<sub>0</sub> = (3.464 &minus; 2.018)/5.41 = <b>0.27&sigma;</b>. The observed
+    amplitude is a quarter of a standard deviation above the SM. There is no tension whatever, and the apparent factor of three
+    is entirely an artefact of quoting a squared quantity.</p>
+    <p><b>Why this matters for reading such papers.</b> Any measurement whose observable is an amplitude but whose reported
+    parameter is that amplitude squared will do this: small upward fluctuations look like large parameter excursions, and limits
+    degrade fast. It is the same arithmetic that makes the observed limit 28 % worse than expected from a 0.27&sigma; upward
+    fluctuation. A reader who sees "&Gamma;&#770;<sub>H</sub> = 12.0 MeV, three times the SM prediction" and reaches for a
+    physics interpretation has been misled by the parametrisation, not by the authors.</p>
+    <p><b>The judgement part.</b> The paper reports &Gamma;&#770;<sub>H</sub> = 12.0 MeV without an uncertainty and without a
+    compatibility statement. Given how easy the misreading is, a parenthetical — "0.3&sigma; from the SM prediction" — would
+    cost one clause and remove the trap. Whether the omission matters depends on the audience; for a Phys. Lett. B letter that
+    will be read by non-specialists, I would argue it does.</p></div>
+  </details>
+
+  <details class="ch"><summary>Problem 4 &mdash; design the experiment that would make this method competitive</summary>
+    <div class="q">Off-shell measurements give &Gamma;<sub>H</sub> = 3.6<sup>+2.1</sup><sub>&minus;1.6</sub> MeV, two orders of
+    magnitude better than this letter's 319 MeV. Given that, construct the strongest defensible argument for doing the
+    interference measurement at all — then construct the strongest argument against it.</div>
+    <div class="a"><p><b>For.</b> The off-shell method measures a ratio of rates at two very different virtualities and converts
+    it into a width using an assumption that the couplings are the same in both regimes. That assumption is not a technicality:
+    it fails in exactly the models one would most want to test, including any with new states between 125 GeV and the
+    2m<sub>Z</sub> threshold that modify the gg&rarr;H loop off-shell, or with momentum-dependent effective couplings. A
+    dimension-six operator with a derivative structure changes the off-shell rate and not the on-shell one, and the off-shell
+    determination absorbs that into &Gamma;<sub>H</sub>. The interference method has no such loophole: &mu; is profiled, the
+    couplings cancel identically by the scaling argument above, and the sensitivity comes from a lineshape distortion measured
+    entirely within the on-shell peak. It is a genuinely different systematic, and a 319 MeV bound with no assumptions is not
+    made redundant by a 5 MeV bound with one.</p>
+    <p><b>There is a second, sharper version of the argument.</b> The two methods disagree in a specific, testable way if the
+    Higgs sector is non-minimal. Suppose &Gamma;<sub>H</sub> is enhanced by decays to invisible states while the on-shell
+    couplings are SM. Off-shell and on-shell rates are both unaffected in the ratio the standard method uses, so it returns the
+    SM width; the interference method sees the enhanced width directly through the amplitude. A disagreement between the two is
+    therefore informative, and you cannot have a disagreement without both measurements.</p>
+    <p><b>Against.</b> The method is 78&times; from the SM and, as Problem 2 shows, has a hard floor around 18 MeV set by the
+    NNLO<sub>sv</sub> normalisation — four and a half times the SM width, at infinite luminosity, with the theory error as
+    published. So it will never <em>measure</em> &Gamma;<sub>H</sub>; the best it can do is exclude gross enhancements. But
+    gross enhancements are already excluded by direct searches for invisible and undetected decays, which reach branching
+    fractions of a few per cent and therefore widths of order 4.07/(1 &minus; 0.03) &asymp; 4.2 MeV under mild assumptions.
+    The window where the interference method is the unique probe — SM-like couplings, SM-like visible branching fractions, and
+    a width between roughly 20 and 300 MeV, meaning a 98–99 % invisible branching fraction that direct searches somehow missed —
+    is very narrow and quite contrived.</p>
+    <p><b>What would change the balance.</b> A calculation of the gg-interference at NNLO<sub>sv</sub> matched to a parton
+    shower, which the paper explicitly calls for. Dropping f from 27 % to 10 % moves the floor from 18 MeV to 6.3 MeV and the
+    achievable HL-LHC limit into the range where the method starts constraining models rather than gross pathologies. That is a
+    theory investment, not an experimental one, and it is the honest headline of this letter: the measurement is currently
+    limited by a calculation that could be improved.</p>
+    <p><b>Which side I come down on, flagged as judgement.</b> The "for" case is sound on complementarity and weak on
+    practical reach; the "against" case is sound on reach and weak on the assumption-freedom point, because assumption-free
+    bounds have a way of mattering later. On balance the measurement is worth publishing and would be hard to justify
+    repeating without the improved calculation. The paper's own conclusion says almost exactly this, which is to its credit.</p></div>
+  </details>
+
+  <details class="ch"><summary>Problem 5 &mdash; the spurious-signal test, and what it cannot catch here</summary>
+    <div class="q">§5 chooses the background function by the spurious-signal criterion: the signal yield fitted on a
+    background-only template must be small compared with its statistical uncertainty. Explain why that criterion, designed for
+    a rate measurement, is not sufficient for this analysis, and what the analogue would be.</div>
+    <div class="a"><p><b>What spurious signal tests.</b> Fit the full signal-plus-background model to a
+    background-only template built from simulation or from a data-driven mixture. Any signal yield you get out is a bias
+    injected purely by the mismatch between the true background shape and the analytic one. Requiring it to be small compared
+    with the statistical uncertainty on the signal yield bounds the mismodelling bias on the <em>rate</em>.</p>
+    <p><b>Why that is the wrong quantity here.</b> This analysis does not measure a rate — &mu; is profiled and, as the
+    &beta; = 0 exercise shows, a pure rate change carries no information about &Gamma;<sub>H</sub> at all. What it measures is an
+    <em>odd</em> distortion of the peak: an imbalance between the number of events just below and just above
+    m<sub>H</sub>. A background function can be perfectly adequate on the symmetric criterion and still have a wrong local
+    curvature, and a wrong local curvature under a peak is precisely a spurious <em>shift</em>. Concretely: the exponentiated
+    second-order polynomial exp(p<sub>0</sub>m<sup>2</sup> + p<sub>1</sub>m) has a fixed sign of curvature over the whole range,
+    so if the true continuum has an inflection near 125 GeV, the fit will absorb it by moving the peak.</p>
+    <p><b>The analogue that should have been run.</b> A spurious-<em>shift</em> test: fit the full model to a background-only
+    template with the interference normalisation free, and require the fitted &Gamma;<sub>H</sub> — or better, the fitted peak
+    displacement — to be small compared with its statistical uncertainty. The paper comes close with the injection tests of §6,
+    but those inject at &Gamma;<sub>H</sub> = 400 MeV with one component taken from simulation, which tests the analytic
+    <em>signal and interference</em> models against their templates; it does not test the background function against a
+    plausible alternative continuum shape. The two failure modes are different and only one is covered.</p>
+    <p><b>How big could it be?</b> Order-of-magnitude: the measurement is sensitive to a shift of about 40 MeV per unit
+    &radic;(&Gamma;/&Gamma;<sub>SM</sub>), and the statistical uncertainty on the peak position is roughly
+    &sigma;/&radic;N<sub>eff</sub> with N<sub>eff</sub> &asymp; S<sup>2</sup>/B &asymp; 5572<sup>2</sup>/118000 &asymp; 260 in a
+    &pm;2&sigma; window, giving about 100 MeV. A background mismodelling that displaced the peak by even a third of that — 33 MeV
+    — would move &Gamma;&#770;<sub>H</sub> by roughly (33/40)<sup>2</sup> &asymp; 0.7 in units of &Gamma;<sub>SM</sub>, small
+    against the 12.0 MeV best fit but not negligible against the 4.07 MeV SM value. So the effect is probably genuinely small
+    here; the objection is that the paper does not demonstrate it.</p>
+    <p><b>Judgement.</b> This is the weakest of the critiques in this file, because the standard H&rarr;&gamma;&gamma; spurious-signal
+    machinery is well understood and the collaboration will have looked at more than the letter reports. But a letter whose
+    entire result is a peak displacement should state a bound on spurious displacement, not only on spurious yield, and the
+    published text does not.</p></div>
+  </details>
+</section>
+
+<footer id="methods"></footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const C={ink:'#17181B',muted:'#6E7076',faint:'#9B9C9F',rule:'#DDDCD6',panel:'#F3F3EF',paper:'#FCFCFA',
+         bq:'#2E4E7E',cq:'#B26A2C',sq:'#3F7A5B',gq:'#7A4A8C',bkg:'#9B9C9F',warn:'#9B4A2F'};
+const MONO='11px ui-monospace, "SF Mono", Menlo, monospace';
+const MONO9='9.5px ui-monospace, "SF Mono", Menlo, monospace';
+const SERIF='13px "Iowan Old Style", Charter, Georgia, serif';
+
+/* ---------- canvas ---------- */
+let TAGH=28;
+function tagH(c){ const p=c&&c.parentElement, t=p&&p.querySelector('.figtag');
+  return t?Math.max(24,t.offsetHeight):24; }
+function cvs(id){ const c=document.getElementById(id); if(!c) return null;
+  const r=c.getBoundingClientRect(); if(r.width<5) return null;
+  TAGH=tagH(c);
+  const dpr=window.devicePixelRatio||1;
+  c.width=Math.round(r.width*dpr); c.height=Math.round(r.height*dpr);
+  const x=c.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0);
+  x.clearRect(0,0,r.width,r.height);
+  return {x,w:r.width,h:r.height}; }
+function frame(x,L,T,R,B){ x.strokeStyle=C.rule; x.lineWidth=1;
+  x.strokeRect(L+.5,T+.5,R-L,B-T); }
+function txt(x,s,px,py,col,font,align,base){ x.fillStyle=col||C.muted; x.font=font||MONO;
+  x.textAlign=align||'left'; x.textBaseline=base||'alphabetic'; x.fillText(s,px,py); }
+function wrapLines(x,s,maxW,font){ x.font=font||MONO;
+  const words=String(s).split(' '), out=[]; let cur='';
+  words.forEach(wd=>{ const t=cur?cur+' '+wd:wd;
+    if(!cur||x.measureText(t).width<=maxW) cur=t; else { out.push(cur); cur=wd; } });
+  if(cur) out.push(cur); return out; }
+function txtUp(x,s,px,py,maxW,col,font,align,lh,halo){
+  const ls=wrapLines(x,s,maxW,font), H=lh||12, f=halo?txtHalo:txtMath;
+  ls.forEach((ln,i)=>f(x,ln,px,py-(ls.length-1-i)*H,col,font,align)); return ls.length; }
+function txtDown(x,s,px,py,maxW,col,font,align,lh){
+  const ls=wrapLines(x,s,maxW,font), H=lh||12;
+  ls.forEach((ln,i)=>txtMath(x,ln,px,py+i*H,col,font,align)); return ls.length; }
+function txtHalo(x,s,px,py,col,font,align){
+  const F=font||MONO, base=parseFloat(F)||11;
+  const S=F.replace(/^[\d.]+px/, (Math.max(7,Math.round(base*0.74*2)/2))+'px');
+  let tw=0; mathToks(s).forEach(t=>{ x.font=t.k?S:F; tw+=x.measureText(t.t).width; });
+  const a=align||'left', x0=a==='center'?px-tw/2:(a==='right'?px-tw:px);
+  x.fillStyle=C.paper; x.fillRect(x0-3,py-9.5,tw+6,12.5);
+  txtMath(x,s,px,py,col,F,align); }
+function mathToks(s){ const out=[]; let i=0;
+  while(i<s.length){ const c=s[i];
+    if((c==='_'||c==='^')&&i+1<s.length){ let t;
+      if(s[i+1]==='{'){ const e=s.indexOf('}',i+2); t=s.slice(i+2,e<0?s.length:e); i=(e<0?s.length:e+1); }
+      else { t=s[i+1]; i+=2; }
+      out.push({k:c,t}); continue; }
+    let j=i; while(j<s.length&&s[j]!=='_'&&s[j]!=='^') j++;
+    out.push({k:'',t:s.slice(i,j)}); i=j; }
+  return out; }
+function txtMath(x,s,px,py,col,font,align){
+  const F=font||MONO, base=parseFloat(F)||11;
+  const S=F.replace(/^[\d.]+px/, (Math.max(7,Math.round(base*0.74*2)/2))+'px');
+  const toks=mathToks(s);
+  let w=0; toks.forEach(t=>{ x.font=t.k?S:F; w+=x.measureText(t.t).width; });
+  let cx=align==='center'?px-w/2:(align==='right'?px-w:px);
+  toks.forEach(t=>{ const f=t.k?S:F;
+    txt(x,t.t,cx,py+(t.k==='_'?base*0.22:t.k==='^'?-base*0.40:0),col,f,'left');
+    x.font=f; cx+=x.measureText(t.t).width; });
+  return w; }
+function ylab(x,s,T,B,col){ x.save(); x.translate(13,(T+B)/2); x.rotate(-Math.PI/2);
+  txtMath(x,s,0,0,col||C.faint,MONO9,'center'); x.restore(); }
+function hexA(hex,a){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')'; }
+/* Readable text colour over a hex fill composited on white at opacity a. Crosses
+   over where white-on-fill and ink-on-fill contrast are equal — a fixed threshold
+   puts white on mid-tones, which is the usual legibility bug in these files. */
+function inkOn(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const ch=v=>{ const c2=(255-a*(255-v))/255; return c2<=0.03928?c2/12.92:Math.pow((c2+0.055)/1.055,2.4); };
+  return (0.2126*ch(r)+0.7152*ch(g)+0.0722*ch(b))<0.20?'#fff':C.ink; }
+function ticks(x,L,T,R,B,x0,x1,y0,y1,nx,ny,fmtx,fmty,logy){
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  for(let i=0;i<=nx;i++){ const v=x0+(x1-x0)*i/nx, px=L+(R-L)*i/nx;
+    x.beginPath(); x.moveTo(px,T); x.lineTo(px,B); x.stroke();
+    txt(x,fmtx?fmtx(v):v.toFixed(0),px,B+14,C.faint,MONO9,'center'); }
+  for(let i=0;i<=ny;i++){ const py=B-(B-T)*i/ny;
+    let v; if(logy){ v=Math.pow(10, Math.log10(y0)+(Math.log10(y1)-Math.log10(y0))*i/ny); }
+    else v=y0+(y1-y0)*i/ny;
+    x.beginPath(); x.moveTo(L,py); x.lineTo(R,py); x.stroke();
+    txt(x,fmty?fmty(v):v.toFixed(0),L-6,py+3,C.faint,MONO9,'right'); } }
+/* dashed reference rule in --warn: always the paper's number, never a live one */
+function refRule(x,L,R,py,label,align){
+  x.save(); x.setLineDash([5,4]); x.strokeStyle=C.warn; x.lineWidth=1.4;
+  x.beginPath(); x.moveTo(L,py); x.lineTo(R,py); x.stroke(); x.restore();
+  if(label) txtHalo(x,label,align==='left'?L+6:R-4,py-5,C.warn,MONO9,align==='left'?'left':'right'); }
+/* Reserve room for BOTH the wrapped footer and the axis title before choosing the
+   plot's bottom edge. A fixed B plus a footer that wraps to three lines on a narrow
+   canvas is how the caption ends up sitting on the axis label. */
+function botFor(x,h2,foot,maxW,font,lh){
+  const n=foot?wrapLines(x,foot,maxW,font||MONO9).length:0;
+  return Math.round(h2-34-(n?(n*(lh||12)+6):0)); }
+function fmtSI(v){ const a=Math.abs(v);
+  if(a>=1e6) return (v/1e6).toFixed(2)+'M';
+  if(a>=1e3) return (v/1e3).toFixed(1)+'k'; return v.toFixed(0); }
+
+/* =================================================================
+   PHYSICS CORE  — identical to the Node harnesses check_*.js
+   ================================================================= */
+
+/* Dawson function F(x) = e^{-x^2} int_0^x e^{t^2} dt  (Numerical Recipes 6.10).
+   Verified against tabulated values to 2e-6 in check_lineshape.js. */
+const DW_H=0.4, DW_N=6, DW_C=[];
+for(let i=1;i<=DW_N;i++) DW_C[i]=Math.exp(-Math.pow((2*i-1)*DW_H,2));
+function dawson(x){
+  const A1=2/3, A2=0.4, A3=2/7;
+  if(Math.abs(x)<0.2){ const x2=x*x; return x*(1-A1*x2*(1-A2*x2*(1-A3*x2))); }
+  const xx=Math.abs(x), n0=2*Math.round(0.5*xx/DW_H), xp=xx-n0*DW_H;
+  let e1=Math.exp(2*xp*DW_H); const e2=e1*e1;
+  let d1=n0+1, d2=d1-2, sum=0;
+  for(let i=1;i<=DW_N;i++){ sum+=DW_C[i]*(e1/d1+1/(d2*e1)); d1+=2; d2-=2; e1*=e2; }
+  return 0.5641895835*(x<0?-1:1)*Math.exp(-xp*xp)*sum; }
+
+const SQ2PI=Math.sqrt(2*Math.PI);
+function gaussPdf(x,s){ return Math.exp(-x*x/(2*s*s))/(s*SQ2PI); }
+/* Hilbert transform of the Gaussian core: the resolution-smeared principal value
+   1/(m^2 - m_H^2) of Eq. 2's first interference term. Odd, integrates to zero. */
+function disp(x,s){ return Math.SQRT2*dawson(x/(s*Math.SQRT2))/s; }
+/* Double-sided Crystal Ball (Sec. 5), unnormalised. */
+function dscbRaw(t,aL,nL,aH,nH){
+  if(t>-aL&&t<aH) return Math.exp(-t*t/2);
+  if(t<=-aL){ const A=Math.pow(nL/aL,nL)*Math.exp(-aL*aL/2), B=nL/aL-aL; return A*Math.pow(B-t,-nL); }
+  const A=Math.pow(nH/aH,nH)*Math.exp(-aH*aH/2), B=nH/aH-aH; return A*Math.pow(B+t,-nH); }
+
+/* ---- Table 1 of the paper, transcribed verbatim ---- */
+const TAB1=[
+  {name:'p_T < 30 GeV',  S:3045, gg:-60.3, qg:2.4, B:6.7e5, sig:1.60},
+  {name:'p_T >= 30 GeV', S:2527, gg:-62.9, qg:6.5, B:5.1e5, sig:1.55}
+];
+const GSM=4.07, MLO=105, MHI=160, MH0=125.0;
+/* Table 2, transcribed verbatim: [68% CL, 95% CL] half-widths in MeV. */
+const TAB2={theory:[50,264],ki:[50,263],thOther:[4,23],exper:[43,119],mH:[35,97],
+            escale:[24,66],eres:[4,13],expOther:[5,19],stat:[40,103],total:[77,307]};
+const GHAT=12.0;          /* observed best fit, Sec. 7 */
+const PAPER={expStat:[34,91], obsStat:[52,115], expTot:[61,250], obsTot:[90,319]};
+
+/* Shape/nuisance settings. Everything marked NOT PUBLISHED is a slider in the UI
+   and is never presented as the paper's own value. */
+function defaults(){ return {
+  aL:1.45, nL:9, aH:1.55, nH:12,   /* DSCB tails: typical ATLAS H->gg. NOT PUBLISHED */
+  beta:0.505,                      /* dispersive/absorptive ratio. NOT PUBLISHED; inferred here */
+  fOther:0.00,                     /* non-ggF signal as a fraction of Table 1's signal */
+  bslope:-4.5,                     /* continuum falls like m^bslope. NOT PUBLISHED */
+  resScale:1.0,                    /* multiplies both categories' core widths */
+  sysKI:0.39,                      /* Sec. 6: 39% on the gg-interference normalisation */
+  /* Peak-position constraint. The paper's m_H term is 0.18 GeV; Table 2 also lists an
+     energy-scale term, and both act on the fitted peak position, so they add there in
+     quadrature. Scaling by sqrt(35^2+24^2+4^2+5^2)/35 from Table 2's 68% CL column
+     gives 0.221 GeV, which is the default. Slide it back to 0.18 for m_H alone. */
+  sysPos:0.18*Math.sqrt(35*35+24*24+4*4+5*5)/35
+}; }
+
+function bkgLogShape(m,p0,p1){ return p0*m*m+p1*m; }
+function bkgSeed(slope){
+  let s11=0,s12=0,s22=0,y1=0,y2=0;
+  for(let m=MLO;m<=MHI;m+=0.5){ const a=m*m,b=m,y=slope*Math.log(m);
+    s11+=a*a; s12+=a*b; s22+=b*b; y1+=a*y; y2+=b*y; }
+  const det=s11*s22-s12*s12;
+  return [(y1*s22-y2*s12)/det,(s11*y2-s12*y1)/det]; }
+
+const NBIN=220, DM=(MHI-MLO)/NBIN;
+const MGRID=Array.from({length:NBIN},(_,i)=>MLO+(i+0.5)*DM);
+function dscbNorm(sig,o){ let s=0;
+  for(let i=0;i<NBIN;i++) s+=dscbRaw((MGRID[i]-MH0)/sig,o.aL,o.nL,o.aH,o.nH);
+  return s*DM; }
+
+/* Expected events per bin in one category. */
+function expected(c,o,Gamma,mu,dmH,kI,lnB,p0,p1,cache){
+  const sig=c.sig*o.resScale, nrm=cache.nrm, r=Math.sqrt(mu*Gamma/GSM);
+  const NS=c.S*(1+o.fOther), NB=Math.exp(lnB);
+  const Igg=c.gg*kI, Iqg=c.qg;
+  const out=new Float64Array(NBIN), bs=new Float64Array(NBIN);
+  let bsum=0;
+  for(let i=0;i<NBIN;i++){ const v=Math.exp(bkgLogShape(MGRID[i],p0,p1)); bs[i]=v; bsum+=v; }
+  bsum*=DM;
+  for(let i=0;i<NBIN;i++){
+    const x=MGRID[i]-MH0-dmH;
+    const R=dscbRaw(x/sig,o.aL,o.nL,o.aH,o.nH)/nrm;
+    /* The absorptive interference term is the SAME resonance through the SAME
+       detector, so it carries the signal's own shape R, not a bare Gaussian.
+       Giving it a Gaussian core against a DSCB signal would hand the fit a
+       tail-shape handle that does not exist, leaving spurious sensitivity at
+       beta = 0 — where there must be none, since a pure rate change is absorbed
+       entirely by the floating signal strength. */
+    out[i]=(mu*NS*R + r*(Igg+Iqg)*(R+o.beta*disp(x,sig)) + NB*bs[i]/bsum)*DM;
+    if(out[i]<1e-9) out[i]=1e-9; }
+  return out; }
+
+function nll2(n,nu){ let s=0;
+  for(let i=0;i<n.length;i++) s+=2*(nu[i]-n[i]+(n[i]>0?n[i]*Math.log(n[i]/nu[i]):0));
+  return s; }
+
+/* Peak displacement of N_S*R + A*H, to first order about the peak (verified
+   against a numerical argmax to 0.2% in check_lineshape.js). */
+function peakShift(o,c,Gamma){
+  const sig=c.sig*o.resScale, r=Math.sqrt(Gamma/GSM);
+  return o.beta*r*(c.gg+c.qg)*sig*SQ2PI/(c.S*(1+o.fOther)); }
+
+/* =================================================================
+   THE FIT  — Asimov profile-likelihood scan in Gamma_H.
+   Seven profiled parameters (mu; per category a background normalisation and two
+   shape parameters), plus the peak position and interference normalisation when
+   their systematics are on.
+   ================================================================= */
+function solveLin(M,b){ const n=M.length, A=M.map((r,i)=>r.concat([b[i]]));
+  for(let c=0;c<n;c++){ let p=c;
+    for(let r=c+1;r<n;r++) if(Math.abs(A[r][c])>Math.abs(A[p][c])) p=r;
+    if(Math.abs(A[p][c])<1e-14) return null;
+    const t=A[c]; A[c]=A[p]; A[p]=t;
+    const d=A[c][c]; for(let j=c;j<=n;j++) A[c][j]/=d;
+    for(let r=0;r<n;r++){ if(r===c) continue; const f=A[r][c]; if(!f) continue;
+      for(let j=c;j<=n;j++) A[r][j]-=f*A[c][j]; } }
+  return A.map(r=>r[n]); }
+
+function minimise(f,x0,scale,nIter){
+  let x=x0.slice(); const n=x.length; let fx=f(x);
+  for(let it=0;it<(nIter||14);it++){
+    const g=new Array(n), H=Array.from({length:n},()=>new Array(n).fill(0));
+    const h=scale.map(s=>s*1e-3), fp=[], fm=[];
+    for(let i=0;i<n;i++){ const a=x.slice(), b=x.slice(); a[i]+=h[i]; b[i]-=h[i];
+      fp[i]=f(a); fm[i]=f(b);
+      g[i]=(fp[i]-fm[i])/(2*h[i]);
+      H[i][i]=(fp[i]-2*fx+fm[i])/(h[i]*h[i]); }
+    for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+      const a=x.slice(); a[i]+=h[i]; a[j]+=h[j];
+      H[i][j]=H[j][i]=(f(a)-fp[i]-fp[j]+fx)/(h[i]*h[j]); }
+    for(let i=0;i<n;i++) if(!(H[i][i]>0)) H[i][i]=1/(scale[i]*scale[i]);
+    let lam=1e-6, step=null;
+    for(let tr=0;tr<30;tr++){
+      const A=H.map((r,i)=>r.map((v,j)=>v+(i===j?lam*H[i][i]:0)));
+      const d=solveLin(A,g.map(v=>-v));
+      if(!d){ lam=lam*10; continue; }
+      const xn=x.map((v,i)=>v+d[i]), fn=f(xn);
+      if(isFinite(fn)&&fn<=fx+1e-9){ step={xn,fn}; break; }
+      lam=lam*10; }
+    if(!step) break;
+    const drop=fx-step.fn; x=step.xn; fx=step.fn;
+    if(drop<1e-7) break; }
+  return {x,f:fx}; }
+
+const QS=[1e-4,1e-2];
+const FSCALE=[0.02,0.003,0.02,0.02,0.003,0.02,0.02,0.02,0.05];
+function buildCache(o,rows){ return rows.map(c=>({nrm:dscbNorm(c.sig*o.resScale,o)})); }
+function nuAll(o,rows,cache,G,v,sysOn){
+  const dmH=sysOn.mH?v[7]:0;
+  /* Log-normal, not linear-Gaussian. A linear 1 + f*theta lets the interference
+     normalisation reach zero at theta = -1/f, which makes Gamma_H unbounded: with
+     f = 0.39 that pushed the expected 95% limit to 610 MeV against the paper's 250
+     while barely moving the 68% one. The log-normal form has log-slope ln(1+f),
+     which is why a "39%" prior behaves like 32.9% before profiling. */
+  const kI=sysOn.kI?Math.pow(1+o.sysKI,v[8]):1;
+  return rows.map((c,ic)=>expected(c,o,G,v[0],dmH,kI,
+    v[1+ic*3],v[2+ic*3]*QS[0],v[3+ic*3]*QS[1],cache[ic])); }
+function seedVector(o,rows){ const s=bkgSeed(o.bslope);
+  const v=[1]; rows.forEach(c=>{ v.push(Math.log(c.B), s[0]/QS[0], s[1]/QS[1]); });
+  while(v.length<7) v.push(0);
+  v[7]=0; v[8]=0; return v; }
+function makeObjective(o,rows,cache,data,G,sysOn,freeIdx,base){
+  return function(p){
+    const v=base.slice();
+    for(let i=0;i<freeIdx.length;i++) v[freeIdx[i]]=p[i];
+    const nus=nuAll(o,rows,cache,G,v,sysOn);
+    let s=0;
+    for(let ic=0;ic<rows.length;ic++) s+=nll2(data[ic],nus[ic]);
+    if(sysOn.mH) s+=Math.pow(v[7]/o.sysPos,2);
+    if(sysOn.kI) s+=v[8]*v[8];
+    return s; }; }
+
+/* Returns the crossings and the curve the panel plots. */
+function scan(o,opts){
+  const rows=opts.rows||TAB1;
+  const sysOn={mH:!!opts.mH,kI:!!opts.kI};
+  const cache=buildCache(o,rows);
+  const v0=seedVector(o,rows);
+  const Gtrue=opts.Gtrue===undefined?4.1:opts.Gtrue;
+  const data=nuAll(o,rows,cache,Gtrue,v0,sysOn);
+  const freeIdx=[0]; rows.forEach((c,ic)=>freeIdx.push(1+ic*3,2+ic*3,3+ic*3));
+  if(sysOn.mH) freeIdx.push(7);
+  if(sysOn.kI) freeIdx.push(8);
+  const start=freeIdx.map(k=>v0[k]), sc=freeIdx.map(k=>FSCALE[k]||0.02);
+  /* For an Asimov dataset the unconditional minimum is exactly at the generating
+     values (n = nu bin by bin, all constraints zero), so Ghat = Gtrue and Lmin = 0
+     by construction. No search, and no grid granularity leaking into the width. */
+  let warm=start.slice();
+  const at=G=>{ const r=minimise(makeObjective(o,rows,cache,data,G,sysOn,freeIdx,v0),warm,sc,14);
+    warm=r.x.slice(); return r.f; };
+  const resid=at(Gtrue); warm=start.slice();
+  const GMAX=opts.gmax||900, NG=opts.ng||24;
+  const grid=[], tv=[];
+  for(let i=0;i<=NG;i++){ const u=Math.sqrt(Gtrue)+(Math.sqrt(GMAX)-Math.sqrt(Gtrue))*i/NG;
+    grid.push(u*u); }
+  for(let i=0;i<=NG;i++) tv.push(at(grid[i]));
+  const cross=target=>{
+    for(let i=1;i<=NG;i++) if(tv[i]>=target&&tv[i-1]<target){
+      const u0=Math.sqrt(grid[i-1]), u1=Math.sqrt(grid[i]);
+      const w=(target-tv[i-1])/(tv[i]-tv[i-1]);
+      return Math.pow(u0+w*(u1-u0),2); }
+    return NaN; };
+  const interp=G=>{ if(G<=grid[0]) return tv[0];
+    for(let i=1;i<=NG;i++) if(grid[i]>=G){
+      const u0=Math.sqrt(grid[i-1]), u1=Math.sqrt(grid[i]);
+      return tv[i-1]+(Math.sqrt(G)-u0)/(u1-u0)*(tv[i]-tv[i-1]); }
+    return tv[NG]; };
+  return {Ghat:Gtrue, ul68:cross(1), ul95:cross(3.84), grid, tv, resid, t:interp}; }
+
+/* The two-parameter description of t used by the budget panel:
+     t = (sqrt(G) - sqrt(Ghat))^2 / (s0^2 + f^2 G)
+   f is a MULTIPLICATIVE uncertainty on the interference amplitude and is what makes
+   the 95% crossing run away while the 68% one barely moves. Solving it from a pair
+   of published limits is exact (two equations, two unknowns); the test is that the
+   expected and observed pairs return the same parameters. */
+function ansatzFrom(Ghat,ul68,ul95){
+  const ah=Math.sqrt(Ghat), A=Math.pow(Math.sqrt(ul68)-ah,2), B=Math.pow(Math.sqrt(ul95)-ah,2)/3.84;
+  const f2=(B-A)/(ul95-ul68);
+  return {f:Math.sqrt(Math.max(0,f2)), s0:Math.sqrt(Math.max(1e-9,A-f2*ul68))}; }
+function ansatzT(G,Ghat,s0,f){ return Math.pow(Math.sqrt(G)-Math.sqrt(Ghat),2)/(s0*s0+f*f*G); }
+function ansatzUL(Ghat,s0,f,target){
+  /* solve (sqrt(G)-sqrt(Ghat))^2 = target*(s0^2+f^2 G) for the upper root */
+  const a=Math.sqrt(Ghat);
+  let lo=Ghat, hi=1e7;
+  if(1-target*f*f<=0) return Infinity;
+  for(let i=0;i<200;i++){ const m=Math.sqrt(lo*hi);
+    (ansatzT(m,Ghat,s0,f)<target?lo=m:hi=m); }
+  const r=Math.sqrt(lo*hi);
+  return (r>9e6||!isFinite(r))?Infinity:r; }
+
+/* =================================================================
+   TABS
+   ================================================================= */
+const draws={};
+$$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  $$('nav.tabs button').forEach(o=>o.setAttribute('aria-selected', o===b?'true':'false'));
+  $$('section.panel').forEach(p=>p.classList.toggle('on', p.id===b.dataset.panel));
+  if(draws[b.dataset.panel]) draws[b.dataset.panel]();
+}));
+let rt=null;
+window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{
+  const id=$('nav.tabs button[aria-selected="true"]').dataset.panel; if(draws[id]) draws[id](); },160); });
+
+/* =================================================================
+   WALKTHROUGH
+   ================================================================= */
+const STEPS=[
+{dir:'the problem',title:'Four megaelectronvolts under a 1.6 GeV blanket',
+ cap:'Natural width against experimental resolution, on a log scale',
+ body:'The Standard Model puts the Higgs total width at 4.07 &plusmn; 0.16 MeV. The best mass resolution any LHC experiment has for a fully reconstructed Higgs final state is about 1.6 GeV, in H&rarr;&gamma;&gamma;. That is a factor of four hundred. Every event you record is a measurement of the detector, not of the resonance &mdash; the reconstructed lineshape would look identical if the Higgs were a hundred times wider. So the direct route is closed, and every constraint on &Gamma;<sub>H</sub> has to be indirect. The established indirect route compares the rate on the peak with the rate far above it, and pays for that with an assumption: that the Higgs couples to gluons and vector bosons the same way at 125 GeV and at 400 GeV. This letter takes a different route, and pays with sensitivity instead.'},
+{dir:'the mechanism',title:'Two ways to make two photons, and no way to tell them apart',
+ cap:'The resonant and continuum amplitudes share an initial and a final state, so they add before squaring',
+ body:'gg &rarr; H &rarr; &gamma;&gamma; and the continuum gg &rarr; &gamma;&gamma; box produce the same final state from the same initial state, so quantum mechanics adds the amplitudes, not the rates. Factoring out the Higgs propagator gives Eq. 1: a resonant term with a Breit&ndash;Wigner denominator plus a smooth background term. Squaring produces three pieces &mdash; the Breit&ndash;Wigner peak, the continuum, and a cross term. The cross term is small, about 2&nbsp;% of the peak, and it is the only part of the whole calculation that knows about &Gamma;<sub>H</sub> in a way the rate cannot hide.'},
+{dir:'the mechanism',title:'The cross term has two halves, and they do different jobs',
+ cap:'Absorptive (even) and dispersive (odd) parts of the interference, after smearing by the detector',
+ body:'Separating the amplitudes into real and imaginary parts splits the cross term in two. One half is proportional to (m<sup>2</sup> &minus; m<sub>H</sub><sup>2</sup>) and is <b>antisymmetric</b> about the resonance: it takes events from one side of the peak and puts them on the other, changing nothing about the total. Smeared by the detector it becomes the odd curve below, and the sum of signal-plus-interference peaks at a slightly wrong mass. The other half is proportional to &Gamma;<sub>H</sub>m<sub>H</sub> and is <b>symmetric</b>: after smearing it is a negative copy of the signal lineshape, removing about 2&nbsp;% of the events. Only the first half carries information, for a reason the next step makes precise.'},
+{dir:'the trick',title:'Why the rate tells you nothing and the shape tells you everything',
+ cap:'The flat direction: rescaling the couplings and the width together leaves the on-shell rate unchanged',
+ body:'The on-shell signal rate goes as c<sub>g</sub><sup>2</sup>c<sub>&gamma;</sub><sup>2</sup>/&Gamma;<sub>H</sub>, so the substitution c &rarr; &kappa;c together with &Gamma;<sub>H</sub> &rarr; &kappa;<sup>4</sup>&Gamma;<sub>H</sub> leaves it exactly invariant. Rate alone can never determine a width. The interference carries one power of each coupling, c<sub>g</sub>c<sub>&gamma;</sub>, so along that same flat direction it grows as &kappa;<sup>2</sup> = &radic;(&Gamma;<sub>H</sub>/&Gamma;<sub>H</sub><sup>SM</sup>). That square root is the whole measurement, and it is why the signal strength &mu; can be left floating: whatever &mu; does, it cannot manufacture an <b>odd</b> distortion, because it multiplies an even shape. The symmetric half of the cross term is absorbed by &mu; and contributes nothing.'},
+{dir:'the analysis',title:'5572 signal events, 1.2 million background, one 114-event distortion',
+ cap:'Table 1: expected yields at the SM hypothesis in the two p<sub>T</sub> categories',
+ body:'Two tight isolated photons, 105 &lt; m<sub>&gamma;&gamma;</sub> &lt; 160 GeV, 140.1 fb<sup>&minus;1</sup>. Events are split at p<sub>T</sub><sup>&gamma;&gamma;</sup> = 30 GeV, a boundary chosen because parton-shower predictions for the qg-interference diverge above it. The gg-interference removes 123 events from a signal of 5572; the qg-interference, which enters at leading order with an extra jet and the opposite sign, puts 9 back. Net: &minus;114 events, &minus;2.05&nbsp;%. Note what the table actually says about the two categories &mdash; the relative interference is larger at <b>high</b> p<sub>T</sub> (2.23&nbsp;% against 1.90&nbsp;%), which is the opposite of what &sect;4 claims four lines earlier.'},
+{dir:'the analysis',title:'The model, and the seven things allowed to float',
+ cap:'The fitted m<sub>&gamma;&gamma;</sub> model in one category, with the interference exaggerated',
+ body:'Each category gets a double-sided Crystal Ball for the signal, two more for the positive- and negative-weight halves of each interference contribution, and an exponentiated quadratic for the continuum whose parameters are free. The interference enters with the &radic;(&mu;&Gamma;<sub>H</sub>/&Gamma;<sub>H</sub><sup>SM</sup>) factor from the previous step. Floating in the fit: the signal strength, a normalisation and two shape parameters for the continuum in each category, and nuisance parameters for the Higgs mass (constrained to 124.94 &plusmn; 0.18 GeV from H&rarr;ZZ*), seventy photon energy-scale components, nine resolution components, and the 39&nbsp;% uncertainty on the interference normalisation.'},
+{dir:'the result',title:'&Gamma;<sub>H</sub> &lt; 319 MeV, and where that number comes from',
+ cap:'Profile-likelihood scan, reproducing Fig. 2; markers are the paper&rsquo;s published limits',
+ body:'The observed 95&nbsp;% CL upper limit is 319 MeV against an expected 250; with statistical uncertainties only, 115 and 91. The observed limits are the weaker ones because the best fit, &Gamma;&#770;<sub>H</sub> = 12.0 MeV, sits above the 4.1 MeV assumed in the Asimov &mdash; which sounds like a factor of three but is 0.27&sigma;, because the likelihood is parabolic in &radic;&Gamma;<sub>H</sub> and not in &Gamma;<sub>H</sub>. The gap between the statistical-only and total curves is almost entirely one nuisance parameter: the 39&nbsp;% normalisation uncertainty on the gg-interference, whose effect grows with &Gamma;<sub>H</sub> because it multiplies an amplitude that is itself growing as &radic;&Gamma;<sub>H</sub>.'},
+{dir:'the verdict',title:'Seventy-eight times the SM width, and still worth having',
+ cap:'Constraints on &Gamma;<sub>H</sub> by method; note the log scale and what each one assumes',
+ body:'Off-shell measurements do two orders of magnitude better &mdash; 3.6<sup>+2.1</sup><sub>&minus;1.6</sub> MeV from the ATLAS combination. But they get there by comparing rates at 125 GeV and above 2m<sub>Z</sub>, which requires assuming the relevant couplings are the same in both regimes. That assumption fails in exactly the scenarios one would want to test. Here the couplings cancel identically, &mu; is profiled, and the sensitivity comes from a lineshape distortion measured inside the peak. The limitation is not the data: as the error-budget panel shows, the 39&nbsp;% theory normalisation imposes a floor near 18 MeV that no amount of luminosity removes. That is a calculation waiting to be improved, and it is the letter own closing argument.'}
+];
+let stepI=0;
+function drawStep(){
+  const g=cvs('figc'); if(!g) return;
+  const {x,w,h}=g; const T0=TAGH+16;
+  [wStep1,wStep2,wStep3,wStep4,wStep5,wStep6,wStep7,wStep8][stepI](x,w,h,T0);
+}
+function renderStep(){
+  $('#stepnum').textContent='Step '+String(stepI+1).padStart(2,'0')+' / 08';
+  $('#stepdir').textContent=STEPS[stepI].dir;
+  $('#steptitle').innerHTML=STEPS[stepI].title;
+  $('#steptext').innerHTML=STEPS[stepI].body;
+  $('#figcap').innerHTML=STEPS[stepI].cap;
+  $('#figtag').textContent='Fig. '+String(stepI+1).padStart(2,'0');
+  $('#prev').disabled=stepI===0; $('#next').disabled=stepI===STEPS.length-1;
+  $$('#dots i').forEach((d,i)=>d.classList.toggle('on',i===stepI));
+  drawStep();
+}
+STEPS.forEach((s,i)=>{ const d=document.createElement('i');
+  d.addEventListener('click',()=>{stepI=i;renderStep();}); $('#dots').appendChild(d); });
+$('#prev').addEventListener('click',()=>{ if(stepI>0){stepI--;renderStep();} });
+$('#next').addEventListener('click',()=>{ if(stepI<STEPS.length-1){stepI++;renderStep();} });
+draws.walk=drawStep;
+
+/* ---------- walkthrough figures ---------- */
+function wStep1(x,w,h,T0){
+  /* log ruler: natural width vs resolutions */
+  const L=Math.max(96,w*0.13), R=w-24, T=T0+18, B=h-56;
+  const lo=-3.2, hi=1.0;                       /* log10(GeV) */
+  const px=v=>L+(R-L)*(Math.log10(v)-lo)/(hi-lo);
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  for(let e=-3;e<=1;e++){ const p=px(Math.pow(10,e));
+    x.beginPath(); x.moveTo(p,T); x.lineTo(p,B); x.stroke();
+    txtMath(x,'10^'+e,p,B+15,C.faint,MONO9,'center'); }
+  txtMath(x,'width or resolution [GeV]',(L+R)/2,B+32,C.faint,MONO9,'center');
+  const items=[['Γ_H (Standard Model)',0.00407,C.bq,'4.07 MeV'],
+               ['Γ_H at this 95% limit',0.319,C.warn,'319 MeV'],
+               ['m_γγ resolution, H→γγ',1.60,C.cq,'≈1.6 GeV'],
+               ['m_4ℓ resolution, H→ZZ*',2.20,C.gq,'≈2 GeV']];
+  const bh=(B-T)/items.length;
+  items.forEach((it,i)=>{
+    const y=T+bh*(i+0.5), p=px(it[1]);
+    x.strokeStyle=it[2]; x.lineWidth=2; x.beginPath(); x.moveTo(L,y); x.lineTo(p,y); x.stroke();
+    x.fillStyle=it[2]; x.beginPath(); x.arc(p,y,4,0,7); x.fill();
+    txtMath(x,it[0],L-8,y-2,C.ink,MONO9,'right');
+    txtMath(x,it[3],L-8,y+11,C.faint,MONO9,'right');
+  });
+  /* the factor-400 bracket */
+  const y1=T+bh*0.5, y2=T+bh*2.5, pa=px(0.00407), pb=px(1.60);
+  x.save(); x.setLineDash([3,3]); x.strokeStyle=C.faint; x.lineWidth=1;
+  x.beginPath(); x.moveTo(pa,y1); x.lineTo(pa,y2); x.moveTo(pb,y1); x.lineTo(pb,y2); x.stroke(); x.restore();
+  txtHalo(x,'× 393',(pa+pb)/2,(y1+y2)/2+4,C.ink,MONO,'center');
+  frame(x,L,T,R,B);
+}
+function wStep2(x,w,h,T0){
+  const stack=w<620;
+  const boxW=stack?w-56:(w-72)/2, T=T0+8;
+  const bh=stack?78:96;
+  function amp(bx,by,bw,title,lines,col){
+    x.strokeStyle=col; x.lineWidth=1.4; x.strokeRect(bx+.5,by+.5,bw,bh);
+    x.fillStyle=hexA(col,0.07); x.fillRect(bx+1,by+1,bw-1,bh-1);
+    txtMath(x,title,bx+10,by+17,col,MONO);
+    let y=by+35;
+    lines.forEach(l=>{ y+=txtDown(x,l,bx+10,y,bw-20,C.muted,MONO9,'left',12)*12+2; });
+  }
+  const x0=28;
+  amp(x0,T,boxW,'RESONANT',
+    ['gg → H → γγ','Breit-Wigner, width Γ_H',
+     'amplitude ∝ c_g c_γ / (m^2 − m_H^2 + iΓ_H m_H)'],C.bq);
+  const x1=stack?x0:x0+boxW+16, y1=stack?T+bh+14:T;
+  amp(x1,y1,boxW,'CONTINUUM',
+    ['gg → γγ (quark box)','smooth, no resonance','amplitude ∝ ℳ_{bkg}, complex'],C.bkg);
+  /* the sum */
+  const sy=(stack?y1+bh+14:T+bh+22);
+  const head='SAME INITIAL AND FINAL STATE → AMPLITUDES ADD, THEN SQUARE';
+  x.font=MONO;
+  const hn=wrapLines(x,head,w-80,MONO).length;
+  const parts=[['|ℳ_{sig}|²   Breit-Wigner peak',C.bq],
+               ['|ℳ_{bkg}|²   continuum',C.bkg],
+               ['2 Re[ℳ_{sig} ℳ*_{bkg}]   the cross term',C.sq]];
+  const wide=w>=760;
+  const sh=hn*15+8+(wide?26:parts.length*15+8)+(wide?18:0);
+  x.strokeStyle=C.ink; x.lineWidth=1.4;
+  x.strokeRect(x0+.5,sy+.5,w-56,Math.min(sh,h-sy-6));
+  txtDown(x,head,x0+12,sy+17,w-80,C.ink,MONO,'left',15);
+  let py=sy+17+hn*15+10;
+  if(wide){
+    const cw=(w-80)/3;
+    parts.forEach((p,i)=>txtMath(x,p[0],x0+12+i*cw,py,p[1],MONO9));
+    txtMath(x,'only the third one knows about Γ_H in a way μ cannot hide',x0+12,py+20,C.muted,MONO9);
+  } else {
+    parts.forEach((p,i)=>txtMath(x,p[0],x0+12,py+i*15,p[1],MONO9));
+  }
+}
+function wStep3(x,w,h,T0){
+  const FOOT='After smearing, the antisymmetric term is the Hilbert transform of the resolution function: it peaks at 1.31σ, falls as 1/x, and its integral is exactly zero.';
+  const L=54, R=w-24, T=T0+10, B=botFor(x,h,FOOT,R-L);
+  const sig=1.6, x0=-8, x1=8;
+  const PX=v=>L+(R-L)*(v-x0)/(x1-x0);
+  const vals=[]; for(let i=0;i<=300;i++){ const v=x0+(x1-x0)*i/300;
+    vals.push([v,gaussPdf(v,sig),disp(v,sig)]); }
+  let mx=0; vals.forEach(v=>{mx=Math.max(mx,Math.abs(v[1]),Math.abs(v[2]));});
+  const PY=v=>(T+B)/2-(B-T)/2*v/(mx*1.12);
+  ticks(x,L,T,R,B,x0,x1,-mx*1.12,mx*1.12,8,4,v=>v.toFixed(0),()=>'' );
+  x.strokeStyle=C.rule; x.lineWidth=1; x.beginPath(); x.moveTo(L,PY(0)); x.lineTo(R,PY(0)); x.stroke();
+  [[1,C.bq,'absorptive: −2% of the signal, same shape as the signal'],
+   [2,C.sq,'dispersive: integrates to zero, tilts the peak']].forEach(([k,col,lab])=>{
+    x.strokeStyle=col; x.lineWidth=2; x.beginPath();
+    vals.forEach((v,i)=>{ const px=PX(v[0]), py=PY(k===1?-v[1]:v[2]);
+      i?x.lineTo(px,py):x.moveTo(px,py); }); x.stroke();
+  });
+  x.save(); x.setLineDash([3,3]); x.strokeStyle=C.faint; x.lineWidth=1;
+  x.beginPath(); x.moveTo(PX(0),T); x.lineTo(PX(0),B); x.stroke(); x.restore();
+  txtMath(x,'m_γγ − m_H  [GeV]',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtHalo(x,'absorptive (even)',PX(0.3),PY(-mx*0.55),C.bq,MONO9,'left');
+  txtHalo(x,'dispersive (odd)',PX(2.2),PY(mx*0.55),C.sq,MONO9,'left');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+}
+function wStep4(x,w,h,T0){
+  const FOOT='Red: the rate is constant along it, so rate alone fixes nothing. Dashed: interference contours, vertical because I ∝ κ². They intersect at a point.';
+  const L=64, RFULL=w-24, T=T0+12;
+  const anno=w>=760;
+  const R=anno?w-Math.min(210,w*0.26):RFULL;
+  const B=anno?h-40:botFor(x,h,FOOT,R-L);
+  const k0=0.55,k1=2.3;
+  const G0=0.4, G1=200;
+  const PX=v=>L+(R-L)*(v-k0)/(k1-k0);
+  const PY=v=>B-(B-T)*(Math.log10(v)-Math.log10(G0))/(Math.log10(G1)-Math.log10(G0));
+  ticks(x,L,T,R,B,k0,k1,G0,G1,7,3,v=>v.toFixed(1),v=>v<1?v.toFixed(1):v.toFixed(0),true);
+  /* Contours of the INTERFERENCE are lines of constant coupling product,
+     I/I_SM = kappa^2, i.e. vertical in this plane. */
+  [0.5,1,2,4].forEach(f=>{
+    const k=Math.sqrt(f); if(k<k0||k>k1) return;
+    x.save(); x.setLineDash([4,3]); x.strokeStyle=C.sq; x.lineWidth=1.2;
+    x.beginPath(); x.moveTo(PX(k),T); x.lineTo(PX(k),B); x.stroke(); x.restore();
+    txtHalo(x,'I/I_SM='+f,PX(k),T+11,C.sq,MONO9,'center');
+  });
+  /* The RATE flat direction: Gamma = kappa^4 * Gamma_SM leaves the on-shell rate fixed. */
+  x.strokeStyle=C.warn; x.lineWidth=2.2; x.beginPath();
+  let started=false;
+  for(let i=0;i<=240;i++){ const k=k0+(k1-k0)*i/240, G=Math.pow(k,4)*GSM;
+    if(G<G0||G>G1){ started=false; continue; }
+    const px=PX(k), py=PY(G);
+    started?x.lineTo(px,py):(x.moveTo(px,py),started=true); }
+  x.stroke();
+  x.fillStyle=C.bq; x.beginPath(); x.arc(PX(1),PY(GSM),5,0,7); x.fill();
+  txtHalo(x,'SM: κ=1, Γ_H=4.07 MeV',PX(1)+10,PY(GSM)+4,C.bq,MONO9,'left');
+  ylab(x,'Γ_H [MeV]',T,B,C.faint);
+  txtMath(x,'coupling rescaling κ   (c_g → κ c_g,  c_γ → κ c_γ)',(L+R)/2,B+30,C.faint,MONO9,'center');
+  if(anno){
+    const ax=R+14, aw=w-R-22;
+    let n=txtDown(x,'RATE alone: every point on the red curve gives the same number of on-shell events. It cannot pick one.',ax,T+12,aw,C.warn,MONO9,'left',12);
+    txtDown(x,'INTERFERENCE alone: a vertical line, since I ∝ κ². Together they intersect at a point — and Γ_H = κ⁴Γ_SM along the curve gives I/I_SM = √(Γ_H/Γ_SM).',ax,T+24+n*12,aw,C.sq,MONO9,'left',12);
+  } else {
+    txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  }
+  frame(x,L,T,R,B);
+}
+
+function wStep5(x,w,h,T0){
+  const stack=w<620;
+  const gap=18, colW=stack?w-48:(w-48-gap)/2;
+  const T=T0+14;
+  const F2='§4 says the relative interference is largest at low p_T. It is not: −2.23 % against −1.90 %.';
+  x.font=MONO9;
+  const n2=wrapLines(x,F2,colW-52,MONO9).length;
+  /* reserve each sub-plot's own label band before splitting the height */
+  const band1=46, band2=22+n2*11;
+  let Bt,T2,B2;
+  if(stack){
+    const ph=Math.max(64,(h-T-band1-band2-8)/2);
+    Bt=Math.round(T+ph); T2=Math.round(Bt+band1); B2=Math.round(T2+ph);
+  } else { Bt=Math.round(h-band1); T2=T; B2=Math.round(h-band2); }
+  const x0=24, x1=stack?24:24+colW+gap;
+  /* left / top: yields on a log axis */
+  (function(){
+    const L=x0+54, R=x0+colW, lo=1, hi=3e6;
+    const PY=v=>Bt-(Bt-T)*(Math.log10(Math.max(v,lo))-Math.log10(lo))/(Math.log10(hi)-Math.log10(lo));
+    x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+    for(let e=0;e<=6;e+=2){ const py=PY(Math.pow(10,e));
+      x.beginPath(); x.moveTo(L,py); x.lineTo(R,py); x.stroke();
+      txtMath(x,'10^'+e,L-6,py+3,C.faint,MONO9,'right'); }
+    const rows=[['background',TAB1[0].B+TAB1[1].B,C.bkg],['signal',TAB1[0].S+TAB1[1].S,C.bq],
+                ['|gg-interf|',123.2,C.cq],['qg-interf',8.9,C.gq]];
+    const bw=(R-L)/rows.length*0.52;
+    rows.forEach((r,i)=>{
+      const cx=L+(R-L)*(i+0.5)/rows.length, py=PY(r[1]);
+      x.fillStyle=hexA(r[2],0.42); x.fillRect(cx-bw/2,py,bw,Bt-py);
+      x.strokeStyle=r[2]; x.lineWidth=1.6; x.strokeRect(cx-bw/2+.5,py+.5,bw,Bt-py);
+      const lab=fmtSI(r[1]);
+      if(Bt-py>30) txtMath(x,lab,cx,py+16,inkOn(r[2],0.42),MONO9,'center');
+      else txtHalo(x,lab,cx,py-5,C.ink,MONO9,'center');
+      txtMath(x,r[0],cx,Bt+13,C.muted,MONO9,'center'); });
+    txtMath(x,'events in 105–160 GeV, both categories',(L+R)/2,Bt+27,C.faint,MONO9,'center');
+    frame(x,L,T,R,Bt);
+  })();
+  /* right / bottom: interference-to-signal per category */
+  (function(){
+    const L=x1+54, R=x1+colW, lo=-3.0, hi=0.7;
+    const PY=v=>B2-(B2-T2)*(v-lo)/(hi-lo);
+    ticks(x,L,T2,R,B2,0,1,lo,hi,1,3,()=>'',v=>v.toFixed(1));
+    x.strokeStyle=C.rule; x.lineWidth=1; x.beginPath(); x.moveTo(L,PY(0)); x.lineTo(R,PY(0)); x.stroke();
+    const series=[['gg',c=>100*c.gg/c.S,C.cq],['qg',c=>100*c.qg/c.S,C.gq],
+                  ['net',c=>100*(c.gg+c.qg)/c.S,C.sq]];
+    const bw=(R-L)/8;
+    [[TAB1[0],'p_T < 30'],[TAB1[1],'p_T ≥ 30']].forEach((gp,i)=>{
+      const base=L+(R-L)*(i+0.5)/2;
+      series.forEach((s,j)=>{
+        const cx=base+(j-1)*bw*1.12, v=s[1](gp[0]), y0=PY(0), y1=PY(v);
+        x.fillStyle=hexA(s[2],0.42); x.fillRect(cx-bw*0.46,Math.min(y0,y1),bw*0.92,Math.abs(y1-y0));
+        x.strokeStyle=s[2]; x.lineWidth=1.5; x.strokeRect(cx-bw*0.46+.5,Math.min(y0,y1)+.5,bw*0.92,Math.abs(y1-y0));
+        /* value at the far end of the bar, never near the zero line where the
+           tiny qg bar would collide with it */
+        txtHalo(x,v.toFixed(2),cx,v<0?y1+12:y1-5,s[2],MONO9,'center'); });
+      txtMath(x,gp[1],base,B2+13,C.ink,MONO9,'center'); });
+    /* Legend goes in the gap between the two sub-plots. Inside the frame it would
+       land on the +0.08 and +0.26 qg labels, which sit just above the zero line. */
+    x.font=MONO9;
+    let lw=0; series.forEach(s=>{ lw+=x.measureText(s[0]).width+26; });
+    let lx=Math.max(L,R-lw);
+    series.forEach(s=>{ x.fillStyle=s[2]; x.fillRect(lx,T2-15,7,7);
+      txtMath(x,s[0],lx+11,T2-8,s[2],MONO9); lx+=x.measureText(s[0]).width+26; });
+    ylab(x,'interference / signal [%]',T2,B2,C.faint);
+    txtDown(x,F2,L-46,B2+28,R-L+46,C.warn,MONO9,'left',11);
+    frame(x,L,T2,R,B2);
+  })();
+}
+function wStep6(x,w,h,T0){
+  const FOOT='Low-p_T category, drawn to scale. The two curves differ by a few parts in a thousand at the peak — that difference, in both categories at once, is the entire measurement.';
+  const L=58, R=w-24, T=T0+10, B=botFor(x,h,FOOT,R-L);
+  const o=defaults(), c=TAB1[0], cache=buildCache(o,[c]);
+  const v0=seedVector(o,[c]);
+  const nuSM=expected(c,o,GSM,1,0,1,v0[1],v0[2]*QS[0],v0[3]*QS[1],cache[0]);
+  const nuBig=expected(c,o,250,1,0,1,v0[1],v0[2]*QS[0],v0[3]*QS[1],cache[0]);
+  const bOnly=expected(Object.assign({},c,{S:0,gg:0,qg:0}),o,GSM,1,0,1,v0[1],v0[2]*QS[0],v0[3]*QS[1],cache[0]);
+  let mx=0; for(let i=0;i<NBIN;i++) mx=Math.max(mx,nuSM[i]);
+  const PX=m=>L+(R-L)*(m-MLO)/(MHI-MLO);
+  const PY=v=>B-(B-T)*v/(mx*1.08);
+  ticks(x,L,T,R,B,MLO,MHI,0,mx*1.08/DM,5,4,v=>v.toFixed(0),v=>fmtSI(v));
+  const line=(arr,col,lw,dash)=>{ x.save(); if(dash) x.setLineDash(dash);
+    x.strokeStyle=col; x.lineWidth=lw; x.beginPath();
+    for(let i=0;i<NBIN;i++){ const px=PX(MGRID[i]), py=PY(arr[i]); i?x.lineTo(px,py):x.moveTo(px,py); }
+    x.stroke(); x.restore(); };
+  x.fillStyle=hexA(C.bkg,0.20); x.beginPath(); x.moveTo(PX(MLO),PY(0));
+  for(let i=0;i<NBIN;i++) x.lineTo(PX(MGRID[i]),PY(bOnly[i]));
+  x.lineTo(PX(MHI),PY(0)); x.closePath(); x.fill();
+  line(bOnly,C.bkg,1.6);
+  line(nuSM,C.bq,2);
+  line(nuBig,C.warn,1.8,[5,4]);
+  txtHalo(x,'continuum only',PX(146),PY(bOnly[Math.round(NBIN*0.75)])-8,C.bkg,MONO9,'left');
+  txtHalo(x,'+ signal + interference, Γ_SM',PX(127),PY(mx*0.92),C.bq,MONO9,'left');
+  txtHalo(x,'Γ_H = 250 MeV',PX(127),PY(mx*0.80),C.warn,MONO9,'left');
+  ylab(x,'events / GeV',T,B,C.faint);
+  txtMath(x,'m_γγ [GeV]',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+}
+
+/* cached scan results for the walkthrough and the budget panel */
+const SCANCACHE={};
+function cachedScan(key,o,opts){ if(!SCANCACHE[key]) SCANCACHE[key]=scan(o,opts); return SCANCACHE[key]; }
+
+function wStep7(x,w,h,T0){
+  const FOOT='Curves are this file’s toy fit; the filled circles are the paper’s published 95% limits. Nothing was tuned to the three markers — one number was tuned to the expected stat-only 68% crossing.';
+  const L=58, R=w-24, T=T0+10, B=botFor(x,h,FOOT,R-L);
+  const o=defaults();
+  const G1=460;
+  const PX=v=>L+(R-L)*v/G1, PY=v=>B-(B-T)*v/5.2;
+  ticks(x,L,T,R,B,0,G1,0,5.2,4,4,v=>v.toFixed(0),v=>v.toFixed(0));
+  /* the paper's own thresholds */
+  [[1,'68% CL'],[3.84,'95% CL']].forEach(([t,lab])=>refRule(x,L,R,PY(t),lab,'left'));
+  const curves=[['expStat',{mH:0,kI:0,Gtrue:4.1},C.bq,'expected, stat only',[5,4]],
+                ['expTot', {mH:1,kI:1,Gtrue:4.1},C.cq,'expected, total',[5,4]],
+                ['obsTot', {mH:1,kI:1,Gtrue:12.0},C.warn,'observed, total',null]];
+  curves.forEach(([k,op,col,lab,dash])=>{
+    const r=cachedScan(k,o,Object.assign({ng:24,gmax:900},op));
+    x.save(); if(dash) x.setLineDash(dash);
+    x.strokeStyle=col; x.lineWidth=2; x.beginPath();
+    for(let i=0;i<=180;i++){ const G=G1*i/180, py=PY(Math.min(5.2,r.t(G)));
+      const px=PX(G); i?x.lineTo(px,py):x.moveTo(px,py); }
+    x.stroke(); x.restore(); });
+  /* published markers */
+  const marks=[[250,'250',C.cq],[319,'319',C.warn],[91,'91',C.bq]];
+  marks.forEach(([g,lab,col])=>{
+    x.save(); x.setLineDash([2,3]); x.strokeStyle=col; x.lineWidth=1.2;
+    x.beginPath(); x.moveTo(PX(g),PY(3.84)); x.lineTo(PX(g),B); x.stroke(); x.restore();
+    x.fillStyle=col; x.beginPath(); x.arc(PX(g),PY(3.84),4,0,7); x.fill();
+    txtHalo(x,lab,PX(g),B-6,col,MONO9,'center'); });
+  ylab(x,'−2 Δ ln L',T,B,C.faint);
+  txtMath(x,'Γ_H [MeV]',(L+R)/2,B+30,C.faint,MONO9,'center');
+  const lg=[['expected, stat only',C.bq],['expected, total',C.cq],['observed, total',C.warn]];
+  let lx=L+8;
+  lg.forEach(([lab,col])=>{ x.fillStyle=col; x.fillRect(lx,T+8,8,8);
+    x.font=MONO9; const tw=x.measureText(lab).width;
+    if(lx+14+tw<R-8){ txtMath(x,lab,lx+13,T+16,col,MONO9); lx+=tw+30; } });
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+}
+function wStep8(x,w,h,T0){
+  const L=Math.max(150,w*0.24), R=w-28, T=T0+16, B=h-58;
+  const lo=Math.log10(1), hi=Math.log10(1000);
+  const PX=v=>L+(R-L)*(Math.log10(v)-lo)/(hi-lo);
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  for(let e=0;e<=3;e++){ const p=PX(Math.pow(10,e));
+    x.beginPath(); x.moveTo(p,T); x.lineTo(p,B); x.stroke();
+    txtMath(x,'10^'+e,p,B+15,C.faint,MONO9,'center'); }
+  /* The off-shell entry is derived, not quoted: the paper gives Gamma_H = 3.6 +2.1 -1.6 MeV
+     at 68% CL from the ATLAS combination, so 3.6 + 1.96*2.1 = 7.7 MeV as a 95% one-sided
+     equivalent. Labelled as derived on the figure. */
+  const rows=[
+    ['off-shell combination',7.7,C.bkg,'derived from 3.6+2.1 MeV; assumes couplings equal'],
+    ['this method theory floor',18.3,C.gq,'infinite data, every other error set to zero'],
+    ['this letter, stat only',115,C.bq,'no coupling assumption'],
+    ['this letter, total',319,C.warn,'no coupling assumption']];
+  const bh=(B-T)/rows.length;
+  rows.forEach((r,i)=>{
+    const y=T+bh*(i+0.5);
+    x.strokeStyle=r[2]; x.lineWidth=2.4; x.beginPath(); x.moveTo(PX(1),y); x.lineTo(PX(r[1]),y); x.stroke();
+    x.fillStyle=r[2]; x.beginPath(); x.arc(PX(r[1]),y,4.5,0,7); x.fill();
+    txtMath(x,r[0],L-8,y-1,C.ink,MONO9,'right');
+    txtMath(x,r[3],L-8,y+11,C.faint,MONO9,'right');
+    txtHalo(x,r[1]+' MeV',PX(r[1])+9,y+4,r[2],MONO9,'left'); });
+  x.save(); x.setLineDash([4,3]); x.strokeStyle=C.sq; x.lineWidth=1.4;
+  x.beginPath(); x.moveTo(PX(GSM),T); x.lineTo(PX(GSM),B); x.stroke(); x.restore();
+  txtHalo(x,'Γ_SM = 4.07',PX(GSM),T+11,C.sq,MONO9,'center');
+  txtMath(x,'95% CL upper limit on Γ_H [MeV]',(L+R)/2,B+32,C.faint,MONO9,'center');
+  frame(x,L,T,R,B);
+}
+
+/* =================================================================
+   PANEL: THE DISTORTION
+   ================================================================= */
+const SH={mode:'parts', gk:1, beta:0.505, sig:1.60, mag:10};
+function shapeOpts(){ const o=defaults(); o.beta=SH.beta; o.resScale=SH.sig/1.60; return o; }
+function shapeNums(){
+  const o=shapeOpts(), r=Math.sqrt(SH.gk);
+  return TAB1.map(c=>{
+    const NI=(c.gg+c.qg)*r, sig=c.sig*o.resScale;
+    return {c,NI,frac:100*NI/c.S,
+            shift:1000*o.beta*NI*sig*SQ2PI/c.S, sig}; });
+}
+function drawShape(){
+  const g=cvs('shapec'); if(!g) return; const {x,w,h}=g;
+  const o=shapeOpts(), n=shapeNums();
+  const L=58,R=w-24,T=TAGH+14;
+  const FOOT='Peak displacement is drawn to scale on this axis; at the SM width it is '+
+    Math.abs(n[0].shift).toFixed(1)+' MeV, about 1/'+
+    Math.round(n[0].sig*1000/Math.max(1,Math.abs(n[0].shift)))+
+    ' of the resolution. That is why 5572 events are needed to see it.';
+  const B=botFor(x,h,FOOT,R-L);
+  const c=TAB1[0], sig=n[0].sig, r=Math.sqrt(SH.gk);
+  const nrm=dscbNorm(sig,o);
+  const PX=m=>L+(R-L)*(m-112)/(138-112);
+  const S=m=>c.S*dscbRaw((m-MH0)/sig,o.aL,o.nL,o.aH,o.nH)/nrm;
+  const IG=m=>r*c.gg*(dscbRaw((m-MH0)/sig,o.aL,o.nL,o.aH,o.nH)/nrm+o.beta*disp(m-MH0,sig));
+  const IQ=m=>r*c.qg*(dscbRaw((m-MH0)/sig,o.aL,o.nL,o.aH,o.nH)/nrm+o.beta*disp(m-MH0,sig));
+  let mx=0; for(let m=112;m<=138;m+=0.1) mx=Math.max(mx,S(m));
+  const lowLim=-mx*0.42;
+  const PY=v=>B-(B-T)*(v-lowLim)/(mx*1.15-lowLim);
+  ticks(x,L,T,R,B,112,138,lowLim,mx*1.15,6,5,v=>v.toFixed(0),v=>fmtSI(v));
+  x.strokeStyle=C.rule; x.lineWidth=1; x.beginPath(); x.moveTo(L,PY(0)); x.lineTo(R,PY(0)); x.stroke();
+  const curve=(fn,col,lw,dash)=>{ x.save(); if(dash) x.setLineDash(dash);
+    x.strokeStyle=col; x.lineWidth=lw; x.beginPath();
+    let first=true;
+    for(let m=112;m<=138.001;m+=0.1){ const px=PX(m), py=PY(fn(m));
+      first?(x.moveTo(px,py),first=false):x.lineTo(px,py); }
+    x.stroke(); x.restore(); };
+  if(SH.mode==='fig1'){
+    /* Fig. 1 layout: signal, and each interference magnified */
+    x.fillStyle=hexA(C.bq,0.16); x.beginPath(); x.moveTo(PX(112),PY(0));
+    for(let m=112;m<=138.001;m+=0.1) x.lineTo(PX(m),PY(S(m)));
+    x.lineTo(PX(138),PY(0)); x.closePath(); x.fill();
+    curve(S,C.bq,2);
+    curve(m=>IG(m)*SH.mag,C.cq,1.8);
+    curve(m=>IQ(m)*SH.mag,C.gq,1.8);
+    curve(m=>(IG(m)+IQ(m))*SH.mag,C.sq,2);
+    txtHalo(x,'signal',PX(125.6),PY(mx*0.86),C.bq,MONO9,'left');
+    txtHalo(x,'gg × '+SH.mag,PX(131),PY(-mx*0.16),C.cq,MONO9,'left');
+    txtHalo(x,'qg × '+SH.mag,PX(131),PY(-mx*0.26),C.gq,MONO9,'left');
+    txtHalo(x,'gg+qg × '+SH.mag,PX(131),PY(-mx*0.36),C.sq,MONO9,'left');
+  } else if(SH.mode==='parts'){
+    curve(S,C.bq,1.6,[4,3]);
+    curve(m=>r*(c.gg+c.qg)*dscbRaw((m-MH0)/sig,o.aL,o.nL,o.aH,o.nH)/nrm*SH.mag,C.cq,1.8);
+    curve(m=>r*(c.gg+c.qg)*o.beta*disp(m-MH0,sig)*SH.mag,C.gq,1.8);
+    curve(m=>(IG(m)+IQ(m))*SH.mag,C.sq,2.2);
+    txtHalo(x,'signal (dashed)',PX(125.6),PY(mx*0.86),C.bq,MONO9,'left');
+    txtHalo(x,'absorptive × '+SH.mag,PX(130.5),PY(-mx*0.16),C.cq,MONO9,'left');
+    txtHalo(x,'dispersive × '+SH.mag,PX(130.5),PY(-mx*0.26),C.gq,MONO9,'left');
+    txtHalo(x,'sum × '+SH.mag,PX(130.5),PY(-mx*0.36),C.sq,MONO9,'left');
+  } else {
+    /* scaling mode: signal, and signal+interference at the current width, magnified difference */
+    curve(S,C.bq,1.6,[4,3]);
+    curve(m=>S(m)+IG(m)+IQ(m),C.sq,2);
+    curve(m=>(IG(m)+IQ(m))*SH.mag,C.warn,1.8);
+    txtHalo(x,'signal alone (dashed)',PX(126.2),PY(mx*0.86),C.bq,MONO9,'left');
+    txtHalo(x,'signal + interference',PX(126.2),PY(mx*0.74),C.sq,MONO9,'left');
+    txtHalo(x,'difference × '+SH.mag,PX(130.5),PY(-mx*0.22),C.warn,MONO9,'left');
+  }
+  /* peak markers */
+  const sh=n[0].shift/1000;
+  x.save(); x.setLineDash([3,3]); x.strokeStyle=C.faint; x.lineWidth=1;
+  x.beginPath(); x.moveTo(PX(MH0),T); x.lineTo(PX(MH0),B); x.stroke(); x.restore();
+  if(Math.abs(sh)>0.004){
+    x.strokeStyle=C.warn; x.lineWidth=1.6;
+    x.beginPath(); x.moveTo(PX(MH0+sh),T); x.lineTo(PX(MH0+sh),B); x.stroke();
+    txtHalo(x,'shifted peak',PX(MH0+sh)-6,T+12,C.warn,MONO9,'right'); }
+  ylab(x,'events / GeV, low-p_T category',T,B,C.faint);
+  txtMath(x,'m_γγ [GeV]',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+  drawShapeSide();
+}
+function drawShapeSide(){
+  const g=cvs('shapes'); if(!g) return; const {x,w,h}=g;
+  const L=58,R=w-100,T=14,B=h-24;
+  /* how the shift and the fractional rate change grow with Gamma */
+  const o=shapeOpts(), c=TAB1[0];
+  const gmax=100;
+  const PX=v=>L+(R-L)*Math.sqrt(v)/Math.sqrt(gmax);
+  const maxSh=Math.abs(o.beta*(c.gg+c.qg)*c.sig*o.resScale*SQ2PI/c.S)*Math.sqrt(gmax)*1000;
+  const PY=v=>B-(B-T)*v/(maxSh*1.1);
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  [1,10,25,50,100].forEach(v=>{ x.beginPath(); x.moveTo(PX(v),T); x.lineTo(PX(v),B); x.stroke();
+    txtMath(x,String(v),PX(v),B+13,C.faint,MONO9,'center'); });
+  x.strokeStyle=C.warn; x.lineWidth=2; x.beginPath();
+  for(let i=0;i<=120;i++){ const G=gmax*i/120;
+    const s=Math.abs(o.beta*(c.gg+c.qg)*c.sig*o.resScale*SQ2PI/c.S)*Math.sqrt(G)*1000;
+    i?x.lineTo(PX(G),PY(s)):x.moveTo(PX(G),PY(s)); }
+  x.stroke();
+  x.fillStyle=C.bq; x.beginPath(); x.arc(PX(SH.gk),PY(Math.abs(shapeNums()[0].shift)),4.5,0,7); x.fill();
+  txtMath(x,'Γ_H / Γ_SM',(L+R)/2,B+26,C.faint,MONO9,'center');
+  ylab(x,'|shift| [MeV]',T,B,C.faint);
+  txtMath(x,'√Γ_H',R+10,T+16,C.warn,MONO9,'left');
+  txtDown(x,'linear on a √Γ axis',R+10,T+30,w-R-16,C.faint,MONO9,'left',11);
+  frame(x,L,T,R,B);
+}
+function updShape(){
+  const n=shapeNums();
+  $('#s_r1').textContent=(n[0].NI+n[1].NI).toFixed(1)+' ev';
+  $('#s_r2').textContent=((n[0].NI+n[1].NI)/(TAB1[0].S+TAB1[1].S)*100).toFixed(2)+' %';
+  $('#s_r3').textContent=n[0].shift.toFixed(1)+' MeV';
+  $('#v_sg').textContent=SH.gk.toFixed(SH.gk<10?1:0);
+  $('#v_sb').textContent=SH.beta.toFixed(3);
+  $('#v_sr').textContent=SH.sig.toFixed(2)+' GeV';
+  $('#v_sx').innerHTML='&times;'+SH.mag;
+  $('#s_live').innerHTML='low-p<sub>T</sub>: N<sub>I</sub> = '+n[0].NI.toFixed(1)+' on N<sub>S</sub> = 3045 &rarr; <b>'+
+    n[0].frac.toFixed(2)+' %</b>, shift = &beta;N<sub>I</sub>&sigma;&radic;(2&pi;)/N<sub>S</sub> = '+
+    SH.beta.toFixed(3)+' &times; ('+n[0].NI.toFixed(1)+') &times; '+n[0].sig.toFixed(2)+
+    ' &times; 2.5066 / 3045 = <b>'+n[0].shift.toFixed(1)+' MeV</b><br>high-p<sub>T</sub>: '+
+    n[1].frac.toFixed(2)+' %, shift '+n[1].shift.toFixed(1)+' MeV &nbsp;·&nbsp; both scale as &radic;&Gamma;<sub>H</sub>';
+  const st=SH.gk===1
+    ? 'At the SM width the paper gives −1.90 % and −2.23 %; this panel reads '+n[0].frac.toFixed(2)+' % and '+n[1].frac.toFixed(2)+' %, straight from Table 1.'
+    : 'At '+SH.gk.toFixed(0)+'× the SM width the distortion is √'+SH.gk.toFixed(0)+' = '+Math.sqrt(SH.gk).toFixed(2)+'× larger. The 95 % limit sits near 78×.';
+  $('#s_stat').textContent=st;
+  drawShape();
+}
+draws.shape=drawShape;
+$$('[data-smode]').forEach(b=>b.addEventListener('click',()=>{
+  SH.mode=b.dataset.smode;
+  $$('[data-smode]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  updShape(); }));
+/* slider 0..100 maps logarithmically onto Gamma_H/Gamma_SM = 1..100 */
+$('#s_sg').addEventListener('input',e=>{
+  SH.gk=+(Math.pow(100,(+e.target.value)/100)).toFixed(1);
+  updShape(); });
+$('#s_sb').addEventListener('input',e=>{ SH.beta=+e.target.value/100; updShape(); });
+$('#s_sr').addEventListener('input',e=>{ SH.sig=+e.target.value/100; updShape(); });
+$('#s_sx').addEventListener('input',e=>{ SH.mag=+e.target.value; updShape(); });
+$('#s_reset').addEventListener('click',()=>{ SH.gk=1; SH.beta=0.505; SH.sig=1.60; SH.mag=10;
+  $('#s_sg').value=0; $('#s_sb').value=50; $('#s_sr').value=160; $('#s_sx').value=10; updShape(); });
+$('#s_paper').addEventListener('click',()=>{ SH.gk=78; SH.beta=0.505; SH.sig=1.60; SH.mag=3;
+  $('#s_sg').value=Math.round(100*Math.log(78)/Math.log(100)); $('#s_sb').value=50; $('#s_sr').value=160; $('#s_sx').value=3;
+  updShape(); });
+
+/* =================================================================
+   PANEL: THE FIT
+   ================================================================= */
+const FT={mode:'scan', shift:38.5, sig:1.60, pos:0.221, ki:0.39, truth:4.1,
+          res:null, busy:false, degrid:null};
+function fitOpts(){
+  const o=defaults();
+  o.resScale=FT.sig/1.60; o.sysPos=FT.pos; o.sysKI=FT.ki;
+  /* beta is set FROM the requested shift, so the control the reader turns is the
+     physical quantity the paper omits rather than an internal ratio. */
+  const c=TAB1[0];
+  o.beta=(-FT.shift/1000)*c.S/((c.gg+c.qg)*c.sig*o.resScale*SQ2PI);
+  return o; }
+function runFit(){
+  FT.busy=true; $('#f_stat').textContent='Fitting 2 categories × 220 bins, profiling 7–9 parameters…';
+  setTimeout(()=>{
+    const o=fitOpts(), G=FT.truth;
+    const gmax=FT.truth>8?1200:900;
+    FT.res={ stat:scan(o,{mH:0,kI:0,Gtrue:G,ng:24,gmax}),
+             pos: scan(o,{mH:1,kI:0,Gtrue:G,ng:24,gmax}),
+             tot: scan(o,{mH:1,kI:1,Gtrue:G,ng:24,gmax}) };
+    FT.busy=false; updFitText(); drawFit();
+  },20); }
+function paperPair(){ return FT.truth>8?{stat:PAPER.obsStat,tot:PAPER.obsTot,lab:'observed'}
+                                       :{stat:PAPER.expStat,tot:PAPER.expTot,lab:'expected'}; }
+function updFitText(){
+  const r=FT.res; if(!r) return;
+  const p=paperPair();
+  const f1=v=>isFinite(v)?v.toFixed(1):'—';
+  $('#f_r1').textContent=f1(r.stat.ul68); $('#f_r2').textContent=f1(r.stat.ul95);
+  $('#f_r3').textContent=f1(r.tot.ul68);  $('#f_r4').textContent=f1(r.tot.ul95);
+  const dev=(a,b)=>isFinite(a)?((a/b-1)*100).toFixed(0)+' %':'—';
+  $('#f_live').innerHTML='paper ('+p.lab+'): stat-only <b>'+p.stat[0]+' / '+p.stat[1]+'</b>, total <b>'+
+    p.tot[0]+' / '+p.tot[1]+'</b> MeV &nbsp;·&nbsp; toy deviation: '+
+    dev(r.stat.ul68,p.stat[0])+' / '+dev(r.stat.ul95,p.stat[1])+' / '+
+    dev(r.tot.ul68,p.tot[0])+' / '+dev(r.tot.ul95,p.tot[1])+
+    '<br>amplitude precision &sigma;<sub>a</sub> = &radic;'+f1(r.stat.ul68)+' &minus; &radic;'+FT.truth+
+    ' = <b>'+(Math.sqrt(r.stat.ul68)-Math.sqrt(FT.truth)).toFixed(2)+'</b> MeV<sup>1/2</sup>; '+
+    'the paper implies '+(Math.sqrt(p.stat[0])-Math.sqrt(FT.truth)).toFixed(2)+'.';
+  const a=ansatzFrom(FT.truth,r.tot.ul68,r.tot.ul95);
+  $('#f_stat').textContent='Effective multiplicative uncertainty on the amplitude: '+
+    (100*a.f).toFixed(1)+' %, from a '+(100*FT.ki).toFixed(0)+' % prior. The paper’s own limits imply '+
+    (FT.truth>8?'27.8':'29.1')+' %.';
+  $('#v_fd').innerHTML='&minus;'+FT.shift.toFixed(1)+' MeV';
+  $('#v_fr').textContent=FT.sig.toFixed(2)+' GeV';
+  $('#v_fp').textContent=FT.pos.toFixed(3)+' GeV';
+  $('#v_fk').textContent=(100*FT.ki).toFixed(0)+' %';
+}
+function drawFit(){
+  const g=cvs('fitc'); if(!g) return; const {x,w,h}=g;
+  if(!FT.res){ txtMath(x,'fitting…',w/2,h/2,C.faint,MONO,'center'); return; }
+  if(FT.mode==='deg'){ drawDeg(x,w,h); drawFitSide(); return; }
+  if(FT.mode==='spec'){ drawSpec(x,w,h); drawFitSide(); return; }
+  const p=paperPair(), G1=Math.max(460,p.tot[1]*1.35);
+  const L=58,R=w-24,T=TAGH+14;
+  const FOOT='Curves are computed live from the Table 1 yields; the filled circles are the paper’s published 95 % limits for the '+
+    p.lab+' case. Only the peak-shift slider was ever tuned, and only against the expected stat-only 68 % crossing.';
+  const B=botFor(x,h,FOOT,R-L);
+  const PX=v=>L+(R-L)*v/G1, PY=v=>B-(B-T)*v/5.2;
+  ticks(x,L,T,R,B,0,G1,0,5.2,4,4,v=>v.toFixed(0),v=>v.toFixed(0));
+  [[1,'t = 1  → 68 % CL'],[3.84,'t = 3.84  → 95 % CL']].forEach(([t,lab])=>refRule(x,L,R,PY(t),lab,'left'));
+  [['stat',C.bq,'statistical only'],['pos',C.gq,'+ peak position'],['tot',C.cq,'+ K_I: total']]
+   .forEach(([k,col,lab])=>{
+    const r=FT.res[k];
+    x.strokeStyle=col; x.lineWidth=2.1; x.beginPath();
+    for(let i=0;i<=200;i++){ const G=G1*i/200, py=PY(Math.min(5.2,r.t(G)));
+      i?x.lineTo(PX(G),py):x.moveTo(PX(G),py); }
+    x.stroke(); });
+  /* the paper's published crossings, as --warn markers */
+  [[p.stat[1],'stat '+p.stat[1]],[p.tot[1],'total '+p.tot[1]]].forEach(([gv,lab])=>{
+    if(gv>G1) return;
+    x.fillStyle=C.warn; x.beginPath(); x.arc(PX(gv),PY(3.84),4.5,0,7); x.fill();
+    x.save(); x.setLineDash([2,3]); x.strokeStyle=C.warn; x.lineWidth=1.1;
+    x.beginPath(); x.moveTo(PX(gv),PY(3.84)); x.lineTo(PX(gv),B); x.stroke(); x.restore();
+    txtHalo(x,lab,PX(gv),B-6,C.warn,MONO9,'center'); });
+  ylab(x,'−2 Δ ln L',T,B,C.faint);
+  txtMath(x,'Γ_H [MeV]',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+  drawFitSide();
+}
+function drawSpec(x,w,h){
+  const o=fitOpts(), c=TAB1[0], cache=buildCache(o,[c]), v0=seedVector(o,[c]);
+  const L=58,R=w-24,T=TAGH+14;
+  const nu0=expected(c,o,GSM,1,0,1,v0[1],v0[2]*QS[0],v0[3]*QS[1],cache[0]);
+  const p=paperPair();
+  const nuL=expected(c,o,p.tot[1],1,0,1,v0[1],v0[2]*QS[0],v0[3]*QS[1],cache[0]);
+  const FOOT='Low-p_T category. The signature the fit is chasing at Γ_H = '+p.tot[1]+
+    ' MeV: an odd, sub-percent tilt across the peak, buried under bin-by-bin Poisson noise several times larger. Only summing 220 bins in two categories recovers it.';
+  const B=botFor(x,h,FOOT,R-L);
+  const PX=m=>L+(R-L)*(m-118)/(132-118);
+  let dmax=0; for(let i=0;i<NBIN;i++){ if(MGRID[i]<118||MGRID[i]>132) continue;
+    dmax=Math.max(dmax,Math.abs(nuL[i]-nu0[i])/nu0[i]); }
+  dmax=Math.max(dmax,1e-4);
+  const PY=v=>(T+B)/2-(B-T)/2*v/(dmax*1.15);
+  ticks(x,L,T,R,B,118,132,-dmax*1.15*100,dmax*1.15*100,7,4,v=>v.toFixed(0),v=>v.toFixed(1));
+  x.strokeStyle=C.rule; x.lineWidth=1; x.beginPath(); x.moveTo(L,PY(0)); x.lineTo(R,PY(0)); x.stroke();
+  x.strokeStyle=C.cq; x.lineWidth=2.2; x.beginPath();
+  let first=true;
+  for(let i=0;i<NBIN;i++){ if(MGRID[i]<118||MGRID[i]>132) continue;
+    const px=PX(MGRID[i]), py=PY((nuL[i]-nu0[i])/nu0[i]);
+    first?(x.moveTo(px,py),first=false):x.lineTo(px,py); }
+  x.stroke();
+  /* Poisson band: what one standard deviation of the data looks like, bin by bin */
+  x.fillStyle=hexA(C.bkg,0.22); x.beginPath();
+  const up=[],dn=[];
+  for(let i=0;i<NBIN;i++){ if(MGRID[i]<118||MGRID[i]>132) continue;
+    const s=Math.sqrt(nu0[i])/nu0[i]; up.push([PX(MGRID[i]),PY(s)]); dn.push([PX(MGRID[i]),PY(-s)]); }
+  up.forEach((p2,i)=>i?x.lineTo(p2[0],p2[1]):x.moveTo(p2[0],p2[1]));
+  for(let i=dn.length-1;i>=0;i--) x.lineTo(dn[i][0],dn[i][1]);
+  x.closePath(); x.fill();
+  x.save(); x.setLineDash([3,3]); x.strokeStyle=C.faint; x.lineWidth=1;
+  x.beginPath(); x.moveTo(PX(MH0),T); x.lineTo(PX(MH0),B); x.stroke(); x.restore();
+  ylab(x,'(model at limit − model at Γ_SM) / model  [%]',T,B,C.faint);
+  txtMath(x,'m_γγ [GeV]',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtHalo(x,'±1 Poisson σ per 0.25 GeV bin',PX(119),PY(-dmax*0.72),C.muted,MONO9,'left');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+}
+function drawDeg(x,w,h){
+  const FOOT='Every point on the red curve reproduces the paper’s expected stat-only limits equally well: sensitivity fixes shift/σ^{1.5}, not the shift. The published result therefore does not determine the interference calculation without the resolution, and the letter gives neither.';
+  const L=64,R=w-24,T=TAGH+14,B=botFor(x,h,FOOT,R-L);
+  const PX=v=>L+(R-L)*(v-1.0)/(3.2-1.0);
+  const PY=v=>B-(B-T)*v/200;
+  ticks(x,L,T,R,B,1.0,3.2,0,200,5,4,v=>v.toFixed(1),v=>v.toFixed(0));
+  /* Curve of (resolution, required shift) pairs that all reproduce the SAME published
+     stat-only limit. Calibrated once by the harness (check_plane.js): shift scales
+     as sigma^1.64 through -38.5 MeV at 1.60 GeV. */
+  x.strokeStyle=C.warn; x.lineWidth=2.4; x.beginPath();
+  for(let i=0;i<=120;i++){ const s=1.0+(3.2-1.0)*i/120;
+    const sh=38.5*Math.pow(s/1.60,1.64);
+    i?x.lineTo(PX(s),PY(sh)):x.moveTo(PX(s),PY(sh)); }
+  x.stroke();
+  /* Martin's inclusive LO value, and where it intersects */
+  refRule(x,L,R,PY(70),'Martin, ref. 15: ≈ −70 MeV inclusive at LO','left');
+  const sStar=1.60*Math.pow(70/38.5,1/1.64);
+  x.fillStyle=C.warn; x.beginPath(); x.arc(PX(sStar),PY(70),5,0,7); x.fill();
+  txtHalo(x,'σ = '+sStar.toFixed(2)+' GeV',PX(sStar)+9,PY(70)+14,C.warn,MONO9,'left');
+  /* current working point */
+  x.fillStyle=C.bq; x.beginPath(); x.arc(PX(FT.sig),PY(FT.shift),5.5,0,7); x.fill();
+  txtHalo(x,'you are here',PX(FT.sig)+10,PY(FT.shift)-6,C.bq,MONO9,'left');
+  /* the paper's own stated resolution range */
+  x.fillStyle=hexA(C.sq,0.10); x.fillRect(PX(1.0),T,PX(3.0)-PX(1.0),B-T);
+  txtMath(x,'the paper only says “O(1–3) GeV”',PX(2.0),T+14,C.sq,MONO9,'center');
+  ylab(x,'required peak shift at Γ_SM [MeV]',T,B,C.faint);
+  txtMath(x,'assumed m_γγ resolution σ [GeV]',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+}
+function drawFitSide(){
+  const g=cvs('fits'); if(!g) return; const {x,w,h}=g;
+  if(!FT.res) return;
+  const L=58,R=w-120,T=14,B=h-26;
+  const p=paperPair();
+  const rows=[['stat 68',FT.res.stat.ul68,p.stat[0],C.bq],
+              ['stat 95',FT.res.stat.ul95,p.stat[1],C.bq],
+              ['total 68',FT.res.tot.ul68,p.tot[0],C.cq],
+              ['total 95',FT.res.tot.ul95,p.tot[1],C.cq]];
+  const mx=Math.max.apply(null,rows.map(r=>Math.max(r[1]||0,r[2])))*1.2;
+  const PX=v=>L+(R-L)*v/mx;
+  const bh=(B-T)/rows.length;
+  rows.forEach((r,i)=>{
+    const y=T+bh*(i+0.5), bw=bh*0.5;
+    const v=isFinite(r[1])?r[1]:0;
+    x.fillStyle=hexA(r[3],0.40); x.fillRect(L,y-bw/2,PX(v)-L,bw);
+    x.strokeStyle=r[3]; x.lineWidth=1.4; x.strokeRect(L+.5,y-bw/2+.5,PX(v)-L,bw);
+    x.save(); x.strokeStyle=C.warn; x.lineWidth=2;
+    x.beginPath(); x.moveTo(PX(r[2]),y-bw/2-3); x.lineTo(PX(r[2]),y+bw/2+3); x.stroke(); x.restore();
+    txtMath(x,r[0],L-6,y+3,C.muted,MONO9,'right');
+    txtMath(x,(isFinite(r[1])?r[1].toFixed(0):'—')+' vs '+r[2],R+8,y+3,r[3],MONO9,'left'); });
+  txtMath(x,'toy bar vs paper rule [MeV]',(L+R)/2,B+18,C.faint,MONO9,'center');
+  frame(x,L,T,R,B);
+}
+draws.fit=drawFit;
+$$('[data-fmode]').forEach(b=>b.addEventListener('click',()=>{
+  FT.mode=b.dataset.fmode;
+  $$('[data-fmode]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  $('#fittag').innerHTML=FT.mode==='scan'?'&minus;2 &Delta;ln L vs &Gamma;<sub>H</sub> [MeV]'
+    :FT.mode==='spec'?'fractional change in the model across the peak'
+    :'shift &times; resolution: the degenerate family';
+  drawFit(); }));
+$$('[data-ftruth]').forEach(b=>b.addEventListener('click',()=>{
+  FT.truth=+b.dataset.ftruth;
+  $$('[data-ftruth]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  runFit(); }));
+let fitTimer=null;
+function fitLater(){ clearTimeout(fitTimer); fitTimer=setTimeout(runFit,260); }
+$('#s_fd').addEventListener('input',e=>{ FT.shift=+e.target.value/10;
+  $('#v_fd').innerHTML='&minus;'+FT.shift.toFixed(1)+' MeV'; if(FT.mode==='deg') drawFit(); fitLater(); });
+$('#s_fr').addEventListener('input',e=>{ FT.sig=+e.target.value/100;
+  $('#v_fr').textContent=FT.sig.toFixed(2)+' GeV'; if(FT.mode==='deg') drawFit(); fitLater(); });
+$('#s_fp').addEventListener('input',e=>{ FT.pos=+e.target.value/1000;
+  $('#v_fp').textContent=FT.pos.toFixed(3)+' GeV'; fitLater(); });
+$('#s_fk').addEventListener('input',e=>{ FT.ki=+e.target.value/100;
+  $('#v_fk').textContent=(100*FT.ki).toFixed(0)+' %'; fitLater(); });
+$('#s_frun').addEventListener('click',runFit);
+$('#s_fdef').addEventListener('click',()=>{ FT.shift=38.5; FT.sig=1.60; FT.pos=0.221; FT.ki=0.39;
+  $('#s_fd').value=385; $('#s_fr').value=160; $('#s_fp').value=221; $('#s_fk').value=39; runFit(); });
+
+/* =================================================================
+   PANEL: ERROR BUDGET
+   Built on the two-parameter description of t, with sigma_0 split into the
+   Table 2 groups. Calibrated so that all four sliders at 100 % reproduce the
+   paper's observed pair (90, 319) exactly.
+   ================================================================= */
+const BD={mode:'stack', theory:1, mH:1, esc:1, lumi:140};
+/* Solve once for the parameters that reproduce the paper's OBSERVED limits, then
+   decompose sigma_0^2 into Table 2's groups in proportion to their 68% CL entries
+   squared. Table 2 closes in quadrature to 0.5 %, so this decomposition is the
+   paper's own, not an invention. */
+const BASE=(function(){
+  const a=ansatzFrom(GHAT,PAPER.obsTot[0],PAPER.obsTot[1]);
+  const aStat=ansatzFrom(GHAT,PAPER.obsStat[0],PAPER.obsStat[1]);
+  const s0sq=a.s0*a.s0, statsq=aStat.s0*aStat.s0;
+  /* what is left of sigma_0^2 after statistics is experimental, split by Table 2 */
+  const rest=Math.max(0,s0sq-statsq);
+  const wmH=TAB2.mH[0]*TAB2.mH[0], wes=TAB2.escale[0]*TAB2.escale[0],
+        wot=TAB2.eres[0]*TAB2.eres[0]+TAB2.expOther[0]*TAB2.expOther[0];
+  const wsum=wmH+wes+wot;
+  return {f:a.f, stat:statsq, mH:rest*wmH/wsum, esc:rest*wes/wsum, other:rest*wot/wsum};
+})();
+function budNow(){
+  const s0sq=BASE.stat*(140/BD.lumi)
+            + BASE.mH*BD.mH*BD.mH + BASE.esc*BD.esc*BD.esc + BASE.other;
+  const f=BASE.f*BD.theory;
+  const s0=Math.sqrt(s0sq);
+  const u68=ansatzUL(GHAT,s0,f,1), u95=ansatzUL(GHAT,s0,f,3.84);
+  return {s0,f,u68,u95,
+          w68:isFinite(u68)?u68-GHAT:Infinity, w95:isFinite(u95)?u95-GHAT:Infinity};
+}
+function drawBudget(){
+  const g=cvs('budc'); if(!g) return; const {x,w,h}=g;
+  if(BD.mode==='root'){ drawBudRoot(x,w,h); drawBudSide(); return; }
+  if(BD.mode==='prior'){ drawBudPrior(x,w,h); drawBudSide(); return; }
+  const b=budNow();
+  const FOOT='Bars are live; the short horizontal rules are Table 2 as published. With every slider at its paper value the two agree by construction on the total — the point of the panel is what happens when you move them.';
+  const L=64,R=w-24,T=TAGH+16,B=botFor(x,h,FOOT,R-L)-14;
+  /* grouped bars: each Table 2 group at 68 and 95, paper value as a --warn rule */
+  const st=budStages();
+  const groups=[
+    ['theory',       TAB2.theory, C.gq, st.theory],
+    ['experimental', TAB2.exper,  C.cq, st.exper],
+    ['statistical',  TAB2.stat,   C.bq, st.stat],
+    ['total',        TAB2.total,  C.sq, st.total]];
+  const mx=Math.max(360, isFinite(b.w95)?b.w95*1.15:360);
+  const PY=v=>B-(B-T)*Math.min(v,mx)/mx;
+  ticks(x,L,T,R,B,0,1,0,mx,1,4,()=>'',v=>v.toFixed(0));
+  const gw=(R-L)/groups.length;
+  groups.forEach((gp,i)=>{
+    const base=L+gw*(i+0.5);
+    [[0,'68 %',0.30],[1,'95 %',0.50]].forEach(([k,lab,al])=>{
+      const cx=base+(k?1:-1)*gw*0.20, bw=gw*0.32;
+      const v=gp[3][k], py=PY(isFinite(v)?v:mx);
+      x.fillStyle=hexA(gp[2],al); x.fillRect(cx-bw/2,py,bw,B-py);
+      x.strokeStyle=gp[2]; x.lineWidth=1.5; x.strokeRect(cx-bw/2+.5,py+.5,bw,B-py);
+      const txtv=isFinite(v)?v.toFixed(0):'∞';
+      if(B-py>30) txtMath(x,txtv,cx,py+16,inkOn(gp[2],al),MONO9,'center');
+      else txtHalo(x,txtv,cx,py-5,C.ink,MONO9,'center');
+      /* paper's Table 2 value as a warn rule across this bar */
+      const pr=PY(gp[1][k]);
+      x.save(); x.strokeStyle=C.warn; x.lineWidth=2;
+      x.beginPath(); x.moveTo(cx-bw/2-3,pr); x.lineTo(cx+bw/2+3,pr); x.stroke(); x.restore();
+      txtMath(x,lab,cx,B+13,C.faint,MONO9,'center'); });
+    txtMath(x,gp[0],base,B+27,C.ink,MONO9,'center'); });
+  ylab(x,'half-width on Γ_H [MeV]',T,B,C.faint);
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+  drawBudSide();
+}
+/* Table 2 and Fig. 2 are built by PROGRESSIVELY FIXING groups, not by removing one
+   at a time, so the decomposition is done the same way here: theory first, then
+   experimental, with statistics as the remainder. Each group's entry is the
+   quadrature difference between successive stages. This closes in quadrature to the
+   total by construction — as Table 2 itself does, to 0.5 %. */
+function stageWidths(f,s0sq){
+  const s0=Math.sqrt(s0sq);
+  const a=ansatzUL(GHAT,s0,f,1), b=ansatzUL(GHAT,s0,f,3.84);
+  return [isFinite(a)?a-GHAT:Infinity, isFinite(b)?b-GHAT:Infinity];
+}
+function budStages(){
+  const statsq=BASE.stat*(140/BD.lumi);
+  const expsq=BASE.mH*BD.mH*BD.mH+BASE.esc*BD.esc*BD.esc+BASE.other;
+  const f=BASE.f*BD.theory;
+  const total=stageWidths(f,statsq+expsq);
+  const fixTheory=stageWidths(0,statsq+expsq);
+  const fixExp=stageWidths(0,statsq);
+  const q=(a,b)=>(!isFinite(a)?Infinity:Math.sqrt(Math.max(0,a*a-b*b)));
+  return {total,
+    theory:[q(total[0],fixTheory[0]), q(total[1],fixTheory[1])],
+    exper: [q(fixTheory[0],fixExp[0]), q(fixTheory[1],fixExp[1])],
+    stat:  fixExp};
+}
+function drawBudRoot(x,w,h){
+  const FOOT='On a √Γ axis a purely statistical likelihood is a straight line, because the interference amplitude is linear in √Γ_H. A multiplicative uncertainty on that amplitude opens the denominator as Γ_H grows, bending the curve down and pushing the 95 % crossing out far more than the 68 % one.';
+  const L=58,R=w-24,T=TAGH+14,B=botFor(x,h,FOOT,R-L);
+  const b=budNow(), G1=460;
+  const PX=v=>L+(R-L)*Math.sqrt(v)/Math.sqrt(G1), PY=v=>B-(B-T)*v/5.2;
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  [0,25,100,225,400].forEach(v=>{ x.beginPath(); x.moveTo(PX(v),T); x.lineTo(PX(v),B); x.stroke();
+    txtMath(x,String(v),PX(v),B+14,C.faint,MONO9,'center'); });
+  for(let i=0;i<=4;i++){ const py=PY(5.2*i/4);
+    x.beginPath(); x.moveTo(L,py); x.lineTo(R,py); x.stroke();
+    txtMath(x,(5.2*i/4).toFixed(1),L-6,py+3,C.faint,MONO9,'right'); }
+  [[1,'68 % CL'],[3.84,'95 % CL']].forEach(([t,lab])=>refRule(x,L,R,PY(t),lab,'left'));
+  /* stat-only: exact parabola in sqrt(Gamma) -> a straight line on this axis */
+  const sStat=Math.sqrt(BASE.stat*(140/BD.lumi)+BASE.mH*BD.mH*BD.mH+BASE.esc*BD.esc*BD.esc+BASE.other);
+  [['f = 0  (no theory term)',0,C.bq],['f = '+(100*b.f).toFixed(0)+' %  (live)',b.f,C.cq]]
+   .forEach(([lab,fv,col])=>{
+    x.strokeStyle=col; x.lineWidth=2.2; x.beginPath();
+    for(let i=0;i<=200;i++){ const G=G1*i/200;
+      const t=Math.min(5.2,ansatzT(G,GHAT,sStat,fv));
+      i?x.lineTo(PX(G),PY(t)):x.moveTo(PX(G),PY(t)); }
+    x.stroke(); });
+  txtHalo(x,'f = 0: an exact straight line here',PX(150),PY(ansatzT(150,GHAT,sStat,0))-8,C.bq,MONO9,'left');
+  txtHalo(x,'with the theory term: it bends away',PX(260),PY(ansatzT(260,GHAT,sStat,b.f))+14,C.cq,MONO9,'left');
+  [[PAPER.obsStat[1],C.bq],[PAPER.obsTot[1],C.warn]].forEach(([gv,col])=>{
+    x.fillStyle=col; x.beginPath(); x.arc(PX(gv),PY(3.84),4.5,0,7); x.fill();
+    txtHalo(x,String(gv),PX(gv),B-6,col,MONO9,'center'); });
+  ylab(x,'−2 Δ ln L',T,B,C.faint);
+  txtMath(x,'Γ_H [MeV], on a √Γ axis',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+}
+function drawBudPrior(x,w,h){
+  const FOOT='Three independent routes to the same 27–29 %: the binned toy fit, and the two-parameter description solved against the paper’s expected and observed limits separately. None of them sees 39 %.';
+  const L=64,R=w-24,T=TAGH+16,B=botFor(x,h,FOOT,R-L);
+  const PX=v=>L+(R-L)*v/0.8, PY=v=>B-(B-T)*v/0.8;
+  ticks(x,L,T,R,B,0,0.8,0,0.8,4,4,v=>(100*v).toFixed(0)+'%',v=>(100*v).toFixed(0)+'%');
+  /* prior -> log-slope -> profiled effective */
+  x.save(); x.setLineDash([3,3]); x.strokeStyle=C.faint; x.lineWidth=1;
+  x.beginPath(); x.moveTo(PX(0),PY(0)); x.lineTo(PX(0.8),PY(0.8)); x.stroke(); x.restore();
+  txtHalo(x,'y = x',PX(0.66),PY(0.70),C.faint,MONO9,'left');
+  x.strokeStyle=C.gq; x.lineWidth=2; x.beginPath();
+  for(let i=0;i<=120;i++){ const p=0.8*i/120, v=Math.log(1+p);
+    i?x.lineTo(PX(p),PY(v)):x.moveTo(PX(p),PY(v)); }
+  x.stroke();
+  txtHalo(x,'log-normal log-slope ln(1+f)',PX(0.42),PY(Math.log(1.42))-8,C.gq,MONO9,'left');
+  /* profiled: measured by the toy at 39% -> 27.1%; scale the log-slope curve by that ratio */
+  const k=0.271/Math.log(1.39);
+  x.strokeStyle=C.cq; x.lineWidth=2.2; x.beginPath();
+  for(let i=0;i<=120;i++){ const p=0.8*i/120, v=k*Math.log(1+p);
+    i?x.lineTo(PX(p),PY(v)):x.moveTo(PX(p),PY(v)); }
+  x.stroke();
+  txtHalo(x,'after profiling (toy)',PX(0.50),PY(k*Math.log(1.5))+14,C.cq,MONO9,'left');
+  /* the three independent determinations at the paper's 39% prior */
+  [[0.271,'toy fit',C.cq],[0.278,'from the observed limits',C.warn],[0.291,'from the expected limits',C.warn]]
+   .forEach(([v,lab,col],i)=>{
+    x.fillStyle=col; x.beginPath(); x.arc(PX(0.39),PY(v),4.5,0,7); x.fill();
+    txtHalo(x,lab+' '+(100*v).toFixed(1)+'%',PX(0.39)+10,PY(v)+3+(i-1)*0,col,MONO9,'left'); });
+  x.save(); x.setLineDash([2,3]); x.strokeStyle=C.warn; x.lineWidth=1.2;
+  x.beginPath(); x.moveTo(PX(0.39),T); x.lineTo(PX(0.39),B); x.stroke(); x.restore();
+  txtHalo(x,'paper: 39 %',PX(0.39),T+12,C.warn,MONO9,'center');
+  ylab(x,'effective uncertainty on the amplitude',T,B,C.faint);
+  txtMath(x,'quoted prior on K_I',(L+R)/2,B+30,C.faint,MONO9,'center');
+  txtUp(x,FOOT,L,h-6,R-L,C.muted,MONO9,'left',12);
+  frame(x,L,T,R,B);
+}
+function drawBudSide(){
+  const g=cvs('buds'); if(!g) return; const {x,w,h}=g;
+  const L=58,R=w-130,T=14,B=h-26;
+  const b=budNow();
+  const lums=[]; for(let i=0;i<=60;i++) lums.push(20*Math.pow(300/20,i/60));
+  const save=BD.lumi;
+  const vals=lums.map(l=>{ BD.lumi=l; const r=budNow(); return isFinite(r.u95)?r.u95:1e9; });
+  BD.lumi=save;
+  const PX=l=>L+(R-L)*(Math.log10(l)-Math.log10(20))/(Math.log10(300)-Math.log10(20));
+  const PY=v=>B-(B-T)*Math.min(v,600)/600;
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  [20,50,100,200,300].forEach(l=>{ x.beginPath(); x.moveTo(PX(l),T); x.lineTo(PX(l),B); x.stroke();
+    txtMath(x,String(l),PX(l),B+13,C.faint,MONO9,'center'); });
+  x.strokeStyle=C.sq; x.lineWidth=2; x.beginPath();
+  vals.forEach((v,i)=>i?x.lineTo(PX(lums[i]),PY(v)):x.moveTo(PX(lums[i]),PY(v)));
+  x.stroke();
+  /* the floor: infinite luminosity */
+  BD.lumi=1e7; const fl=budNow(); BD.lumi=save;
+  if(isFinite(fl.u95)) refRule(x,L,R,PY(fl.u95),'floor '+fl.u95.toFixed(0)+' MeV at infinite data','left');
+  x.fillStyle=C.bq; x.beginPath(); x.arc(PX(Math.min(300,BD.lumi)),PY(isFinite(b.u95)?b.u95:600),4.5,0,7); x.fill();
+  txtMath(x,'integrated luminosity [fb^-1]',(L+R)/2,B+26,C.faint,MONO9,'center');
+  ylab(x,'95% UL [MeV]',T,B,C.faint);
+  txtDown(x,'More data cannot cross the floor set by the multiplicative theory term.',R+10,T+14,w-R-16,C.faint,MONO9,'left',11);
+  frame(x,L,T,R,B);
+}
+function updBudget(){
+  const b=budNow();
+  $('#b_r1').textContent=isFinite(b.w68)?b.w68.toFixed(0)+' MeV':'∞';
+  $('#b_r2').textContent=isFinite(b.w95)?b.w95.toFixed(0)+' MeV':'∞';
+  $('#b_r3').textContent=isFinite(b.u95)?b.u95.toFixed(0)+' MeV':'∞';
+  $('#v_bt').textContent=(100*BD.theory).toFixed(0)+' %';
+  $('#v_bm').textContent=(100*BD.mH).toFixed(0)+' %';
+  $('#v_be').textContent=(100*BD.esc).toFixed(0)+' %';
+  $('#v_bs').innerHTML=BD.lumi.toFixed(0)+' fb<sup>&minus;1</sup>';
+  $('#b_live').innerHTML='t(&Gamma;) = (&radic;&Gamma; &minus; &radic;12.0)<sup>2</sup> / ('+
+    (b.s0*b.s0).toFixed(1)+' + '+(b.f*b.f).toFixed(4)+'&thinsp;&Gamma;) &nbsp;·&nbsp; '+
+    '&sigma;<sub>0</sub> = <b>'+b.s0.toFixed(2)+'</b> MeV<sup>1/2</sup>, f = <b>'+(100*b.f).toFixed(1)+
+    ' %</b> &nbsp;·&nbsp; paper: &sigma;<sub>0</sub> = 5.41, f = 27.8 %';
+  const s=(function(){const t=BD.theory;BD.theory=0;const r=budNow();BD.theory=t;return r;})();
+  $('#b_stat').textContent = BD.theory===0
+    ? 'Theory off: the 95 % limit falls to '+(isFinite(s.u95)?s.u95.toFixed(0):'—')+
+      ' MeV from 319. Two thirds of the published limit is one nuisance parameter.'
+    : 'Total and statistical rows land on Table 2 (78/307 vs 77/307; 40/106 vs 40/103). Theory and '+
+      'experimental do not: this model puts ~10 MeV less in theory and ~10 MeV more in experimental at 68 % CL.';
+  drawBudget();
+}
+draws.budget=drawBudget;
+$$('[data-bmode]').forEach(b=>b.addEventListener('click',()=>{
+  BD.mode=b.dataset.bmode;
+  $$('[data-bmode]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  $('#budtag').innerHTML=BD.mode==='stack'?'Contribution to the limit on &Gamma;<sub>H</sub> [MeV]'
+    :BD.mode==='root'?'&minus;2 &Delta;ln L on a &radic;&Gamma; axis'
+    :'quoted prior vs effective uncertainty';
+  drawBudget(); }));
+$('#s_bt').addEventListener('input',e=>{ BD.theory=+e.target.value/100; updBudget(); });
+$('#s_bm').addEventListener('input',e=>{ BD.mH=+e.target.value/100; updBudget(); });
+$('#s_be').addEventListener('input',e=>{ BD.esc=+e.target.value/100; updBudget(); });
+$('#s_bs').addEventListener('input',e=>{ BD.lumi=(+e.target.value)*3.5; updBudget(); });
+$('#s_breset').addEventListener('click',()=>{ BD.theory=1;BD.mH=1;BD.esc=1;BD.lumi=140;
+  $('#s_bt').value=100;$('#s_bm').value=100;$('#s_be').value=100;$('#s_bs').value=40; updBudget(); });
+$('#s_bzero').addEventListener('click',()=>{ BD.theory=0; $('#s_bt').value=0; updBudget(); });
+
+/* =================================================================
+   PANEL: CATEGORIES
+   ================================================================= */
+const CT={mig:0, migq:0, use:'both', res:null, busy:false};
+/* Table 1 with a fraction of the interference moved from low to high p_T.
+   The migration systematics of Sec. 6 are exactly this: +-3.6/3.4 % for gg and
+   +-15.8/4.3 % for qg. Total yields are conserved. */
+function catRows(){
+  const a=Object.assign({},TAB1[0]), b=Object.assign({},TAB1[1]);
+  const dg=CT.mig/100*Math.abs(TAB1[0].gg), dq=CT.migq/100*Math.abs(TAB1[0].qg);
+  a.gg=TAB1[0].gg+dg; b.gg=TAB1[1].gg-dg;
+  a.qg=TAB1[0].qg-dq; b.qg=TAB1[1].qg+dq;
+  if(CT.use==='lo')  return [a];
+  if(CT.use==='hi')  return [b];
+  if(CT.use==='merge') return [{name:'merged',S:a.S+b.S,gg:a.gg+b.gg,qg:a.qg+b.qg,B:a.B+b.B,
+     sig:(a.sig*a.S+b.sig*b.S)/(a.S+b.S)}];
+  return [a,b];
+}
+function runCats(){
+  CT.busy=true; $('#c_stat').textContent='Re-fitting…';
+  setTimeout(()=>{
+    const o=defaults();
+    const mk=rows=>scan(o,{mH:0,kI:0,Gtrue:4.1,ng:22,gmax:700,rows});
+    const a=Object.assign({},TAB1[0]), b=Object.assign({},TAB1[1]);
+    CT.res={ sel:mk(catRows()),
+             both:mk([a,b]),
+             lo:mk([a]), hi:mk([b]),
+             merge:mk([{name:'merged',S:a.S+b.S,gg:a.gg+b.gg,qg:a.qg+b.qg,B:a.B+b.B,
+               sig:(a.sig*a.S+b.sig*b.S)/(a.S+b.S)}]) };
+    CT.busy=false; updCatsText(); drawCats();
+  },20); }
+function updCatsText(){
+  const r=catRows(), R=CT.res; if(!R) return;
+  const lo=CT.use==='hi'?null:r[0], hi=CT.use==='both'?r[1]:(CT.use==='hi'?r[0]:null);
+  const pc=c=>c?(100*(c.gg+c.qg)/c.S).toFixed(2)+' %':'—';
+  $('#c_r1').textContent=CT.use==='hi'?'—':pc(lo);
+  $('#c_r2').textContent=hi?pc(hi):'—';
+  $('#c_r3').textContent=isFinite(R.sel.ul95)?R.sel.ul95.toFixed(1)+' MeV':'—';
+  const gain=(R.merge.ul95/R.both.ul95-1)*100;
+  $('#c_r4').textContent=gain.toFixed(1)+' %';
+  $('#v_cm').textContent=(CT.mig>0?'+':'')+CT.mig+' %';
+  $('#v_cq').textContent=(CT.migq>0?'+':'')+CT.migq+' %';
+  const sa=x2=>Math.sqrt(x2.ul68)-Math.sqrt(4.1);
+  const comb=1/Math.sqrt(1/Math.pow(sa(R.lo),2)+1/Math.pow(sa(R.hi),2));
+  $('#c_live').innerHTML='each category alone: <b>'+R.lo.ul95.toFixed(1)+'</b> and <b>'+
+    R.hi.ul95.toFixed(1)+'</b> MeV &nbsp;·&nbsp; together <b>'+R.both.ul95.toFixed(1)+
+    '</b> &nbsp;·&nbsp; merged into one <b>'+R.merge.ul95.toFixed(1)+'</b> MeV<br>'+
+    'amplitude precisions combine as independent measurements: 1/&radic;(1/'+sa(R.lo).toFixed(2)+
+    '<sup>2</sup> + 1/'+sa(R.hi).toFixed(2)+'<sup>2</sup>) = <b>'+comb.toFixed(3)+
+    '</b> against <b>'+sa(R.both).toFixed(3)+'</b> measured.';
+  $('#c_stat').textContent='Splitting at 30 GeV is worth '+gain.toFixed(1)+
+    ' % against a single merged category. §4 rejects a finer binning that would add "at most 17 %".';
+}
+function drawCats(){
+  const g=cvs('catc'); if(!g) return; const {x,w,h}=g;
+  const stack=w<560;
+  const gap=18, colW=stack?w-48:(w-48-gap)/2;
+  const T=TAGH+16;
+  const r=catRows(), R=CT.res;
+  const F1='Rules are Table 1. High p_T is the larger of the two — the opposite of what §4 says.';
+  const F2=R?('Merging the two categories costs '+((R.merge.ul95/R.both.ul95-1)*100).toFixed(1)+
+    ' %. Almost all of the sensitivity is lineshape, not category contrast.'):'';
+  /* Each sub-plot reserves its own footer band; the right one also needs an axis
+     title, so it gets 18px more. Stacked, the two share the height. */
+  x.font=MONO9;
+  const n1=wrapLines(x,F1,colW-52,MONO9).length;
+  const n2=F2?wrapLines(x,F2,colW-96,MONO9).length:0;
+  /* Bands below each sub-plot: the left one needs category labels then its caption,
+     the right one an axis title then its caption. Reserve both before splitting the
+     height, or the left caption lands inside the right plot. */
+  const band1=32+n1*11, band2=23+n2*11;
+  let Bl,T2,B2;
+  if(stack){
+    const plotH=Math.max(70,(h-T-band1-band2-10)/2);
+    Bl=Math.round(T+plotH);
+    T2=Math.round(Bl+band1);
+    B2=Math.round(T2+plotH);
+  } else {
+    Bl=Math.round(h-band1); T2=T; B2=Math.round(h-band2);
+  }
+  const x0=24, x1=stack?24:24+colW+gap;
+  /* left: net I/S per category, with Table 1 drawn as --warn rules */
+  (function(){
+    const L=x0+52, Rr=x0+colW, lo=-3.0, hi=0.0;
+    const PY=v=>Bl-(Bl-T)*(v-lo)/(hi-lo);
+    ticks(x,L,T,Rr,Bl,0,1,lo,hi,1,3,()=>'',v=>v.toFixed(1));
+    const cats=[[TAB1[0],'p_T < 30',C.bq],[TAB1[1],'p_T ≥ 30',C.cq]];
+    cats.forEach((cc,i)=>{
+      const cx=L+(Rr-L)*(i+0.5)/2, bw=(Rr-L)/2*0.42;
+      const paper=100*(cc[0].gg+cc[0].qg)/cc[0].S;
+      let cur=paper;
+      if(CT.use==='both'&&r.length>1) cur=100*(r[i].gg+r[i].qg)/r[i].S;
+      else if((CT.use==='lo'&&i===0)||(CT.use==='hi'&&i===1)) cur=100*(r[0].gg+r[0].qg)/r[0].S;
+      else if(CT.use==='merge') cur=100*(r[0].gg+r[0].qg)/r[0].S;
+      const y0=PY(0), y1=PY(cur);
+      x.fillStyle=hexA(cc[2],0.40); x.fillRect(cx-bw/2,y0,bw,y1-y0);
+      x.strokeStyle=cc[2]; x.lineWidth=1.6; x.strokeRect(cx-bw/2+.5,y0+.5,bw,y1-y0);
+      if(y1-y0>30) txtMath(x,cur.toFixed(2)+' %',cx,y1-9,inkOn(cc[2],0.40),MONO9,'center');
+      else txtHalo(x,cur.toFixed(2)+' %',cx,y1+12,cc[2],MONO9,'center');
+      const pr=PY(paper);
+      x.save(); x.strokeStyle=C.warn; x.lineWidth=2;
+      x.beginPath(); x.moveTo(cx-bw/2-4,pr); x.lineTo(cx+bw/2+4,pr); x.stroke(); x.restore();
+      txtMath(x,cc[1],cx,Bl+14,C.ink,MONO9,'center'); });
+    ylab(x,'net interference / signal [%]',T,Bl,C.faint);
+    txtDown(x,F1,L,Bl+30,Rr-L,C.warn,MONO9,'left',11);
+    frame(x,L,T,Rr,Bl);
+  })();
+  /* right: what each configuration of categories buys */
+  (function(){
+    const L=x1+92, Rr=x1+colW;
+    if(!R){ txtMath(x,'fitting…',(L+Rr)/2,(T2+B2)/2,C.faint,MONO,'center'); return; }
+    const rows=[['low p_T alone',R.lo.ul95,C.bq],['high p_T alone',R.hi.ul95,C.cq],
+                ['merged',R.merge.ul95,C.bkg],['both (the paper)',R.both.ul95,C.sq]];
+    const mx=Math.max.apply(null,rows.map(v=>v[1]))*1.22;
+    const PX=v=>L+(Rr-L)*v/mx;
+    const bh=(B2-T2)/rows.length;
+    rows.forEach((rw,i)=>{
+      const y=T2+bh*(i+0.5), bw=Math.min(bh*0.48,22);
+      x.fillStyle=hexA(rw[2],0.40); x.fillRect(L,y-bw/2,PX(rw[1])-L,bw);
+      x.strokeStyle=rw[2]; x.lineWidth=1.5; x.strokeRect(L+.5,y-bw/2+.5,PX(rw[1])-L,bw);
+      txtMath(x,rw[0],L-6,y+3,C.muted,MONO9,'right');
+      txtHalo(x,rw[1].toFixed(1),PX(rw[1])+7,y+4,rw[2],MONO9,'left'); });
+    txtMath(x,'expected 95% UL on Γ_H [MeV], stat only',(L+Rr)/2,B2+15,C.faint,MONO9,'center');
+    txtDown(x,F2,x1+6,B2+30,Rr-x1-6,C.muted,MONO9,'left',11);
+    frame(x,L,T2,Rr,B2);
+  })();
+  drawCatsSide();
+}
+function drawCatsSide(){
+  const g=cvs('cats2'); if(!g) return; const {x,w,h}=g;
+  const L=58,Rr=w-150,T=14,B=h-26;
+  /* how the combined sensitivity responds to the category contrast */
+  const o=defaults();
+  const PX=v=>L+(Rr-L)*(v+30)/60;
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  [-30,-15,0,15,30].forEach(v=>{ x.beginPath(); x.moveTo(PX(v),T); x.lineTo(PX(v),B); x.stroke();
+    txtMath(x,(v>0?'+':'')+v,PX(v),B+13,C.faint,MONO9,'center'); });
+  /* analytic: contrast between the two categories' I/S ratios */
+  const contrast=m=>{
+    const dg=m/100*Math.abs(TAB1[0].gg);
+    const a=(TAB1[0].gg+dg+TAB1[0].qg)/TAB1[0].S, b=(TAB1[1].gg-dg+TAB1[1].qg)/TAB1[1].S;
+    return Math.abs(b-a)/Math.abs(0.5*(a+b))*100; };
+  let mx=0; for(let m=-30;m<=30;m++) mx=Math.max(mx,contrast(m));
+  const PY=v=>B-(B-T)*v/(mx*1.15);
+  x.strokeStyle=C.sq; x.lineWidth=2; x.beginPath();
+  for(let m=-30;m<=30;m+=0.5){ const px=PX(m), py=PY(contrast(m));
+    m===-30?x.moveTo(px,py):x.lineTo(px,py); }
+  x.stroke();
+  x.fillStyle=C.bq; x.beginPath(); x.arc(PX(CT.mig),PY(contrast(CT.mig)),4.5,0,7); x.fill();
+  /* the paper's own migration systematic, +-3.6% on gg */
+  x.fillStyle=hexA(C.warn,0.10); x.fillRect(PX(-3.6),T,PX(3.6)-PX(-3.6),B-T);
+  txtHalo(x,'§6: ±3.6 %',PX(0),T+12,C.warn,MONO9,'center');
+  txtMath(x,'gg-interference migration low → high [%]',(L+Rr)/2,B+26,C.faint,MONO9,'center');
+  ylab(x,'category contrast [%]',T,B,C.faint);
+  txtDown(x,'Contrast is what a split can exploit. Table 1 sits near its minimum — the two categories look almost alike.',
+    Rr+10,T+14,w-Rr-16,C.faint,MONO9,'left',11);
+  frame(x,L,T,Rr,B);
+}
+draws.cats=drawCats;
+$$('[data-cuse]').forEach(b=>b.addEventListener('click',()=>{
+  CT.use=b.dataset.cuse;
+  $$('[data-cuse]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  runCats(); }));
+let catTimer=null;
+$('#s_cm').addEventListener('input',e=>{ CT.mig=+e.target.value;
+  $('#v_cm').textContent=(CT.mig>0?'+':'')+CT.mig+' %'; drawCats();
+  clearTimeout(catTimer); catTimer=setTimeout(runCats,260); });
+$('#s_cq').addEventListener('input',e=>{ CT.migq=+e.target.value;
+  $('#v_cq').textContent=(CT.migq>0?'+':'')+CT.migq+' %'; drawCats();
+  clearTimeout(catTimer); catTimer=setTimeout(runCats,260); });
+$('#s_creset').addEventListener('click',()=>{ CT.mig=0; CT.migq=0; CT.use='both';
+  $('#s_cm').value=0; $('#s_cq').value=0;
+  $$('[data-cuse]').forEach(o=>o.setAttribute('aria-pressed',o.dataset.cuse==='both'?'true':'false'));
+  runCats(); });
+
+/* =================================================================
+   METHODS FOOTER + BOOT
+   ================================================================= */
+$('#methods').innerHTML=
+ '<b>What is live and what is transcribed.</b> Table 1 and Table 2 are typed in verbatim and are the only '+
+ 'inputs the toys take from the paper. Everything on a canvas is computed in your browser from those numbers: '+
+ 'the interference lineshape is a double-sided Crystal Ball plus its own Hilbert transform (Dawson function, '+
+ 'checked against tabulated values to 2&times;10<sup>&minus;6</sup>), and the fit is a genuine binned Asimov '+
+ 'profile-likelihood scan over 2 categories &times; 220 bins with 7&ndash;9 profiled parameters. Values drawn in '+
+ 'red&mdash;brown are always the paper&rsquo;s; coloured bars and curves are always live.<br><br>'+
+ '<b>The one tuned number.</b> The interference-induced peak shift at the SM width is not published, and the '+
+ 'measurement cannot be reconstructed without it. It is set here to &minus;38.5 MeV by matching the expected '+
+ 'statistical-only 68&nbsp;% limit, and it is degenerate with the assumed mass resolution along '+
+ '&sigma;<sup>1.64</sup>. Every other limit shown is then a prediction; the worst deviation across the paper&rsquo;s '+
+ 'eight published limits is 6&nbsp;%.<br><br>'+
+ '<b>What the toys omit.</b> Per-category lineshapes (assumed identical up to yields), the 70 energy-scale and '+
+ '9 resolution components (collapsed into one peak-position nuisance calibrated from Table 2), the '+
+ 'positive/negative-weight DSCB decomposition of &sect;5 (replaced by the underlying analytic shape), '+
+ 'spurious signal, the injection-test bias, PDF and scale nuisances, and the non-ggF production modes '+
+ '(included as a slider; they turn out not to matter). The error-budget panel is a two-parameter description '+
+ 'of the likelihood fitted to the paper&rsquo;s own published limits, not an independent calculation &mdash; it '+
+ 'reproduces the total and statistical rows of Table 2 and deliberately does not reproduce the theory/experimental '+
+ 'split, which is a finding rather than a failure.<br><br>'+
+ '<b>Source.</b> ATLAS Collaboration, <i>Constraints on the Higgs boson total width from on-shell '+
+ 'signal&ndash;background interference in the H&nbsp;&rarr;&nbsp;&gamma;&gamma; decay channel with the ATLAS '+
+ 'detector</i>, ATLAS draft ANA-HIGP-2024-12, version 1.0, 26 July 2026; intended for Phys. Lett. B. '+
+ 'Literature values for the mass shift are from S. P. Martin, Phys. Rev. D 86 (2012) 073016 and '+
+ 'L. J. Dixon and Y. Li, Phys. Rev. Lett. 111 (2013) 111802. This file is an independent reconstruction and '+
+ 'is not endorsed by the ATLAS Collaboration.';
+
+/* ---- BOOT: draw every panel once so readouts populate ---- */
+renderStep();
+updShape();
+updBudget();
+runFit();
+runCats();
+})();
+
+</script>
+</body>
+</html>

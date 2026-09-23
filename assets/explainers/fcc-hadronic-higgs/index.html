@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hadronic Higgs decays at FCC-ee — an interactive dissection</title>
+<style>
+:root{
+  --paper:#FCFCFA;
+  --panel:#F3F3EF;
+  --ink:#17181B;
+  --muted:#6E7076;
+  --faint:#9B9C9F;
+  --rule:#DDDCD6;
+  --bq:#2E4E7E;
+  --cq:#B26A2C;
+  --sq:#3F7A5B;
+  --gq:#7A4A8C;
+  --bkgc:#9B9C9F;
+  --e240:#2E4E7E;
+  --e365:#9B4A2F;
+  --warn:#9B4A2F;
+  --serif: "Iowan Old Style","Charter","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --mono: ui-monospace,"SF Mono",Menlo,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--serif); font-size:16.5px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1040px;margin:0 auto;padding:0 28px 90px}
+
+/* ---------- masthead ---------- */
+header.top{padding:56px 0 22px;border-bottom:1px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.08;margin:14px 0 10px;font-weight:600;letter-spacing:-.015em}
+h1 em{font-style:italic;color:var(--muted)}
+.standfirst{max-width:64ch;color:#3A3B3E;margin:0}
+
+/* ---------- tabs ---------- */
+nav.tabs{display:flex;gap:0;border-bottom:1px solid var(--rule);margin-bottom:34px;flex-wrap:wrap}
+nav.tabs button{
+  appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding:16px 15px 13px;cursor:pointer;margin-bottom:-1px;
+}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+nav.tabs button:focus-visible{outline:2px solid var(--bq);outline-offset:-4px}
+section.panel{display:none}
+section.panel.on{display:block}
+
+/* ---------- figure frame ---------- */
+.figframe{border:1px solid var(--rule);background:#fff;position:relative}
+.figframe canvas{display:block;width:100%;height:330px}
+/* the alpha map is a drag surface: claim the gesture so a touch-drag probes
+   instead of scrolling the page */
+#alphac{touch-action:none;cursor:crosshair}
+.figtag{
+  position:absolute;top:0;left:0;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);padding:9px 12px;pointer-events:none;
+}
+.figcap{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;padding:9px 2px 0;text-align:right}
+
+/* ---------- walkthrough ---------- */
+.step-head{display:flex;align-items:baseline;gap:14px;margin:26px 0 6px}
+.step-num{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em}
+.step-head h2{font-size:25px;margin:0;font-weight:600;letter-spacing:-.01em}
+.step-body{max-width:68ch;color:#333437;margin:0}
+.step-body b{font-weight:600}
+.step-body code,code{font-family:var(--mono);font-size:.86em;background:var(--panel);padding:1px 5px;border-radius:2px}
+.tagpill{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border:1px solid;border-radius:2px}
+.tagpill.a{color:var(--e240);border-color:var(--e240)}
+.tagpill.b{color:var(--e365);border-color:var(--e365)}
+.stepnav{display:flex;align-items:center;gap:16px;margin-top:30px;padding-top:18px;border-top:1px solid var(--rule)}
+.stepnav button{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);color:var(--ink);padding:9px 15px;cursor:pointer;border-radius:2px;
+}
+.stepnav button:hover:not(:disabled){border-color:var(--ink)}
+.stepnav button:disabled{color:var(--faint);cursor:default}
+.dots{display:flex;gap:7px;margin-left:auto}
+.dots i{width:7px;height:7px;border:1px solid var(--faint);border-radius:50%;cursor:pointer;display:block}
+.dots i.on{background:var(--ink);border-color:var(--ink)}
+
+/* ---------- playground ---------- */
+.pg{display:grid;grid-template-columns:308px 1fr;gap:26px;align-items:start}
+.ctrl{border:1px solid var(--rule);padding:18px;background:var(--panel)}
+.ctrl h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:400}
+.ctrl h3+h3,.ctrl h3.gap{margin-top:22px}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.btnrow button,.shapes button{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  background:#fff;border:1px solid var(--rule);padding:7px 10px;cursor:pointer;border-radius:2px;color:var(--ink);
+}
+.btnrow button:hover,.shapes button:hover{border-color:var(--ink)}
+.btnrow button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btnrow button.primary:hover{background:#000}
+.btnrow button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+label.slider{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-top:15px}
+label.slider span.v{float:right;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ink);margin-top:5px}
+.subtabs{display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:18px;flex-wrap:wrap}
+.subtabs button{
+  flex:1;background:#fff;border:0;padding:11px 6px;cursor:pointer;min-width:120px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.subtabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.readouts{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);border-top:0}
+.readouts div{padding:11px 12px;border-right:1px solid var(--rule)}
+.readouts div:last-child{border-right:0}
+.readouts span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.readouts strong{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:-.02em}
+.sidecanvas{border:1px solid var(--rule);border-top:0;background:#fff}
+.sidecanvas canvas{display:block;width:100%;height:170px}
+.note{font-size:14.2px;color:var(--muted);max-width:70ch;margin-top:20px}
+.status{font-family:var(--mono);font-size:11px;color:var(--muted);min-height:1.5em;margin-top:12px;letter-spacing:.03em;line-height:1.5}
+.legend{display:flex;gap:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+.legend i{width:9px;height:9px;display:inline-block;margin-right:6px;border-radius:50%;vertical-align:-1px}
+
+/* ---------- equation slab ---------- */
+/* nowrap so a formula scrolls rather than breaking mid-expression on a phone;
+   the prose annotations inside still wrap normally */
+.eq{border-left:2px solid var(--ink);background:var(--panel);padding:14px 18px;margin:22px 0;font-family:var(--mono);font-size:13.5px;line-height:1.9;overflow-x:auto;white-space:nowrap}
+.eq b{color:var(--ink);font-weight:600}
+.eq .an{color:var(--muted);font-family:var(--serif);font-size:14.5px;display:block;margin-top:6px;white-space:normal}
+/* display math: native MathML, no library. Inline <math> inside a flex row so
+   equations stay left-aligned with the slab and can carry a trailing note;
+   math-style:normal gives display-size fractions, radicals and sum limits. */
+.eq math{font-size:16.5px;math-style:normal;color:var(--ink)}
+.eqrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:4px 0;line-height:normal}
+.eqrow .key{font-weight:600}
+.eqlead,.eqnote{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:normal}
+/* symbol glossary under an equation */
+dl.sym{display:grid;grid-template-columns:auto 1fr;gap:5px 16px;margin:14px 0 2px;white-space:normal;align-items:baseline}
+dl.sym dt{font-family:var(--mono);font-size:12.5px;color:var(--ink);text-align:right}
+dl.sym dd{margin:0;font-family:var(--serif);font-size:14.2px;color:var(--muted);line-height:1.45}
+dl.sym dd b{color:var(--ink);font-weight:600}
+/* vector accent: U+20D7 (combining right arrow above) has no glyph in either
+   font stack and rendered as a .notdef box, so the arrow is drawn as an
+   accent over the symbol instead (MathML uses <mover> and needs none of this) */
+.vec{position:relative}
+.vec::after{content:"→";position:absolute;left:-.06em;right:-.06em;top:-.62em;
+  font-size:.62em;line-height:1;text-align:center;font-weight:400;pointer-events:none}
+.eqlive{font-family:var(--mono);font-size:12.5px;color:var(--muted);border:1px solid var(--rule);border-top:0;padding:12px 14px;background:#fff;line-height:1.8}
+.eqlive b{color:var(--ink)}
+
+/* ---------- challenge ---------- */
+details.ch{border:1px solid var(--rule);border-left:2px solid var(--cq);background:#fff;margin:18px 0;padding:0}
+details.ch>summary{
+  cursor:pointer;padding:13px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--cq);list-style:none;
+}
+details.ch>summary::-webkit-details-marker{display:none}
+details.ch>summary::before{content:"▸ ";}
+details.ch[open]>summary::before{content:"▾ ";}
+details.ch .q{padding:0 18px 4px;font-size:15.4px;max-width:72ch}
+details.ch .a{padding:12px 18px 18px;font-size:14.8px;color:#333437;border-top:1px solid var(--rule);margin-top:12px;background:var(--panel);max-width:none}
+details.ch .a b{font-weight:600}
+
+/* ---------- tables ---------- */
+table.cmp{width:100%;border-collapse:collapse;margin-top:20px;font-size:14.4px}
+table.cmp th,table.cmp td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp thead th{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--ink)}
+table.cmp td:first-child{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:12px}
+table.num{width:100%;border-collapse:collapse;margin-top:18px;font-family:var(--mono);font-size:12.5px}
+table.num th,table.num td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:right}
+table.num th:first-child,table.num td:first-child{text-align:left;color:var(--muted);letter-spacing:.06em}
+table.num thead th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--ink)}
+table.num tbody tr:hover{background:var(--panel)}
+.hi{color:var(--warn)}
+h3.sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;margin:46px 0 0;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+h3.sec:first-child{margin-top:0}
+.crit{border:1px solid var(--rule);border-left:2px solid var(--warn);padding:15px 18px;margin:16px 0;background:#fff}
+.crit b{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin-bottom:6px;font-weight:400}
+.crit p{margin:0;font-size:14.8px;color:#333437;max-width:76ch}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:24px;border:1px solid var(--rule)}
+.pipeline div{padding:15px 15px 17px;border-right:1px solid var(--rule)}
+.pipeline div:last-child{border-right:0}
+.pipeline b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:7px;font-weight:400}
+.pipeline p{margin:0;font-size:13.8px;line-height:1.5}
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.4px;color:var(--muted);max-width:74ch}
+.twoup{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);border-top:0}
+.twoup>div{border-right:1px solid var(--rule)}
+.twoup>div:last-child{border-right:0}
+.twoup canvas{display:block;width:100%;height:190px}
+/* ---------- focus ---------- */
+.subtabs button:focus-visible,
+.btnrow button:focus-visible,
+.shapes button:focus-visible,
+.stepnav button:focus-visible{
+  outline:2px solid var(--bq); outline-offset:-3px;
+}
+details.ch>summary:focus-visible{outline:2px solid var(--bq);outline-offset:-3px}
+input[type=range]:focus-visible{outline:2px solid var(--bq);outline-offset:3px;border-radius:2px}
+
+@media (max-width:880px){
+  .pg{grid-template-columns:1fr}
+  .pipeline{grid-template-columns:1fr}
+  .pipeline div{border-right:0;border-bottom:1px solid var(--rule)}
+  .readouts{grid-template-columns:1fr 1fr}
+  .readouts div:nth-child(2){border-right:0}
+  .twoup{grid-template-columns:1fr}
+  .twoup>div{border-right:0;border-bottom:1px solid var(--rule)}
+  .wrap{padding:0 18px 60px}
+  /* the 8-column results tables are wider than a phone: scroll them on their
+     own instead of pushing the whole page sideways */
+  table.num,table.cmp{display:block;overflow-x:auto}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">FCC-ee · Z(ℓℓ/νν/qq) H(jj) · an interactive dissection</div>
+  <h1>Two thirds of the Higgs, <em>and nobody has seen most of it</em></h1>
+  <p class="standfirst">B(H→b̄b) + B(H→gg) + B(H→c̄c) = 69.3%. The LHC has one of those three at ~15% precision, one at the edge of existence, and one not at all. This is a working dissection of the FCC-ee note that claims 0.21% / 1.6% / 0.8% — with the kinematics, the tagger, and the likelihood put back in your hands so you can find out where those numbers actually come from, and where they are softer than they look.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-panel="walk">Walkthrough</button>
+  <button role="tab" aria-selected="false" data-panel="kin">Kinematics</button>
+  <button role="tab" aria-selected="false" data-panel="tag">Tagger &amp; categories</button>
+  <button role="tab" aria-selected="false" data-panel="fit">The likelihood</button>
+  <button role="tab" aria-selected="false" data-panel="mode">ZH vs VBF</button>
+  <button role="tab" aria-selected="false" data-panel="ref">Reference &amp; critique</button>
+</nav>
+
+<!-- ================= WALKTHROUGH ================= -->
+<section class="panel on" id="walk">
+  <div class="figframe">
+    <canvas id="figc"></canvas>
+    <div class="figtag" id="figtag">Fig. 01</div>
+  </div>
+  <div class="figcap" id="figcap"></div>
+
+  <div class="step-head">
+    <span class="step-num" id="stepnum">01 / 09</span>
+    <span class="tagpill a" id="stepdir">Why</span>
+  </div>
+  <div class="step-head" style="margin-top:2px"><h2 id="steptitle"></h2></div>
+  <p class="step-body" id="steptext"></p>
+
+  <div class="stepnav">
+    <button id="prev">← Back</button>
+    <button id="next">Next →</button>
+    <div class="dots" id="dots"></div>
+  </div>
+</section>
+
+<!-- ================= KINEMATICS ================= -->
+<section class="panel" id="kin">
+  <div class="subtabs" style="max-width:560px">
+    <button data-kmode="recoil" aria-pressed="true">Recoil mass</button>
+    <button data-kmode="alpha" aria-pressed="false">α-rescaling</button>
+    <button data-kmode="fourjet" aria-pressed="false">4-jet constrained fit</button>
+  </div>
+
+  <!-- --- recoil --- -->
+  <div id="k-recoil">
+    <div class="pg">
+      <div class="ctrl">
+        <h3>Beam</h3>
+        <div class="btnrow">
+          <button data-rs="240" aria-pressed="true">√s = 240</button>
+          <button data-rs="365" aria-pressed="false">√s = 365</button>
+        </div>
+        <label class="slider">Beam energy spread per beam <span class="v" id="v_bes">222 MeV</span>
+          <input type="range" id="s_bes" min="0" max="600" value="222" step="10"></label>
+        <label class="slider">Track momentum term a (σ<sub>p</sub>/p = a·p) <span class="v" id="v_res">2.0e-5</span>
+          <input type="range" id="s_res" min="0" max="100" value="20" step="1"></label>
+        <label class="slider">ISR strength <span class="v" id="v_isr">nominal</span>
+          <input type="range" id="s_isr" min="0" max="200" value="100" step="5"></label>
+        <h3 class="gap">Lepton flavour</h3>
+        <div class="btnrow">
+          <button data-lep="mu" aria-pressed="true">Z → μμ</button>
+          <button data-lep="e" aria-pressed="false">Z → ee</button>
+        </div>
+        <label class="slider">Background level <span class="v" id="v_bkg">nominal</span>
+          <input type="range" id="s_bkg" min="0" max="300" value="100" step="5"></label>
+        <div class="btnrow" style="margin-top:16px">
+          <button class="primary" id="rerun">Resample 60k events</button>
+        </div>
+        <div class="status" id="recoilstat"></div>
+      </div>
+      <div>
+        <div class="figframe">
+          <canvas id="recoilc"></canvas>
+          <div class="figtag">m<sub>recoil</sub> — Z(ℓℓ)H</div>
+        </div>
+        <div class="readouts">
+          <div><span>Peak σ (core)</span><strong id="rr_sig">—</strong></div>
+          <div><span>From beam spread</span><strong id="rr_bes">—</strong></div>
+          <div><span>From tracking</span><strong id="rr_trk">—</strong></div>
+          <div><span>S/B in ±2σ</span><strong id="rr_sb">—</strong></div>
+        </div>
+        <div class="eqlive" id="recoileq"></div>
+      </div>
+    </div>
+
+    <div class="eq">
+      <div class="eqrow"><math>
+        <msubsup><mi>m</mi><mi>rec</mi><mn>2</mn></msubsup><mo>=</mo>
+        <msup><mrow><mo stretchy="false">|</mo><msub><mi>P</mi><mi>i</mi></msub><mo>−</mo><msub><mi>P</mi><mi>ℓℓ</mi></msub><mo stretchy="false">|</mo></mrow><mn>2</mn></msup>
+        <mo>=</mo>
+        <mrow class="key"><mi>s</mi><mo>−</mo><mn>2</mn><msqrt><mi>s</mi></msqrt><mo>⋅</mo><msub><mi>E</mi><mi>ℓℓ</mi></msub><mo>+</mo><msubsup><mi>m</mi><mi>ℓℓ</mi><mn>2</mn></msubsup></mrow>
+      </math></div>
+      <span class="an">The Higgs mass is measured without touching the Higgs. Differentiate and you get the two error budgets that matter:</span>
+      <div class="eqrow"><math>
+        <mfrac><mrow><mo>∂</mo><msub><mi>m</mi><mi>rec</mi></msub></mrow><mrow><mo>∂</mo><msub><mi>E</mi><mi>ℓℓ</mi></msub></mrow></mfrac>
+        <mo>=</mo><mo>−</mo><mfrac><msqrt><mi>s</mi></msqrt><msub><mi>m</mi><mi>rec</mi></msub></mfrac>
+      </math><span class="eqnote">→ ×1.92 at 240 GeV, ×2.92 at 365 GeV</span></div>
+      <div class="eqrow"><math>
+        <mfrac><mrow><mo>∂</mo><msub><mi>m</mi><mi>rec</mi></msub></mrow><mrow><mo>∂</mo><msqrt><mi>s</mi></msqrt></mrow></mfrac>
+        <mo>=</mo><mfrac><mrow><msqrt><mi>s</mi></msqrt><mo>−</mo><msub><mi>E</mi><mi>ℓℓ</mi></msub></mrow><msub><mi>m</mi><mi>rec</mi></msub></mfrac>
+      </math><span class="eqnote">→ ×1.08 at 240 GeV, ×2.16 at 365 GeV</span></div>
+      <span class="an">Both amplify. Both amplify worse at 365. This is one of several reasons the ZH programme lives at 240 and merely visits 365.</span>
+    </div>
+
+    <details class="ch">
+      <summary>Check yourself — the irreducible floor</summary>
+      <div class="q">The note smears each beam by 222 MeV at 240 GeV. Turn the tracking term to zero and read off the peak width. Why is it not 222 MeV, and what does that number imply about how much effort is worth spending on the tracker?</div>
+      <div class="a"><b>√s fluctuates by √2 × 222 ≈ 314 MeV</b> (two independent beams), and that propagates with the coefficient (√s−E<sub>ℓℓ</sub>)/m<sub>rec</sub> ≈ 1.08, giving ≈ 340 MeV of recoil-mass width before a single detector element is switched on. Since E<sub>ℓℓ</sub> for a ~50 GeV Z carries roughly 105 GeV and the tracker delivers σ<sub>p</sub>/p ≈ 0.2–0.5% at those momenta, the tracking contribution is comparable, not dominant. The practical consequence: doubling tracker performance buys you well under a factor √2 on the recoil peak, whereas monochromatisation of the beams would move the floor directly. It also means the <i>recoil</i> mass resolution is not what limits B(H→b̄b) — the tagging is.</div>
+    </details>
+  </div>
+
+  <!-- --- alpha --- -->
+  <div id="k-alpha" hidden>
+    <div class="pg">
+      <div class="ctrl">
+        <h3>Jet energy scale bias</h3>
+        <label class="slider">Applied to both jets <span class="v" id="v_jes">1.000</span>
+          <input type="range" id="s_jes" min="800" max="1200" value="1000" step="5"></label>
+        <label class="slider">Jet energy resolution at 50 GeV <span class="v" id="v_jer">5.0%</span>
+          <input type="range" id="s_jer" min="10" max="200" value="50" step="2"></label>
+        <label class="slider">Jet angular resolution <span class="v" id="v_jang">10 mrad</span>
+          <input type="range" id="s_jang" min="0" max="60" value="10" step="1"></label>
+        <h3 class="gap">Probe point (drag on the map)</h3>
+        <div class="status" id="alphastat"></div>
+        <div class="btnrow">
+          <button id="a_reset">Reset to SM point</button>
+        </div>
+      </div>
+      <div>
+        <div class="figframe">
+          <canvas id="alphac"></canvas>
+          <div class="figtag">m<sub>vis</sub> over the (E<sub>jj</sub>, m<sub>jj</sub>) plane</div>
+        </div>
+        <div class="eqlive" id="alphaeq"></div>
+        <div class="twoup">
+          <div><canvas id="alphah1"></canvas></div>
+          <div><canvas id="alphah2"></canvas></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--bq)"></i>raw m<sub>jj</sub></span>
+          <span><i style="background:var(--cq)"></i>rescaled m<sub>vis</sub> = α·m<sub>jj</sub></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="eq">
+      <div class="eqrow"><span class="eqlead">require:</span><math>
+        <mo stretchy="false">(</mo><msqrt><mi>s</mi></msqrt><mo>,</mo>
+        <mover accent="true"><mn>0</mn><mo stretchy="false">→</mo></mover><mo stretchy="false">)</mo>
+        <mo>−</mo><mi>α</mi><mo stretchy="false">(</mo><msub><mi>E</mi><mi>jj</mi></msub><mo>,</mo>
+        <msub><mover accent="true"><mi>p</mi><mo stretchy="false">→</mo></mover><mi>jj</mi></msub><mo stretchy="false">)</mo>
+      </math><span class="eqlead">has invariant mass</span><math><msub><mi>m</mi><mi>Z</mi></msub></math></div>
+      <div class="eqrow"><math><mo>⇒</mo>
+        <mrow class="key"><msup><mi>α</mi><mn>2</mn></msup><msubsup><mi>m</mi><mi>jj</mi><mn>2</mn></msubsup>
+        <mo>−</mo><mn>2</mn><mi>α</mi><msub><mi>E</mi><mi>jj</mi></msub><msqrt><mi>s</mi></msqrt>
+        <mo>+</mo><mo stretchy="false">(</mo><mi>s</mi><mo>−</mo><msubsup><mi>m</mi><mi>Z</mi><mn>2</mn></msubsup><mo stretchy="false">)</mo>
+        <mo>=</mo><mn>0</mn></mrow>
+      </math></div>
+      <div class="eqrow"><math><mo>⇒</mo><mi>α</mi><mo>=</mo>
+        <mfrac><mrow><msub><mi>E</mi><mi>jj</mi></msub><msqrt><mi>s</mi></msqrt><mo>−</mo><msqrt><mi>Δ</mi></msqrt></mrow><msubsup><mi>m</mi><mi>jj</mi><mn>2</mn></msubsup></mfrac>
+        <mo>,</mo><mspace width="1.6em"/><mi>Δ</mi><mo>=</mo>
+        <msubsup><mi>E</mi><mi>jj</mi><mn>2</mn></msubsup><mi>s</mi><mo>−</mo>
+        <msubsup><mi>m</mi><mi>jj</mi><mn>2</mn></msubsup><mo stretchy="false">(</mo><mi>s</mi><mo>−</mo><msubsup><mi>m</mi><mi>Z</mi><mn>2</mn></msubsup><mo stretchy="false">)</mo>
+      </math></div>
+      <span class="an">Both roots are real and positive (Δ ≥ 0 whenever m<sub>jj</sub> ≤ E<sub>jj</sub>√(s/(s−m<sub>Z</sub>²)), which for a physical jet pair is always). The minus root is the physical one; the plus root sits near m<sub>vis</sub> ≈ 400 GeV and is discarded.</span>
+    </div>
+
+    <details class="ch">
+      <summary>Check yourself — why this is not just a cosmetic rescaling</summary>
+      <div class="q">Drag the jet energy scale slider to 0.90 and watch the two histograms. The raw m<sub>jj</sub> peak walks off to 112 GeV. The m<sub>vis</sub> peak does not move at all. Prove that algebraically, then say what the residual systematic on m<sub>vis</sub> actually is.</div>
+      <div class="a">Let both jets be mismeasured by a common factor k: E<sub>jj</sub>→kE<sub>jj</sub>, m<sub>jj</sub>→km<sub>jj</sub>. Then Δ → k²Δ, and<br><br>
+      α → (kE√s − k√Δ)/(k²m²) = α/k, so <b>m<sub>vis</sub> = α m<sub>jj</sub> → (α/k)(k m<sub>jj</sub>) = α m<sub>jj</sub></b>, exactly invariant.<br><br>
+      The constraint has absorbed the entire jet energy <i>scale</i> into α. What survives is everything that is <i>not</i> a common multiplicative factor: the jet energy <i>resolution</i> (which makes m<sub>jj</sub>/E<sub>jj</sub> fluctuate), angular resolution, out-of-cone and neutrino losses that differ between b-jets and gluon jets, and — crucially — the assumption that the recoiling object really is an on-shell Z. For H→WW*→qqℓν or any final state with genuine missing energy the constraint is wrong, which is exactly why m<sub>vis</sub> and m<sub>miss</sub> are fitted <i>together</i> in two dimensions rather than either alone.</div>
+    </details>
+  </div>
+
+  <!-- --- four jet --- -->
+  <div id="k-fourjet" hidden>
+    <div class="pg">
+      <div class="ctrl">
+        <h3>Detector</h3>
+        <label class="slider">Jet energy resolution at 50 GeV <span class="v" id="v_fjer">5.0%</span>
+          <input type="range" id="s_fjer" min="10" max="250" value="50" step="2"></label>
+        <label class="slider">Jet direction resolution <span class="v" id="v_fang">5 mrad</span>
+          <input type="range" id="s_fang" min="1" max="80" value="5" step="1"></label>
+        <label class="slider">χ² cut <span class="v" id="v_chi">30</span>
+          <input type="range" id="s_chi" min="2" max="200" value="30" step="1"></label>
+        <h3 class="gap">Pairing</h3>
+        <div class="btnrow">
+          <button data-pair="chi2" aria-pressed="true">mass χ²</button>
+          <button data-pair="flav" aria-pressed="false">flavour-first</button>
+        </div>
+        <div class="btnrow" style="margin-top:14px">
+          <button class="primary" id="fj_run">Resample 20k events</button>
+        </div>
+        <div class="status" id="fjstat"></div>
+      </div>
+      <div>
+        <div class="figframe">
+          <canvas id="fjc"></canvas>
+          <div class="figtag">Z(qq)H(b̄b) at √s = 240 — constrained fit</div>
+        </div>
+        <div class="readouts">
+          <div><span>σ(m<sub>H</sub>) raw</span><strong id="fj_raw">—</strong></div>
+          <div><span>σ(m<sub>H</sub>) fitted</span><strong id="fj_fit">—</strong></div>
+          <div><span>Mispairing rate</span><strong id="fj_mis">—</strong></div>
+          <div><span>χ² cut efficiency</span><strong id="fj_eff">—</strong></div>
+        </div>
+        <div class="sidecanvas"><canvas id="fjchi"></canvas></div>
+      </div>
+    </div>
+
+    <div class="eq">
+      <div class="eqrow"><math>
+        <msub><mi>E</mi><mn>1</mn></msub><mo>+</mo><msub><mi>E</mi><mn>2</mn></msub><mo>+</mo>
+        <msub><mi>E</mi><mn>3</mn></msub><mo>+</mo><msub><mi>E</mi><mn>4</mn></msub><mo>=</mo><msqrt><mi>s</mi></msqrt>
+        <mo>,</mo><mspace width="1.6em"/>
+        <munder><mo>∑</mo><mi>i</mi></munder><msub><mover accent="true"><mi>p</mi><mo stretchy="false">→</mo></mover><mi>i</mi></msub>
+        <mo>=</mo><mover accent="true"><mn>0</mn><mo stretchy="false">→</mo></mover>
+        <mo>,</mo><mspace width="1.6em"/>
+        <msub><mover accent="true"><mi>p</mi><mo stretchy="false">→</mo></mover><mi>i</mi></msub><mo>=</mo>
+        <msub><mi>E</mi><mi>i</mi></msub><msub><mover accent="true"><mi>β</mi><mo stretchy="false">→</mo></mover><mi>i</mi></msub>
+      </math></div>
+      <div class="eqrow"><math><mrow class="key">
+        <mo stretchy="false">[</mo><mn>1</mn><mspace width="0.45em"/><mn>1</mn><mspace width="0.45em"/><mn>1</mn><mspace width="0.45em"/><mn>1</mn>
+        <mo>;</mo><msup><mi>β</mi><mi>x</mi></msup><mo>;</mo><msup><mi>β</mi><mi>y</mi></msup>
+        <mo>;</mo><msup><mi>β</mi><mi>z</mi></msup><mo stretchy="false">]</mo>
+        <mo>⋅</mo><mover accent="true"><mi>E</mi><mo stretchy="false">→</mo></mover><mo>=</mo>
+        <msup><mrow><mo stretchy="false">(</mo><msqrt><mi>s</mi></msqrt><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mi>T</mi></msup>
+      </mrow></math></div>
+      <span class="an">Four equations, four unknowns. The jet <i>directions</i> — measured to a few milliradians — completely determine the jet <i>energies</i>, which are measured to several percent. You are throwing away the calorimeter's energy measurement and replacing it with geometry plus the beam energy. That is the single biggest lever in the fully hadronic channel, and it is only available at a lepton collider.</span>
+    </div>
+
+    <details class="ch">
+      <summary>Check yourself — when does the 4×4 solve fail?</summary>
+      <div class="q">Push the angular resolution to 60 mrad and watch the fitted resolution overtake the raw one. Separately: name three physical configurations in which this fit is systematically biased even with a perfect detector, and connect them to the note's &lt;1% "inversion failed or unphysical" rate.</div>
+      <div class="a"><b>Conditioning.</b> The matrix rows are the four unit vectors plus a row of ones. If the four jets are close to coplanar or two are nearly collinear, the determinant collapses and small angular errors are amplified without bound — the classic near-degenerate linear system. That is the &lt;1% the note keeps at nominal values rather than discarding.<br><br>
+      <b>Physical biases:</b> (i) semileptonic b and c decays put real neutrinos in the jets, so Σ E &lt; √s and the fit compensates by inflating <i>all</i> energies — a flavour-dependent bias that is worst in exactly the H→b̄b sample the analysis cares most about; (ii) ISR photons down the beampipe remove longitudinal momentum and energy, breaking both constraint rows (this is why the effective √s is not the nominal √s); (iii) any final state with more than four partons — H→WW*→4q plus the Z gives six — is forced into a four-jet hypothesis, so the constraint is solved with the wrong topology and produces a plausible but meaningless χ². The note's χ²&lt;30 cut removes some of (iii), which is visible in its efficiency table as the ~40% efficiency for H→WW versus ~80% for H→qq.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= TAGGER ================= -->
+<section class="panel" id="tag">
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Tagger separation power A<sub>f</sub></h3>
+      <label class="slider">b <span class="v" id="v_Ab">6.0</span><input type="range" id="s_Ab" min="0" max="120" value="60" step="1"></label>
+      <label class="slider">c <span class="v" id="v_Ac">4.4</span><input type="range" id="s_Ac" min="0" max="120" value="44" step="1"></label>
+      <label class="slider">s <span class="v" id="v_As">2.6</span><input type="range" id="s_As" min="0" max="120" value="26" step="1"></label>
+      <label class="slider">g <span class="v" id="v_Ag">3.4</span><input type="range" id="s_Ag" min="0" max="120" value="34" step="1"></label>
+      <h3 class="gap">Categorisation</h3>
+      <div class="btnrow">
+        <button data-cat="argmax" aria-pressed="true">K argmax only</button>
+        <button data-cat="purity" aria-pressed="false">+ L/M/H purity</button>
+      </div>
+      <label class="slider">Integrated luminosity <span class="v" id="v_lumiT">10.8 ab⁻¹</span>
+        <input type="range" id="s_lumiT" min="10" max="300" value="108" step="1"></label>
+      <div class="btnrow" style="margin-top:14px">
+        <button class="primary" id="tg_run">Resample</button>
+        <button id="tg_paper">Match the note</button>
+        <button id="tg_lhc">LHC-like tagger</button>
+      </div>
+      <div class="status" id="tgstat"></div>
+    </div>
+    <div>
+      <div class="figframe">
+        <canvas id="tgc"></canvas>
+        <div class="figtag">Process → category migration (row-normalised, %)</div>
+      </div>
+      <div class="readouts">
+        <div><span>B-like purity</span><strong id="tg_pb">—</strong></div>
+        <div><span>C-like purity</span><strong id="tg_pc">—</strong></div>
+        <div><span>S-like purity</span><strong id="tg_ps">—</strong></div>
+        <div><span>G-like purity</span><strong id="tg_pg">—</strong></div>
+      </div>
+      <div class="sidecanvas"><canvas id="tgk"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--bq)"></i>b</span><span><i style="background:var(--cq)"></i>c</span>
+        <span><i style="background:var(--sq)"></i>s</span><span><i style="background:var(--gq)"></i>g</span>
+        <span><i style="background:var(--bkgc)"></i>light / other</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eq">
+    <div class="eqrow"><span class="eqlead">per jet j:</span><math>
+      <msub><mi>K</mi><mi>j</mi></msub><mo>=</mo>
+      <mo stretchy="false">(</mo><msub><mi>b</mi><mi>j</mi></msub><mo>,</mo><msub><mi>c</mi><mi>j</mi></msub><mo>,</mo>
+      <msub><mi>s</mi><mi>j</mi></msub><mo>,</mo><msub><mi>g</mi><mi>j</mi></msub><mo>,</mo>
+      <msub><mi>τ</mi><mi>j</mi></msub><mo>,</mo><msub><mi>u</mi><mi>j</mi></msub><mo>,</mo>
+      <msub><mi>d</mi><mi>j</mi></msub><mo stretchy="false">)</mo>
+      <mo>,</mo><mspace width="1.4em"/>
+      <munder><mo>∑</mo><mi>f</mi></munder><msub><mi>K</mi><mrow><mi>j</mi><mo>,</mo><mi>f</mi></mrow></msub><mo>=</mo><mn>1</mn>
+    </math></div>
+    <div class="eqrow"><span class="eqlead">event score:</span><math>
+      <mrow class="key"><mi>K</mi><mo>=</mo><msub><mi>K</mi><mn>1</mn></msub><mo>+</mo><msub><mi>K</mi><mn>2</mn></msub>
+      <mo>∈</mo><msup><mrow><mo stretchy="false">[</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false">]</mo></mrow><mn>7</mn></msup></mrow>
+      <mo>,</mo><mspace width="1.4em"/>
+      <mtext>category</mtext><mo>=</mo><msub><mi>argmax</mi><mi>f</mi></msub><msub><mi>K</mi><mi>f</mi></msub>
+    </math></div>
+    <span class="an">The toy above models each jet's seven-vector as a softmax over logits A<sub>f</sub>·Sim[f][·] plus Gumbel noise — i.e. a multinomial-logit response with a hand-set flavour-confusion structure (b↔c, s↔g↔u/d). It is not the note's GNN, but it has the same two degrees of freedom that matter: per-flavour separation, and which flavours bleed into which.</span>
+  </div>
+
+  <p class="note">Three things to try. (1) Slide s down to zero: the S-like category fills with gluon and light-quark jets and the H→s̄s row goes flat — this is the whole story of why B(H→s̄s) is a limit and not a measurement. (2) Slide b up to maximum: B-like purity saturates but δμ<sub>b̄b</sub> barely moves, because b-tagging was never the bottleneck. (3) Switch on L/M/H purity subdivision and watch the highest-purity bins carve out a nearly background-free b̄b region — that single move is worth more than any amount of extra tagger performance.</p>
+
+  <details class="ch">
+    <summary>Check yourself — why summing the two jets' scores is not obviously right</summary>
+    <div class="q">The note forms K = K₁ + K₂ and takes the argmax. An alternative is the product (a likelihood ratio for "both jets are flavour f"), or a genuine 2-jet joint classifier. Under what conditions does the sum lose information relative to the product, and why might the note's choice still be defensible?</div>
+    <div class="a">The sum is dominated by whichever jet is more confident: an event with K₁ = (0.95 b) and K₂ = (0.20 b, 0.45 g) still lands with B = 1.15 &gt; G = 0.5 and is called B-like, even though the second jet actively prefers gluon. The product 0.95×0.20 = 0.19 versus 0.0×0.45 would flag the inconsistency. So the sum is <b>insensitive to disagreement between the jets</b>, which is precisely the signature of the dangerous backgrounds — Z(bb̄) recoiling against something else, or g→bb̄ splitting giving one b-like jet.<br><br>
+    The defence is threefold. First, for a genuine H→f f̄ decay the two jets <i>are</i> the same flavour, so the product's extra discriminating power applies mostly to backgrounds you are already suppressing by mass. Second, the product is numerically brutal: one jet with a score of 10⁻⁴ kills the event, and tagger scores that far into the tail are not calibrated. Third, and most importantly, the note does not use the categorisation to <i>measure</i> — it uses it to <i>partition</i>, and then fits templates within each partition. Any orthogonal partition gives an unbiased answer; a better one just gives a smaller variance. That is why you can play with the sliders above and never introduce a bias, only lose sensitivity.</div>
+  </details>
+</section>
+
+<!-- ================= FIT ================= -->
+<section class="panel" id="fit">
+  <div class="subtabs" style="max-width:560px">
+    <button data-fmode="fisher" aria-pressed="true">Fisher matrix</button>
+    <button data-fmode="combine" aria-pressed="false">Channel combination</button>
+  </div>
+
+  <div id="f-fisher">
+    <div class="pg">
+      <div class="ctrl">
+        <h3>Category yields</h3>
+        <div class="btnrow">
+          <button data-src="paper" aria-pressed="true">Note, Table 4 (ℓℓH)</button>
+          <button data-src="toy" aria-pressed="false">Live toy (νν̄H)</button>
+        </div>
+        <h3 class="gap">Scaling</h3>
+        <label class="slider">Integrated luminosity <span class="v" id="v_lumi">10.8 ab⁻¹</span>
+          <input type="range" id="s_lumi" min="10" max="400" value="108" step="1"></label>
+        <label class="slider">MC events per data event <span class="v" id="v_mc">∞ (off)</span>
+          <input type="range" id="s_mc" min="0" max="100" value="0" step="1"></label>
+        <label class="slider">Background normalisation systematic <span class="v" id="v_sys">0.0%</span>
+          <input type="range" id="s_sys" min="0" max="100" value="0" step="1"></label>
+        <h3 class="gap">Parameters of interest</h3>
+        <div class="btnrow" id="poibtns"></div>
+        <div class="status" id="fitstat"></div>
+      </div>
+      <div>
+        <div class="figframe">
+          <canvas id="fitc"></canvas>
+          <div class="figtag">δμ per decay — Fisher vs the note</div>
+        </div>
+        <div class="readouts">
+          <div><span>δμ b̄b</span><strong id="fr_bb">—</strong></div>
+          <div><span>δμ c̄c</span><strong id="fr_cc">—</strong></div>
+          <div><span>δμ gg</span><strong id="fr_gg">—</strong></div>
+          <div><span>δμ s̄s</span><strong id="fr_ss">—</strong></div>
+        </div>
+        <div class="sidecanvas" style="border-top:0"><canvas id="fitcorr" style="height:230px"></canvas></div>
+      </div>
+    </div>
+
+    <div class="eq">
+      <div class="eqrow"><span class="eqlead">Poisson, Gaussian limit, nuisance-free:</span><math>
+        <mrow class="key"><msub><mi>F</mi><mi>ab</mi></msub><mo>=</mo>
+        <munder><mo>∑</mo><mi>i</mi></munder>
+        <mfrac><mrow><msub><mi>S</mi><mi>ia</mi></msub><msub><mi>S</mi><mi>ib</mi></msub></mrow><msub><mi>V</mi><mi>i</mi></msub></mfrac></mrow>
+        <mo>,</mo><mspace width="1.6em"/>
+        <msub><mrow><mi>δ</mi><mi>μ</mi></mrow><mi>a</mi></msub><mo>=</mo>
+        <msqrt><msub><mrow><mo stretchy="false">(</mo><msup><mi>F</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false">)</mo></mrow><mi>aa</mi></msub></msqrt>
+      </math></div>
+      <div class="eqrow"><math>
+        <msub><mi>V</mi><mi>i</mi></msub><mo>=</mo>
+        <mo stretchy="false">(</mo><munder><mo>∑</mo><mi>a</mi></munder><msub><mi>S</mi><mi>ia</mi></msub><mo>+</mo><msub><mi>B</mi><mi>i</mi></msub><mo stretchy="false">)</mo>
+        <mo>+</mo><mfrac><msubsup><mi>B</mi><mi>i</mi><mn>2</mn></msubsup><msubsup><mi>N</mi><mi>i</mi><mi>MC</mi></msubsup></mfrac>
+        <mo>+</mo><msup><mrow><mo stretchy="false">(</mo><msub><mi>σ</mi><mi>B</mi></msub><msub><mi>B</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><mn>2</mn></msup>
+      </math></div>
+      <dl class="sym">
+        <dt>i</dt><dd>one <b>category</b> — a single bin of the fit. Here the 21 rows of the note's Table 4, transcribed into this page: b̄b low/mid/high, c̄c low/mid/high, and so on. The sum Σ<sub>i</sub> runs over all of them.</dd>
+        <dt>a, b</dt><dd>one of the seven <b>decays being measured</b> (b̄b, c̄c, gg, s̄s, WW, ZZ, ττ) — the columns of Table 4, and the buttons in the POI list.</dd>
+        <dt>μ<sub>a</sub></dt><dd>the <b>signal strength</b> of decay a: how many of those Higgs decays you see, divided by how many the Standard Model predicts. μ = 1 means "exactly as predicted". <b>δμ<sub>a</sub></b> is the uncertainty on it — the percentage the panel reports, and the number the whole paper is about.</dd>
+        <dt>S<sub>ia</sub></dt><dd>expected <b>signal</b> events of decay a landing in category i, assuming μ = 1. Read straight off Table 4.</dd>
+        <dt>B<sub>i</sub></dt><dd>expected <b>background</b> events in category i — everything that is not a Higgs decay (ZZ, WW, Z/γ*).</dd>
+        <dt>V<sub>i</sub></dt><dd>the <b>variance</b> of the event count in that bin: how much the number would jump around if you repeated the experiment. Square root of it is the error bar on the bin.</dd>
+        <dt>N<sub>i</sub><sup>MC</sup></dt><dd>how many <b>simulated</b> events the background estimate was built from. Fewer simulated events ⇒ a fuzzier prediction ⇒ larger V.</dd>
+        <dt>σ<sub>B</sub></dt><dd>a <b>systematic</b> on the background normalisation, as a fraction (0.05 = "we know the background rate to 5%").</dd>
+        <dt>F<sub>ab</sub></dt><dd>the <b>Fisher information matrix</b>: how sharply the data pin down the μ's. Big F = small errors. Inverting it turns information into a covariance matrix, and (F⁻¹)<sub>aa</sub> is the variance of μ<sub>a</sub> <i>with the other six left free to float</i>.</dd>
+      </dl>
+      <span class="an">The three terms of V are the whole argument of the paper's results section: data statistics, Monte-Carlo statistics (the Barlow–Beeston penalty, why 0.26% becomes 0.33%), and normalisation systematics (which the note largely does not include). Toggle a decay out of the POI list and watch the others tighten — that difference is the price of measuring seven signal strengths at once rather than one.</span>
+    </div>
+
+    <details class="ch" open>
+      <summary>Do it yourself — δμ(b̄b) on the back of an envelope</summary>
+      <div class="q">Every number in the blue bars comes out of three lines of arithmetic. Here is the b̄b one, in full, using only the numbers printed in the note's Table 4. You need a calculator, not a computer.</div>
+      <div class="a"><b>Why the formula looks like that.</b> The expected count in bin i is T<sub>i</sub> = Σ<sub>a</sub> μ<sub>a</sub>S<sub>ia</sub> + B<sub>i</sub>. Ask how fast that count moves when you turn one signal strength: ∂T<sub>i</sub>/∂μ<sub>a</sub> = S<sub>ia</sub>. A bin is informative about μ<sub>a</sub> when it <i>responds strongly</i> (large S<sub>ia</sub>) and is <i>quiet</i> (small V<sub>i</sub>) — so each bin contributes S<sub>ia</sub>S<sub>ib</sub>/V<sub>i</sub>, and you add up the bins. That is the entire content of the first equation.<br><br>
+      <b>The one-parameter shortcut.</b> If you measured b̄b alone, there is no matrix to invert: δμ = 1/√F<sub>bb</sub> = 1/√(Σ<sub>i</sub> S<sub>i,b̄b</sub>²/V<sub>i</sub>). The panel says the seven-parameter answer is almost the same — blue and grey bars coincide — so the shortcut is good to about a percent here. Take the simplest case: no MC statistics, no systematics, so V<sub>i</sub> is just the total count T<sub>i</sub>.<br><br>
+      <b>Three rows of Table 4.</b> For each, add all seven signal columns and the three background columns to get T, then square the b̄b column and divide:<br><br>
+      <table class="num" style="margin-top:0">
+      <thead><tr><th>category</th><th>S (b̄b)</th><th>T (all)</th><th>S²/T</th></tr></thead>
+      <tbody>
+      <tr><td>b̄b low</td><td>3 702.9</td><td>5 392.4</td><td>2 542.7</td></tr>
+      <tr><td>b̄b mid</td><td>6 885.3</td><td>8 586.1</td><td>5 521.4</td></tr>
+      <tr><td>b̄b high</td><td>48 179.9</td><td>50 911.4</td><td>45 595.0</td></tr>
+      <tr><td><b>sum</b></td><td></td><td></td><td><b>53 659</b></td></tr>
+      </tbody></table><br>
+      δμ = 1/√53 659 = 0.00432 = <b>0.43%</b> — the number in the readout above. The other 18 categories contribute a few hundred more (b̄b leaks into the ZZ and HZZ bins), which is why the panel is a shade tighter than this hand estimate.<br><br>
+      <b>What each of the three variance terms does to that number.</b> Slide <b>MC events per data event to 1×</b>: the panel adds T<sub>i</sub> of simulation variance to every bin — signal and background templates both come from simulation — so V doubles, δμ grows by exactly √2, and 0.43% becomes <b>0.61%</b>. That single factor is the whole gap to the note's published 0.60%. Now slide <b>background systematic</b> up instead: nothing much happens to b̄b, because its high-purity bin is 95% signal and (σ<sub>B</sub>B)² is negligible against T — but watch s̄s, which is almost pure background, blow up immediately. <b>That contrast is the physics: b̄b is limited by how much you simulated, s̄s by how well you know your background.</b><br><br>
+      <b>Try the same three lines on c̄c</b> (rows 4–6 of Table 4, S = 557.8 / 635.2 / 1 768.8 on totals 3 596.9 / 1 910.1 / 2 736.9). You should land near 2.6%, and you will see why. The three b̄b bins are 69% / 80% / 95% signal; the c̄c bins are 16% / 33% / 65%. Everything else in those bins is count that fluctuates without carrying any information about μ<sub>c̄c</sub> — and there are twenty times fewer c̄c events to begin with (2 962 against 58 768, which is just the branching-ratio ratio 2.891 / 58.24).</div>
+    </details>
+
+    <details class="ch">
+      <summary>Check yourself — the missing 40% on b̄b</summary>
+      <div class="q">With the note's own Table 4 numbers, no MC statistics and no systematics, the counting Fisher gives δμ = 0.43% / 2.64% / 1.34% for b̄b / c̄c / gg against the note's 0.60% / 3.47% / 1.93%. Turning off the correlations changes nothing at all. Find the single knob that closes the gap, and say what it means physically.</div>
+      <div class="a">First, rule out the obvious. Set any subset of the seven POIs to fixed: the remaining uncertainties barely move, and the correlation matrix is nearly diagonal. That is not an artefact of the toy — the note says the same thing, that its results are "extremely close to independent in terms of number of signal strengths we simultaneously measure". So the simultaneous fit is <b>not</b> the cost.<br><br>
+      Now slide <b>MC events per data event to 1×</b>. The Fisher estimate becomes 0.61% / 3.73% / 1.90% — the note's numbers, to the precision this toy deserves. The gap is <b>Monte-Carlo statistics</b>, which the note explicitly implements and which nothing else in the analysis can remove.<br><br>
+      Look at the note's own Table 1 to see why. The equivalent luminosity ratio L<sub>gen</sub>/L is 0.177 for Z/γ*(qq̄), 0.952 for Z/γ*(ℓℓ), 2.10 for WW and 3.83 for ZZ. The dominant backgrounds are simulated with <i>fewer events than the experiment will collect</i>. A background bin with B expected data events built from N<sub>MC</sub> weighted simulated events carries an extra variance B²/N<sub>MC</sub>, which at L<sub>gen</sub> ≈ L simply doubles the effective variance everywhere.<br><br>
+      <b>The consequence is a genuinely encouraging one, and the note says it in one sentence that is easy to miss:</b> "for the future FCC-ee experiments it should not be a problem to generate significantly larger samples than those used in this study". Every published number here is degraded by roughly 40% purely by the size of a Monte-Carlo sample produced in 2023. The physics reach is the ungapped number. What is <i>not</i> recoverable by buying CPU is the experimental systematic budget, which is absent entirely.<br><br>
+      One exception is worth noticing: s̄s goes the other way (counting gives 232%, the note 223%). Being background-dominated, its uncertainty is set by √B rather than by the MC replication of B, so MC statistics barely touch it — and the note's finer sub-categorisation buys back a few percent that pure counting throws away.</div>
+    </details>
+  </div>
+
+  <div id="f-combine" hidden>
+    <p class="note" style="margin-top:0">The note combines three Z decay modes by treating them as independent measurements: 1/δ² = Σ 1/δ<sub>i</sub>². Toggle channels and inflate a common systematic to see how quickly that assumption stops being harmless.</p>
+    <div class="pg">
+      <div class="ctrl">
+        <h3>Channels in the combination</h3>
+        <div class="btnrow" id="chanbtns"></div>
+        <h3 class="gap">Correlated tagging systematic</h3>
+        <label class="slider">Common δμ floor <span class="v" id="v_corr">0.00%</span>
+          <input type="range" id="s_corr" min="0" max="200" value="0" step="2"></label>
+        <label class="slider">Interaction points <span class="v" id="v_ip">4</span>
+          <input type="range" id="s_ip" min="1" max="4" value="4" step="1"></label>
+        <div class="status" id="combstat"></div>
+      </div>
+      <div>
+        <div class="figframe">
+          <canvas id="combc"></canvas>
+          <div class="figtag">Combined precision by decay</div>
+        </div>
+        <div class="eqlive" id="combeq"></div>
+      </div>
+    </div>
+
+    <details class="ch">
+      <summary>Check yourself — is 1/δ² = Σ 1/δᵢ² legitimate here?</summary>
+      <div class="q">The three Z decay modes use the same jet flavour tagger, the same Delphes parameterisation, the same fragmentation model and the same Higgs branching-ratio inputs. Under what circumstances does the quadrature combination still give the right answer, and what does the correlated-floor slider demonstrate?</div>
+      <div class="a">Quadrature is exact only if the measurements are statistically independent <i>and</i> share no systematic. The first condition genuinely holds — the selections are constructed to be orthogonal (the νν̄ analysis vetoes leptons above 20 GeV precisely to be disjoint from ℓℓ). The second does not.<br><br>
+      A common multiplicative uncertainty on the b-tagging efficiency propagates identically into all three channels. Once you add a floor δ<sub>c</sub>, the combination saturates at δ<sub>c</sub> no matter how many channels you add: 1/δ² = Σ 1/δᵢ² applies only to the uncorrelated parts, and the correlated part adds linearly in the combined result. Slide the floor to 0.3% and the celebrated 0.21% on b̄b becomes 0.37% — the three-channel combination has bought you almost nothing. <b>Since the note includes no experimental systematics at all, every number in its Table 23 should be read as a statistical floor, not a projection.</b> Realistic FCC-ee Higgs projections in the literature quote ~0.3% on σ<sub>ZH</sub>×B(b̄b) once flavour-tagging calibration is folded in.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= MODES ================= -->
+<section class="panel" id="mode">
+  <div class="pg">
+    <div class="ctrl">
+      <h3>Coupling modifiers</h3>
+      <label class="slider">κ<sub>Z</sub> <span class="v" id="v_kz">1.000</span><input type="range" id="s_kz" min="900" max="1100" value="1000" step="1"></label>
+      <label class="slider">κ<sub>W</sub> <span class="v" id="v_kw">1.000</span><input type="range" id="s_kw" min="900" max="1100" value="1000" step="1"></label>
+      <h3 class="gap">Run</h3>
+      <div class="btnrow">
+        <button data-ms="240" aria-pressed="true">240 GeV, 10.8 ab⁻¹</button>
+        <button data-ms="365" aria-pressed="false">365 GeV, 3.0 ab⁻¹</button>
+        <button data-ms="both" aria-pressed="false">Both</button>
+      </div>
+      <label class="slider">Separation power of m<sub>miss</sub> <span class="v" id="v_sep">nominal</span>
+        <input type="range" id="s_sep" min="10" max="200" value="100" step="5"></label>
+      <div class="status" id="modestat"></div>
+    </div>
+    <div>
+      <div class="figframe">
+        <canvas id="modec"></canvas>
+        <div class="figtag">68% / 95% contours in the (κ<sub>W</sub>, κ<sub>Z</sub>) plane from ν̄νH(b̄b)</div>
+      </div>
+      <div class="readouts">
+        <div><span>σ(ZH→νν̄H)</span><strong id="mo_zh">—</strong></div>
+        <div><span>σ(WW→H)</span><strong id="mo_vbf">—</strong></div>
+        <div><span>δκ<sub>Z</sub></span><strong id="mo_dkz">—</strong></div>
+        <div><span>δκ<sub>W</sub></span><strong id="mo_dkw">—</strong></div>
+      </div>
+      <div class="sidecanvas"><canvas id="modem"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--bq)"></i>ZH, m<sub>miss</sub> peaks at m<sub>Z</sub></span>
+        <span><i style="background:var(--cq)"></i>W-fusion + interference</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eq">
+    <div class="eqrow"><math>
+      <mi>ν̄</mi><mi>ν</mi><mi>H</mi><mtext>&#xA0;final state</mtext><mo>=</mo>
+      <msubsup class="key"><mi>κ</mi><mi>Z</mi><mn>2</mn></msubsup><mo>⋅</mo>
+      <mo stretchy="false">[</mo><msup><mi>e</mi><mo>+</mo></msup><msup><mi>e</mi><mo>−</mo></msup><mo>→</mo><mi>ZH</mi><mo>,</mo>
+      <mi>Z</mi><mo>→</mo><mi>ν</mi><mi>ν̄</mi><mo stretchy="false">]</mo>
+      <mo>+</mo><msubsup class="key"><mi>κ</mi><mi>W</mi><mn>2</mn></msubsup><mo>⋅</mo>
+      <mo stretchy="false">[</mo><msup><mi>e</mi><mo>+</mo></msup><msup><mi>e</mi><mo>−</mo></msup><mo>→</mo>
+      <msub><mi>ν</mi><mi>e</mi></msub><msub><mi>ν̄</mi><mi>e</mi></msub><mi>H</mi>
+      <mtext>&#xA0;via WW fusion</mtext><mo stretchy="false">]</mo>
+      <mo>+</mo><mrow class="key"><msub><mi>κ</mi><mi>Z</mi></msub><msub><mi>κ</mi><mi>W</mi></msub></mrow><mo>⋅</mo>
+      <mo stretchy="false">[</mo><mtext>interference</mtext><mo stretchy="false">]</mo>
+    </math></div>
+    <span class="an">240 GeV: 40.1 fb ZH vs 6.1 fb fusion — a 15% contamination. 365 GeV: 29.2 fb vs 29.2 fb — they are equal, and the note stops trying to treat the sample inclusively. This is why Table 18 splits the production modes at 365 but Table 14 does not at 240.</span>
+  </div>
+
+  <h3 class="sec">The part that makes it model-independent</h3>
+  <p class="note" style="max-width:76ch">Everything on this page measures σ×B, not B. The recoil-mass technique in the Z(ℓℓ) channel is what converts one into the other: counting Z(ℓℓ) events with a recoil mass near 125 GeV measures σ<sub>ZH</sub> ∝ κ<sub>Z</sub>² <i>without looking at the Higgs decay at all</i>. Divide, and you get an absolute branching ratio. Then the chain closes:</p>
+  <div class="pipeline">
+    <div><b>01 · Recoil</b><p>N(Z→ℓℓ, m<sub>rec</sub>≈125) → σ<sub>ZH</sub> ∝ κ<sub>Z</sub>². Decay-blind, so genuinely absolute.</p></div>
+    <div><b>02 · Divide</b><p>(σ<sub>ZH</sub>×B<sub>XX</sub>)/σ<sub>ZH</sub> → B<sub>XX</sub>. The 0.21% here is the numerator only.</p></div>
+    <div><b>03 · Close</b><p>Γ<sub>H</sub> = Γ(H→ZZ)/B<sub>ZZ</sub> ∝ κ<sub>Z</sub>²/B<sub>ZZ</sub> — the total width, no assumption about invisible decays.</p></div>
+    <div><b>04 · Couple</b><p>κ<sub>f</sub>² ∝ Γ<sub>H</sub>·B<sub>ff</sub>. Every hadronic BR in this note feeds this last step.</p></div>
+  </div>
+
+  <details class="ch">
+    <summary>Check yourself — the 365 GeV inversion</summary>
+    <div class="q">At 240 GeV the note gets ±0.38% on ZH×B(b̄b) and ±1.99% on ν<sub>e</sub>ν̄<sub>e</sub>H×B(b̄b). At 365 GeV the two are ±0.73% and ±0.68% — the fusion channel has overtaken Higgsstrahlung. Reconstruct the argument, and then say why this makes the 365 GeV run scientifically necessary rather than merely nice.</div>
+    <div class="a">σ<sub>ZH</sub> falls as roughly 1/s above threshold, while W-fusion is a t-channel process whose cross-section grows logarithmically: 6.1 → 29.2 fb between 240 and 365, against 40.1 → 29.2 fb for ZH→νν̄H. Combined with 3.0 ab⁻¹ instead of 10.8, the ZH sample shrinks by ~13× and the fusion sample only by ~2×, so the fusion measurement wins.<br><br>
+    Why it matters: ZH and Z-fusion amplitudes both scale with κ<sub>Z</sub>, so a 240-only programme measures κ<sub>Z</sub> superbly and κ<sub>W</sub> only through H→WW* decay — which is degenerate with the total width. W-fusion gives a <b>production-side</b> handle on κ<sub>W</sub>, breaking that degeneracy directly. Slide κ<sub>W</sub> in the panel with the 240-only run selected and watch the contour stretch along κ<sub>W</sub>; add 365 and it closes. The 365 GeV run is not just about tt̄ and the top Yukawa.</div>
+  </details>
+</section>
+
+<!-- ================= REFERENCE ================= -->
+<section class="panel" id="ref">
+  <h3 class="sec">Everything the note concludes, in one table</h3>
+  <p class="note" style="margin-top:14px">Expected precision (%) on σ(ZH)×B(H→jj) at 68% CL, √s = 240 GeV, L = 10.8 ab⁻¹ (four detectors). Note 23 of the paper. Two variants of the ν̄ν analysis are quoted because they were done independently.</p>
+  <table class="num">
+    <thead><tr><th>Channel</th><th>b̄b</th><th>c̄c</th><th>gg</th><th>s̄s</th><th>ττ</th><th>ZZ</th><th>WW</th></tr></thead>
+    <tbody>
+      <tr><td>Z → ℓℓ</td><td>0.60</td><td>3.47</td><td>1.93</td><td>220</td><td>2.54</td><td>7.65</td><td>1.49</td></tr>
+      <tr><td>Z → qq</td><td>0.32</td><td>3.52</td><td>3.07</td><td>410</td><td>110</td><td>50</td><td>8.74</td></tr>
+      <tr><td>Z → νν̄ (I)</td><td>0.35</td><td>2.06</td><td>1.01</td><td>100</td><td>10.6</td><td>11.4</td><td>1.28</td></tr>
+      <tr><td>Z → νν̄ (II)</td><td>0.33</td><td>2.27</td><td>0.94</td><td>140</td><td>21.8</td><td>19.8</td><td>1.89</td></tr>
+      <tr><td><b>Combined (I)</b></td><td><b>0.21</b></td><td><b>1.56</b></td><td><b>0.85</b></td><td><b>89</b></td><td><b>2.46</b></td><td><b>6.24</b></td><td><b>0.95</b></td></tr>
+      <tr><td><b>Combined (II)</b></td><td><b>0.21</b></td><td><b>1.66</b></td><td><b>0.80</b></td><td><b>105</b></td><td><b>3.97</b></td><td><b>10.1</b></td><td><b>1.16</b></td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sec">Split by production mode and energy</h3>
+  <p class="note" style="margin-top:14px">Relative uncertainty (%) on σ<sub>ZH</sub>×B and σ<sub>ν<sub>e</sub>ν̄<sub>e</sub></sub>×B, 68% CL. Table 24. Note the ordering flip in b̄b between the two energies.</p>
+  <table class="num">
+    <thead><tr><th></th><th>240 · ZH</th><th>240 · ν<sub>e</sub>ν̄<sub>e</sub>H</th><th>365 · ZH</th><th>365 · ν<sub>e</sub>ν̄<sub>e</sub>H</th></tr></thead>
+    <tbody>
+      <tr><td>H → b̄b</td><td>0.21</td><td>1.89</td><td>0.41</td><td class="hi">0.67</td></tr>
+      <tr><td>H → c̄c</td><td>1.61</td><td>19.4</td><td>3.13</td><td>3.49</td></tr>
+      <tr><td>H → s̄s</td><td>120</td><td>990</td><td>360</td><td>290</td></tr>
+      <tr><td>H → gg</td><td>0.80</td><td>5.50</td><td>2.21</td><td>2.66</td></tr>
+      <tr><td>H → WW</td><td>1.17</td><td>15.6</td><td>3.18</td><td>5.36</td></tr>
+      <tr><td>H → ZZ</td><td>9.94</td><td>130</td><td>26.0</td><td>37.1</td></tr>
+      <tr><td>H → ττ</td><td>3.67</td><td>∞</td><td>11.0</td><td>24.2</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sec">Inputs you will want at hand</h3>
+  <table class="cmp">
+    <thead><tr><th></th><th>240 GeV</th><th>365 GeV</th></tr></thead>
+    <tbody>
+      <tr><td>Integrated lumi</td><td>10.8 ab⁻¹ (4 IPs, 3 years)</td><td>3.0 ab⁻¹ (5 years)</td></tr>
+      <tr><td>σ(ZH)</td><td>≈ 200 fb — near the L·σ maximum, not the σ maximum (which is at ~255 GeV)</td><td>≈ 125 fb</td></tr>
+      <tr><td>σ by Z decay</td><td>qq̄H 136.35 · νν̄H 46.2 · eeH 7.17 · μμH 6.76 fb</td><td>qq̄H 84.36 · νν̄H 53.94 · eeH 7.39 · μμH 4.19 fb</td></tr>
+      <tr><td>W-fusion</td><td>≈ 6.1 fb (15% of ZH→νν̄H)</td><td>≈ 29.2 fb (117% of ZH→νν̄H)</td></tr>
+      <tr><td>Z-fusion (eeH)</td><td>0.40 fb vs 6.76 fb Z(ee)H</td><td>3.20 fb vs 4.19 fb</td></tr>
+      <tr><td>Beam energy spread</td><td>222 MeV per beam</td><td>—</td></tr>
+      <tr><td>Beamspot</td><td>σ<sub>z</sub> 0.64 mm · σ<sub>x</sub> 9.8 μm · σ<sub>y</sub> 25.4 nm</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <table class="cmp">
+    <thead><tr><th>Detector</th><th colspan="2">Modified IDEA as simulated</th></tr></thead>
+    <tbody>
+      <tr><td>Tracking</td><td colspan="2">Si vertex (innermost layer R = 1.2 cm) + low-mass drift chamber (1.6% X₀ transverse) + Si micro-strips, in 2 T. Beam pipe R = 1 cm, 0.67% X₀. 100% efficiency assumed above 100 MeV, |η| &lt; 2.56.</td></tr>
+      <tr><td>ECAL</td><td colspan="2">σ<sub>E</sub>/E = 3%/√E ⊕ 0.2%/E ⊕ 0.5% — dual-readout crystals, solenoid moved <i>behind</i> the ECAL so it does not degrade this</td></tr>
+      <tr><td>HCAL</td><td colspan="2">σ<sub>E</sub>/E = 30%/√E ⊕ 5%/E ⊕ 1% — dual-readout lead/fibre</td></tr>
+      <tr><td>ℓ / γ ID</td><td colspan="2">99% above 2 GeV, |η| &lt; 3; mis-identification neglected entirely</td></tr>
+      <tr><td>Jets</td><td colspan="2">Durham exclusive k<sub>T</sub>, N = 2 (or 4), E-scheme; flavour tagging by GNN with 7 outputs summing to unity, trained on Z(νν̄)H</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sec">Higgs branching ratios assumed</h3>
+  <table class="num">
+    <thead><tr><th>Decay</th><th>B (%)</th><th>Status at the LHC</th><th>FCC-ee combined</th></tr></thead>
+    <tbody>
+      <tr><td>b̄b</td><td>58.24</td><td>observed, HL-LHC proj. 4.4% (ATLAS+CMS)</td><td>0.21%</td></tr>
+      <tr><td>WW</td><td>21.37</td><td>observed</td><td>0.95%</td></tr>
+      <tr><td>gg</td><td>8.187</td><td>no attempt</td><td>0.85%</td></tr>
+      <tr><td>ττ</td><td>6.272</td><td>observed</td><td>2.46%</td></tr>
+      <tr><td>c̄c</td><td>2.891</td><td>searches only, sensitivity ≈ SM</td><td>1.56%</td></tr>
+      <tr><td>ZZ</td><td>2.619</td><td>observed</td><td>6.24%</td></tr>
+      <tr><td>s̄s</td><td>0.024</td><td>unfeasible</td><td>limit at 1.6 × SM</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sec">Where this note is softer than its abstract</h3>
+
+  <div class="crit"><b>01 · No experimental systematics anywhere in the leading channels</b>
+  <p>The ℓℓH and ν̄νH(I) fits state explicitly that there are no systematic uncertainties, only Monte-Carlo statistics. The ν̄νH(II) analysis adds 0.1% (signal) / 5% (background) log-normal normalisations and then reports that the sidebands constrain the backgrounds to "better than a percent level". Every headline number is therefore a statistical floor. Flavour-tagging efficiency calibration, fragmentation modelling, and the jet energy response for b- versus gluon-jets are all absent, and each of them is plausibly at the 0.3–1% level for b̄b. Use the correlated-floor slider on the combination tab to see what that does.</p></div>
+
+  <div class="crit"><b>02 · Table 1 contains unphysical placeholder samples</b>
+  <p>The rows ν̄νH(bd̄), ν̄νH(bs̄), ν̄νH(sd̄), ν̄νH(cū) — and their eeH/μμH counterparts — carry σ = 1000 fb, five times the entire ZH cross-section, for flavour-violating Higgs decays that are forbidden at any observable rate. These are clearly generator bookkeeping placeholders that were never renormalised, and they appear in the figure legends (llH(bd), llH(bs), llH(sd), llH(cu)). If any of them entered a yield table at face value it would swamp the analysis. Nothing in the results suggests they did, but their presence means the sample bookkeeping was not audited.</p></div>
+
+  <div class="crit"><b>03 · Table 18 quotes the wrong luminosity</b>
+  <p>The 365 GeV ν̄νjj results are headed "√s 365 GeV, integrated luminosity 10.8 ab⁻¹" while the run plan, Table 2 and every other table use 3.0 ab⁻¹ at that energy. Either the table header is a copy-paste error, or the numbers are optimistic by √(10.8/3.0) = 1.9. Since Table 24's 365 GeV column (ZH b̄b ±0.41%) is <i>better</i> than Table 18's ±0.73%, the inconsistency is not merely cosmetic.</p></div>
+
+  <div class="crit"><b>04 · The s-tagger is doing work no experiment has ever demonstrated</b>
+  <p>Strange tagging relies on identified high-momentum kaons — in IDEA, on dE/dx or cluster counting in the drift chamber plus time-of-flight. The Delphes parameterisation encodes an assumed performance; there is no fragmentation systematic, no assessment of how the s-tag responds to a gluon jet that fragments into strange hadrons, and no variation of the strangeness-suppression parameter in the hadronisation model. The resulting limit — B(H→s̄s) &lt; 1.6 × SM — is also being placed on a target whose SM value carries a large uncertainty from m<sub>s</sub>, which the note itself flags but does not propagate.</p></div>
+
+  <div class="crit"><b>05 · "gg" is not a clean parton label</b>
+  <p>A gluon-tagged category is contaminated by g→b̄b and g→c̄c splittings inside jets, and conversely H→b̄b events radiate hard gluons. The seven-output tagger was trained with the true flavour "based on the generated decay of the Higgs boson" — i.e. the label is the <i>decay mode</i>, not the parton reaching the detector. That is the right label for this measurement, but it means the tagger has partly learned to identify the Higgs decay via its global event shape, and its performance will not transfer to any other sample. It also makes the confusion matrices in Figures 7 and 14 optimistic if the parton shower model is wrong.</p></div>
+
+  <div class="crit"><b>06 · S/√(S+B) is quoted as "significance" in the yield tables</b>
+  <p>The per-category numbers in parentheses in Tables 4 and 9 use S/√(S+B), which is neither the asymptotic discovery significance nor the quantity entering the profile likelihood. It systematically overstates categories where B ≫ S and understates highly pure ones. It is a sorting aid, not a result — but it is presented adjacent to the yields as if it were one.</p></div>
+
+  <div class="crit"><b>07 · Four identical detectors is an assumption, not a design</b>
+  <p>10.8 ab⁻¹ presumes four interaction points each with IDEA-like performance. The note tells you the scaling honestly (halving the IPs costs a factor 1.7 in luminosity, not 2, because of the machine layout), but the headline 0.21% becomes ~0.28% for two IPs before any systematic is added — and the current FCC-ee baseline has fluctuated between two and four IPs during the design study.</p></div>
+
+  <div class="crit"><b>08 · Internal inconsistency in the ν̄ν selection table</b>
+  <p>Table 8's selection row reads "70 &lt; m<sub>vis</sub> &lt; 150 GeV, 60 &lt; m<sub>miss</sub> &lt; 220 GeV" while the text specifies m<sub>miss</sub> in 50–140 GeV and the fit is performed over 60–140 GeV. The efficiencies quoted (86–92%) are only reproducible with one of these. Small, but the reader cannot reconstruct the cutflow.</p></div>
+
+  <h3 class="sec">Harder problems</h3>
+
+  <details class="ch">
+    <summary>Problem 1 — the ℓℓ efficiency dip on b̄b</summary>
+    <div class="q">In the ℓℓH cutflow, the "no additional leptons with p &gt; 25 GeV" cut removes 5% of H→b̄b events but essentially none of H→gg or H→s̄s. The note remarks it "might be considered to veto additional isolated leptons instead". Quantify the effect from first principles and say what the right fix costs.</div>
+    <div class="a">B hadrons decay semileptonically with B(b→ℓν X) ≈ 10.5% per lepton species, and with the b→c→ℓ cascade the inclusive rate of a lepton from a b-jet is ~20%. With two b-jets and a spectrum that puts a few percent of those leptons above 25 GeV (the b-jets carry ~60 GeV each, and the lepton takes a soft fraction), you land at a few percent per event. The observed 5% is entirely consistent.<br><br>
+    The proposed fix — vetoing only <i>isolated</i> leptons — recovers most of it, because leptons from heavy-flavour decay sit inside the jet cone. The cost is that the veto's original job was to suppress H→ττ with a leptonic τ and ZZ→ℓℓℓℓ, whose leptons <i>are</i> isolated, so isolation is exactly the discriminant you want. In practice the fix is nearly free, worth ~5% in b̄b yield, i.e. ~2.5% in δμ — small compared to the 40% gap identified in the Fisher exercise, which is why nobody bothered. <b>Recognising which inefficiencies are worth fixing is the skill; this one is not.</b></div>
+  </details>
+
+  <details class="ch">
+    <summary>Problem 2 — the exclusive-2 clustering choice</summary>
+    <div class="q">Every analysis here forces the event into exactly N jets with the exclusive Durham algorithm and uses d<sub>2,3</sub>, d<sub>3,4</sub> as discriminants. Why is exclusive clustering the natural choice at an e⁺e⁻ collider and pathological at a hadron collider, and what specifically do d<sub>2,3</sub> and d<sub>3,4</sub> buy in this analysis?</div>
+    <div class="a">Exclusive clustering asserts that <i>every</i> reconstructed particle belongs to one of N jets. At an e⁺e⁻ collider that is nearly true: there is no underlying event, no pile-up, no beam remnant, and the total visible energy is √s by construction. At the LHC the same statement is false at the level of tens of GeV per event, which is why hadron colliders use inclusive algorithms with a fixed R.<br><br>
+    d<sub>i,i+1</sub> is the k<sub>T</sub> distance at which the event transitions from i+1 to i jets, d = 2 min(E<sub>i</sub>², E<sub>j</sub>²)(1−cos θ<sub>ij</sub>). It is therefore a continuous measure of "how badly does this event want to be more than two jets". H→gg and H→WW*→4q produce large d<sub>2,3</sub>; H→b̄b produces small d<sub>2,3</sub> but non-negligible d<sub>3,4</sub> from b-decay substructure; a leptonic τ leaves d<sub>2,3</sub> = 0 exactly, which is why the note's cut is literally d<sub>2,3</sub> &gt; 0 — a topology veto disguised as a kinematic one. Feeding log(d) rather than d to the network is not cosmetic either: the distribution is roughly log-uniform over three decades.</div>
+  </details>
+
+  <details class="ch">
+    <summary>Problem 3 — reconstruct the ν̄ν sensitivity from the yield table</summary>
+    <div class="q">In the ν̄νH categories, the three b̄b bins hold S = 61 092 / 55 486 / 101 039 signal on totals of 199 630 / 88 233 / 111 892. Estimate δμ<sub>b̄b</sub> by hand and compare with the note's 0.35%. Then explain why the b̄b<sub>high</sub> bin, with 90% purity, contributes only about half the information.</div>
+    <div class="a">Σ S²/T = 61092²/199630 + 55486²/88233 + 101039²/111892 = 18 695 + 34 891 + 91 249 ≈ 144 800, plus a few hundred from the leakage bins. δμ = 1/√144 800 ≈ <b>0.26%</b>, against the note's 0.35%, the difference again being MC statistics and the seven-parameter fit (compare Table 14: 0.26% without MC stat, 0.33% with — the counting estimate reproduces the no-MC-stat number almost exactly).<br><br>
+    The high-purity bin contributes 91 249 of the 145 000, i.e. 63%. Its <i>information density</i> is S²/T = S·(S/T) = S × purity, so information scales as yield times purity, not purity alone. The low-purity bin has 61 092 events at 31% purity → 19 000; the high bin has 101 039 at 90% → 91 000. Doubling purity in a bin is worth exactly as much as doubling its yield. That symmetry is the reason the note's L/M/H subdivision (which changes neither total yield nor total purity, only their <i>correlation</i> across bins) improves the result at all: it moves yield into the high-purity end of the distribution.</div>
+  </details>
+
+  <details class="ch">
+    <summary>Problem 4 — the s̄s limit, done properly</summary>
+    <div class="q">The note reports a 95% CL upper limit of 1.6 × SM on B(H→s̄s) from the combination, with δμ ≈ 89–105%. Show that these two statements are consistent, and identify the statistical subtlety that makes "1.6 × SM" a slightly odd thing to quote.</div>
+    <div class="a">For a Gaussian likelihood centred on μ = 1 with σ<sub>μ</sub> ≈ 0.9, the one-sided 95% upper limit is μ &lt; 1 + 1.64σ ≈ 2.5. To land at 1.6 you need σ<sub>μ</sub> ≈ 0.37, or an expected limit computed on the <b>background-only</b> Asimov set (μ = 0), where the limit is 1.64σ ≈ 1.5. The 1.6 is therefore a background-only expected limit, while the 89–105% are signal-injected uncertainties on μ. Both are legitimate; they answer different questions and should not be read as the same number in different units.<br><br>
+    The oddity: quoting a limit in units of the SM prediction when that prediction is itself poorly known. B(H→s̄s) ∝ m<sub>s</sub>(m<sub>H</sub>)², and m<sub>s</sub> carries a several-percent uncertainty which is amplified by the running and squaring. The note flags this in the introduction ("a large uncertainty related to the limited knowledge of the mass of the strange quark") and then quotes a limit in exactly those units. The physically meaningful statement is a limit on κ<sub>s</sub>·y<sub>s</sub><sup>SM</sup>, or better, on the absolute partial width.</div>
+  </details>
+
+  <details class="ch">
+    <summary>Problem 5 — design the measurement you would actually do</summary>
+    <div class="q">You have been asked to improve B(H→c̄c) beyond 1.6%. You may spend effort on exactly one of: (a) charm tagging, (b) jet energy resolution, (c) more luminosity, (d) the categorisation scheme. Argue for one using the numbers on this page.</div>
+    <div class="a">Work out what limits it. In the ℓℓ channel the c̄c categories hold S ≈ 2 960 on T ≈ 8 244 — purity 36%, and the contamination is dominated by ZZ background (4 587 events) rather than by other Higgs decays (≈ 100 events). So c̄c is <b>background-limited, not tag-limited</b>.<br><br>
+    (c) more luminosity scales as 1/√L and is the least efficient use of anything. (b) jet energy resolution is nearly irrelevant, because the discriminant is m<sub>recoil</sub> from the leptons, which never touches the jets. (a) charm tagging helps but you are fighting Z→cc̄ inside ZZ, which has the <i>same</i> flavour content as your signal — better c-tagging does not separate them at all; only the recoil mass does. That leaves <b>(d)</b>: the ZZ background is separable from ZH by the Z polar-angle distribution (1/σ dσ/dcos θ rises steeply toward |cos θ| = 1 for ZZ and is flat for ZH — the note plots exactly this in Fig. 3 and feeds it to the network) and by the recoil lineshape. Finer categorisation in cos θ<sub>ℓℓ</sub> and tighter recoil binning attack the actual limitation. In the ν̄ν channel the same reasoning points instead at the 2D (m<sub>vis</sub>, m<sub>miss</sub>) template granularity.<br><br>
+    <b>The general lesson: look at what is in the denominator of S²/(S+B) before you improve anything.</b></div>
+  </details>
+</section>
+
+<footer>
+  Toy models throughout. The recoil and four-jet simulations use two-body kinematics with Gaussian smearing and no ISR photon spectrum beyond a crude tail, no hadronisation, and no detector geometry. The tagger is a multinomial-logit stand-in for a graph network, tuned by hand to sit near the note's confusion matrices — it will reproduce the shape of the answer, never its exact value. The Fisher estimates are Gaussian-limit counting approximations to a binned profile likelihood and deliberately omit the template shape information, which is why they disagree with the published numbers in an instructive direction. Where a number is quoted as the note's, it is transcribed from the paper; everything else is computed live in your browser. Source: <i>Measurement of Higgs boson hadronic decays at FCC-ee</i>, Del Vecchio, Eysermans, Gouskos, Iakovidis, Maloizel, Marchiori, Selvaggi.
+</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const C={ink:'#17181B',muted:'#6E7076',faint:'#9B9C9F',rule:'#DDDCD6',panel:'#F3F3EF',paper:'#FCFCFA',
+         bq:'#2E4E7E',cq:'#B26A2C',sq:'#3F7A5B',gq:'#7A4A8C',bkg:'#9B9C9F',e240:'#2E4E7E',e365:'#9B4A2F',warn:'#9B4A2F'};
+const MONO='11px ui-monospace, "SF Mono", Menlo, monospace';
+const MONO9='9.5px ui-monospace, "SF Mono", Menlo, monospace';
+const SERIF='13px "Iowan Old Style", Charter, Georgia, serif';
+const mZ=91.1876, mH=125.11, GZ=2.4952;
+
+/* ---------- math utils ---------- */
+let gspare=null;
+function gauss(){ if(gspare!==null){const v=gspare;gspare=null;return v;}
+  let u,v,s; do{u=Math.random()*2-1;v=Math.random()*2-1;s=u*u+v*v;}while(s>=1||s===0);
+  const m=Math.sqrt(-2*Math.log(s)/s); gspare=v*m; return u*m; }
+function bw(m0,g){ return m0 + 0.5*g*Math.tan(Math.PI*(Math.random()-0.5)); }
+function quantile(a,q){ const i=(a.length-1)*q, lo=Math.floor(i), hi=Math.ceil(i);
+  return a[lo]+(a[hi]-a[lo])*(i-lo); }
+function inv(M){ const n=M.length; const A=M.map((r,i)=>r.concat(Array.from({length:n},(_,j)=>i===j?1:0)));
+  for(let c=0;c<n;c++){ let p=c; for(let r=c+1;r<n;r++) if(Math.abs(A[r][c])>Math.abs(A[p][c])) p=r;
+    if(Math.abs(A[p][c])<1e-300) return null; [A[c],A[p]]=[A[p],A[c]];
+    const d=A[c][c]; for(let j=0;j<2*n;j++) A[c][j]/=d;
+    for(let r=0;r<n;r++){ if(r===c) continue; const f=A[r][c]; if(!f) continue;
+      for(let j=0;j<2*n;j++) A[r][j]-=f*A[c][j]; } }
+  return A.map(r=>r.slice(n)); }
+function solve4(M,b){ const A=M.map((r,i)=>r.concat([b[i]])); const n=4;
+  for(let c=0;c<n;c++){ let p=c; for(let r=c+1;r<n;r++) if(Math.abs(A[r][c])>Math.abs(A[p][c])) p=r;
+    if(Math.abs(A[p][c])<1e-12) return null; [A[c],A[p]]=[A[p],A[c]];
+    const d=A[c][c]; for(let j=c;j<=n;j++) A[c][j]/=d;
+    for(let r=0;r<n;r++){ if(r===c) continue; const f=A[r][c]; if(!f) continue;
+      for(let j=c;j<=n;j++) A[r][j]-=f*A[c][j]; } }
+  return [A[0][4],A[1][4],A[2][4],A[3][4]]; }
+
+/* ---------- 3-vector ---------- */
+function randDir(){ const ct=Math.random()*2-1, st=Math.sqrt(1-ct*ct), ph=Math.random()*2*Math.PI;
+  return [st*Math.cos(ph), st*Math.sin(ph), ct]; }
+function smearDir(d,s){ if(s<=0) return d.slice();
+  const n=[d[0]+gauss()*s, d[1]+gauss()*s, d[2]+gauss()*s];
+  const m=Math.hypot(n[0],n[1],n[2]); return [n[0]/m,n[1]/m,n[2]/m]; }
+function boost(E,p,bv,g){ const bp=bv[0]*p[0]+bv[1]*p[1]+bv[2]*p[2];
+  const b2=bv[0]*bv[0]+bv[1]*bv[1]+bv[2]*bv[2];
+  const k=b2>0?((g-1)*bp/b2+g*E):g*E;
+  return [g*(E+bp), [p[0]+k*bv[0], p[1]+k*bv[1], p[2]+k*bv[2]]]; }
+function twoBody(M,m1,m2,bv,g){ // returns two 4-vectors in lab
+  const E1=(M*M+m1*m1-m2*m2)/(2*M);
+  const pm=Math.sqrt(Math.max(0,E1*E1-m1*m1));
+  const d=randDir(); const p1=[d[0]*pm,d[1]*pm,d[2]*pm];
+  const E2=M-E1; const p2=[-p1[0],-p1[1],-p1[2]];
+  return [boost(E1,p1,bv,g), boost(E2,p2,bv,g)]; }
+
+/* ---------- canvas ---------- */
+/* the HTML .figtag overlay owns the top-left corner of every framed canvas;
+   TAGH is the band that canvas drawing must stay clear of — measured per
+   canvas by cvs(), since the tag wraps to two lines on narrow screens. */
+let TAGH=28;
+function tagH(c){ const p=c&&c.parentElement, t=p&&p.querySelector('.figtag');
+  return t?Math.max(24,t.offsetHeight):24; }
+function cvs(id){ const c=document.getElementById(id); if(!c) return null;
+  const r=c.getBoundingClientRect(); if(r.width<5) return null;
+  // TAGH is the height of this canvas's .figtag overlay (it wraps to two lines
+  // on narrow screens); every draw function reads it straight after this call
+  TAGH=tagH(c);
+  const dpr=window.devicePixelRatio||1;
+  c.width=Math.round(r.width*dpr); c.height=Math.round(r.height*dpr);
+  const x=c.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0);
+  x.clearRect(0,0,r.width,r.height);
+  return {x,w:r.width,h:r.height}; }
+function frame(x,L,T,R,B){ x.strokeStyle=C.rule; x.lineWidth=1;
+  x.strokeRect(L+.5,T+.5,R-L,B-T); }
+function txt(x,s,px,py,col,font,align,base){ x.fillStyle=col||C.muted; x.font=font||MONO;
+  x.textAlign=align||'left'; x.textBaseline=base||'alphabetic'; x.fillText(s,px,py); }
+/* greedy word wrap to a pixel width — used so narrow canvases reflow their
+   annotations instead of running off the edge */
+function wrapLines(x,s,maxW,font){ x.font=font||MONO;
+  const words=String(s).split(' '), out=[]; let cur='';
+  words.forEach(wd=>{ const t=cur?cur+' '+wd:wd;
+    if(!cur||x.measureText(t).width<=maxW) cur=t; else { out.push(cur); cur=wd; } });
+  if(cur) out.push(cur); return out; }
+/* block whose LAST line sits on baseline py (grows upward) */
+function txtUp(x,s,px,py,maxW,col,font,align,lh,halo){
+  const ls=wrapLines(x,s,maxW,font), H=lh||12, f=halo?txtHalo:txtMath;
+  ls.forEach((ln,i)=>f(x,ln,px,py-(ls.length-1-i)*H,col,font,align)); return ls.length; }
+/* block whose FIRST line sits on baseline py (grows downward) */
+function txtDown(x,s,px,py,maxW,col,font,align,lh){
+  const ls=wrapLines(x,s,maxW,font), H=lh||12;
+  ls.forEach((ln,i)=>txtMath(x,ln,px,py+i*H,col,font,align)); return ls.length; }
+/* text with a paper-coloured backing, for labels that must stay readable
+   where a bar, rule or curve passes behind them */
+function txtHalo(x,s,px,py,col,font,align){
+  const F=font||MONO, base=parseFloat(F)||11;
+  const S=F.replace(/^[\d.]+px/, (Math.max(7,Math.round(base*0.74*2)/2))+'px');
+  let tw=0; mathToks(s).forEach(t=>{ x.font=t.k?S:F; tw+=x.measureText(t.t).width; });
+  const a=align||'left', x0=a==='center'?px-tw/2:(a==='right'?px-tw:px);
+  x.fillStyle=C.paper; x.fillRect(x0-3,py-9.5,tw+6,12.5);
+  txtMath(x,s,px,py,col,F,align); }
+/* canvas counterpart of the .vec accent: draws the text, then strokes a small
+   arrow over the characters at the given indices (U+20D7 has no glyph) */
+function txtVec(x,s,px,py,col,font,idx){
+  txt(x,s,px,py,col,font);
+  x.font=font||MONO; x.strokeStyle=col||C.muted; x.lineWidth=1;
+  const up=(parseFloat(font||MONO)||11)*0.82;
+  idx.forEach(i=>{ const x0=Math.round(px+x.measureText(s.slice(0,i)).width)+0.5,
+                   w=x.measureText(s[i]).width, y=Math.round(py-up)+0.5;
+    x.beginPath(); x.moveTo(x0,y); x.lineTo(x0+w-1,y);
+    x.moveTo(x0+w-1,y); x.lineTo(x0+w-3.5,y-2);
+    x.moveTo(x0+w-1,y); x.lineTo(x0+w-3.5,y+2); x.stroke(); });
+}
+/* Canvas maths. Canvas text has no markup, so "m_recoil [GeV]" would print the
+   underscore. txtMath draws real sub/superscripts from a tiny notation:
+   `_x` / `^x` for one character, `_{...}` / `^{...}` for a run.
+   Returns the drawn width. */
+function mathToks(s){ const out=[]; let i=0;
+  while(i<s.length){ const c=s[i];
+    if((c==='_'||c==='^')&&i+1<s.length){ let t;
+      if(s[i+1]==='{'){ const e=s.indexOf('}',i+2); t=s.slice(i+2,e<0?s.length:e); i=(e<0?s.length:e+1); }
+      else { t=s[i+1]; i+=2; }
+      out.push({k:c,t}); continue; }
+    let j=i; while(j<s.length&&s[j]!=='_'&&s[j]!=='^') j++;
+    out.push({k:'',t:s.slice(i,j)}); i=j; }
+  return out; }
+function txtMath(x,s,px,py,col,font,align){
+  const F=font||MONO, base=parseFloat(F)||11;
+  const S=F.replace(/^[\d.]+px/, (Math.max(7,Math.round(base*0.74*2)/2))+'px');
+  const toks=mathToks(s);
+  let w=0; toks.forEach(t=>{ x.font=t.k?S:F; w+=x.measureText(t.t).width; });
+  let cx=align==='center'?px-w/2:(align==='right'?px-w:px);
+  toks.forEach(t=>{ const f=t.k?S:F;
+    txt(x,t.t,cx,py+(t.k==='_'?base*0.22:t.k==='^'?-base*0.40:0),col,f,'left');
+    x.font=f; cx+=x.measureText(t.t).width; });
+  return w; }
+/* rotated axis title, so long titles cannot be clipped by the left edge */
+function ylab(x,s,T,B,col){ x.save(); x.translate(13,(T+B)/2); x.rotate(-Math.PI/2);
+  txtMath(x,s,0,0,col||C.faint,MONO9,'center'); x.restore(); }
+/* readable text colour over a hex fill composited on white at opacity a:
+   crossover is placed where white-on-fill and ink-on-fill contrast match */
+function inkOn(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const ch=v=>{ const c2=(255-a*(255-v))/255; return c2<=0.03928?c2/12.92:Math.pow((c2+0.055)/1.055,2.4); };
+  return (0.2126*ch(r)+0.7152*ch(g)+0.0722*ch(b))<0.20?'#fff':C.ink; }
+function ticks(x,L,T,R,B,x0,x1,y0,y1,nx,ny,fmtx,fmty,logy){
+  x.strokeStyle='#EFEEE9'; x.lineWidth=1;
+  for(let i=0;i<=nx;i++){ const v=x0+(x1-x0)*i/nx, px=L+(R-L)*i/nx;
+    x.beginPath(); x.moveTo(px,T); x.lineTo(px,B); x.stroke();
+    txt(x,fmtx?fmtx(v):v.toFixed(0),px,B+14,C.faint,MONO9,'center'); }
+  for(let i=0;i<=ny;i++){ const py=B-(B-T)*i/ny;
+    let v; if(logy){ v=Math.pow(10, Math.log10(y0)+(Math.log10(y1)-Math.log10(y0))*i/ny); }
+    else v=y0+(y1-y0)*i/ny;
+    x.beginPath(); x.moveTo(L,py); x.lineTo(R,py); x.stroke();
+    txt(x,fmty?fmty(v):v.toFixed(0),L-6,py+3,C.faint,MONO9,'right'); } }
+
+/* =================================================================
+   TABS
+   ================================================================= */
+const draws={};
+$$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  $$('nav.tabs button').forEach(o=>o.setAttribute('aria-selected', o===b?'true':'false'));
+  $$('section.panel').forEach(p=>p.classList.toggle('on', p.id===b.dataset.panel));
+  if(draws[b.dataset.panel]) draws[b.dataset.panel]();
+}));
+let rt=null;
+window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{
+  const id=$('nav.tabs button[aria-selected="true"]').dataset.panel; if(draws[id]) draws[id](); },160); });
+
+/* =================================================================
+   1 · WALKTHROUGH
+   ================================================================= */
+function sigZH(s){ // arbitrary-normalised Higgsstrahlung shape, s in GeV^2
+  const a=Math.pow(mH+mZ,2)/s, b=Math.pow(mH-mZ,2)/s;
+  const lam=(1-a)*(1-b); if(lam<=0) return 0;
+  const r=mZ*mZ/s;
+  return Math.sqrt(lam)*(lam+12*r)/Math.pow(1-r,2)/s; }
+const SIGNORM = 196.5/sigZH(240*240);
+const LUM0 = 1.0; // relative instantaneous luminosity at 240
+function lumRel(E){ return Math.pow(240/E, 4.27); }
+
+const STEPS=[
+{tag:'Why',t:'The two thirds nobody can see',
+ c:'br',
+ cap:'Fig. 01 · SM branching ratios at m<sub>H</sub> = 125 GeV',
+ b:'Of every hundred Higgs bosons, 58 go to b̄b, 8 to gluons and 3 to charm — sixty-nine hadronic decays, against roughly one that goes to the diphoton channel the particle was discovered in. At the LHC that inversion is a curse: the hadronic modes are produced overwhelmingly by gluon fusion into a purely hadronic final state, sitting under a QCD cross-section larger by six orders of magnitude. The only usable handle is associated production with a leptonically-decaying W or Z, which is under 1% of the total rate. Hence: b̄b observed at ~15%, c̄c at the edge, gg never attempted, s̄s impossible.'},
+{tag:'Why',t:'Where to put the machine',
+ c:'sigma',
+ cap:'Fig. 02 · σ(ZH), relative luminosity, and their product versus √s',
+ b:'σ(e⁺e⁻→ZH) turns on at √s ≈ m<sub>H</sub> + m<sub>Z</sub> = 216 GeV and peaks above 200 fb near 255 GeV. But a circular collider\'s luminosity falls steeply with energy — synchrotron power scales as E⁴ at fixed radius, and the FCC-ee luminosity drops roughly a factor six between 240 and 365 GeV. The quantity you actually maximise is L·σ, and that lands at <b>240 GeV</b>, not at the cross-section peak. Everything downstream — 2.16 million ZH events in 10.8 ab⁻¹, four detectors, three years — follows from that one product.'},
+{tag:'How',t:'Measuring the Higgs without looking at it',
+ c:'recoil',
+ cap:'Fig. 03 · The recoil construction in the Z(ℓℓ) channel',
+ b:'In e⁺e⁻ the initial four-momentum is known exactly: (√s, <span class="vec">0</span>). Reconstruct the two leptons from Z→ℓℓ and the missing four-momentum is the Higgs, whatever it decayed into. <math><msubsup><mi>m</mi><mi>rec</mi><mn>2</mn></msubsup><mo>=</mo><mi>s</mi><mo>−</mo><mn>2</mn><msqrt><mi>s</mi></msqrt><mo>⋅</mo><msub><mi>E</mi><mi>ℓℓ</mi></msub><mo>+</mo><msubsup><mi>m</mi><mi>ℓℓ</mi><mn>2</mn></msubsup></math> peaks at 125 GeV for signal and is smooth for everything else. This is the only place in Higgs physics where you can count Higgs bosons <b>decay-blind</b>, which is what makes every branching ratio downstream absolute rather than relative. It also means the resolution on the Higgs peak is set by the leptons and the beam, not by the detector\'s ability to reconstruct a jet.'},
+{tag:'How',t:'Seven numbers per jet',
+ c:'tagvec',
+ cap:'Fig. 04 · Output of the flavour-tagging network for one jet',
+ b:'The GNN takes the particle-flow constituents of a jet and returns seven probabilities — b, c, s, u, d, g, hadronic τ — summing to one. b-tagging at a lepton collider is nearly free: a 1.2 cm innermost vertex layer against a 1 cm beam pipe, no pile-up, and a b-hadron flight distance of millimetres. Charm follows. <b>Strange is the new capability</b>: it requires identifying a leading high-momentum kaon, which needs dE/dx or cluster counting in a drift chamber and time-of-flight — this is why the analysis lives or dies on the IDEA tracker rather than on the calorimeter. Light-quark separation (u versus d) barely exists, which is why those two score distributions pile up at 0.5.'},
+{tag:'How',t:'Partition, then fit',
+ c:'cats',
+ cap:'Fig. 05 · Event-level K-score partition into flavour-enriched categories',
+ b:'Two jets, two seven-vectors. Sum them into K = K₁ + K₂ and take the argmax to assign each event to a B-, C-, S- or G-like category, then subdivide each by the magnitude of the winning score into low / medium / high purity. The partition is orthogonal by construction, so it cannot bias the answer — a worse partition simply costs you variance. Then a single simultaneous binned maximum-likelihood fit runs over every category at once, with one signal strength μ<sub>XX</sub> per Higgs decay floating freely, and extracts all of them together.'},
+{tag:'How',t:'What the fit actually looks at',
+ c:'templates',
+ cap:'Fig. 06 · Discriminant templates by channel',
+ b:'The observable is different in each Z channel, and that is the point. <b>Z→ℓℓ</b> fits m<sub>recoil</sub> in 120–140 GeV at 0.25 GeV granularity — a sharp signal peak on a smooth background. <b>Z→νν̄</b> fits two dimensions at once, the visible mass (peaking at m<sub>H</sub>) against the missing mass (peaking at m<sub>Z</sub>), because the two-dimensional sidebands constrain the enormous W and Z backgrounds far better than either projection. <b>Z→qq</b> fits m<sub>jj</sub> of the Higgs candidate against the recoil, after a four-jet constrained fit has rebuilt the jet energies from the jet directions.'},
+{tag:'Result',t:'Where the information is',
+ c:'info',
+ cap:'Fig. 07 · Fisher information density S²/(S+B) per category, ℓℓH',
+ b:'Every category contributes S²/(S+B) to the inverse variance of its signal strength. Written as S × (S/(S+B)), it says that <b>yield and purity are worth exactly the same</b>: a category with half the events and twice the purity carries identical information. That symmetry is why the low/medium/high subdivision helps at all — it does not create purity, it redistributes yield toward the pure end of the distribution. It also explains the whole shape of the results: b̄b has yield and purity; s̄s has neither.'},
+{tag:'Result',t:'The numbers, and what they are not',
+ c:'final',
+ cap:'Fig. 08 · Combined precision on σ(ZH)×B versus the HL-LHC projection',
+ b:'Combining Z→ℓℓ, Z→νν̄ and Z→qq: <b>0.21% on b̄b, 1.6% on c̄c, 0.8% on gg</b>, and a limit of 1.6 × SM on s̄s. Against the HL-LHC\'s projected 4.4% on b̄b and roughly SM-level sensitivity on c̄c, gg and s̄s being entirely new territory. But read the fine print: the ℓℓ and νν̄(I) fits contain <b>no experimental systematic uncertainties at all</b>, only Monte-Carlo statistics. These are statistical floors. Whether 0.21% survives contact with flavour-tagging calibration is the open question the note does not address.'},
+{tag:'Result',t:'The chain that closes',
+ c:'chain',
+ cap:'Fig. 09 · From σ×B to absolute couplings',
+ b:'A hadron collider measures σ×B and can never divide out the production cross-section without assumptions. Here the recoil mass gives σ<sub>ZH</sub> ∝ κ<sub>Z</sub><sup>2</sup> independently of the decay, so B = (σ×B)/σ is absolute; then Γ<sub>H</sub> = Γ(H→ZZ)/B(ZZ) gives the <b>total width</b> without assuming anything about invisible or exotic decays; then κ<sub>f</sub><sup>2</sup> ∝ Γ<sub>H</sub> · B(f f̄) turns every branching ratio in this note into a coupling. That is why a 0.8% measurement of a gluon branching ratio — a loop-induced quantity with no tree-level coupling to fit — is worth having: it constrains any new coloured state running in the loop at the few-percent level in the effective coupling.'}
+];
+let step=0;
+const dotsEl=$('#dots');
+STEPS.forEach((_,i)=>{ const d=document.createElement('i'); d.addEventListener('click',()=>{step=i;drawWalk();}); dotsEl.appendChild(d); });
+
+function drawWalk(){
+  const s=STEPS[step];
+  $('#stepnum').textContent=String(step+1).padStart(2,'0')+' / '+String(STEPS.length).padStart(2,'0');
+  $('#stepdir').textContent=s.tag;
+  $('#stepdir').className='tagpill '+(s.tag==='Result'?'b':'a');
+  $('#steptitle').textContent=s.t;
+  $('#steptext').innerHTML=s.b;
+  $('#figcap').innerHTML=s.cap;   // captions carry <sub>/<sup> maths
+  $('#figtag').textContent='Fig. '+String(step+1).padStart(2,'0');
+  $('#prev').disabled=step===0; $('#next').disabled=step===STEPS.length-1;
+  $$('#dots i').forEach((d,i)=>d.classList.toggle('on',i===step));
+  const g=cvs('figc'); if(!g) return;
+  FIG[s.c](g.x,g.w,g.h);
+}
+$('#prev').addEventListener('click',()=>{if(step>0){step--;drawWalk();}});
+$('#next').addEventListener('click',()=>{if(step<STEPS.length-1){step++;drawWalk();}});
+draws.walk=drawWalk;
+
+const FIG={};
+FIG.br=function(x,w,h){
+  const D=[['b̄b',58.24,C.bq],['WW',21.37,C.bkg],['gg',8.187,C.gq],['ττ',6.272,C.bkg],
+           ['c̄c',2.891,C.cq],['ZZ',2.619,C.bkg],['γγ',0.227,C.bkg],['s̄s',0.024,C.sq]];
+  const L=54,T=TAGH+16,R=w-24,B=h-34;
+  ticks(x,L,T,R,B,0,1,0.01,100,1,4,()=>'',v=>v>=1?v.toFixed(0)+'%':v.toFixed(2)+'%',true);
+  const bwid=(R-L)/D.length;
+  const ly=v=>B-(B-T)*(Math.log10(v)-Math.log10(0.01))/(Math.log10(100)-Math.log10(0.01));
+  D.forEach((d,i)=>{ const px=L+bwid*i+bwid*0.18, ww=bwid*0.64;
+    x.fillStyle=d[2]; x.globalAlpha=(d[2]===C.bkg)?0.32:0.9;
+    x.fillRect(px,ly(d[1]),ww,B-ly(d[1])); x.globalAlpha=1;
+    txt(x,d[0],px+ww/2,B+15,C.muted,MONO,'center');
+    txt(x,d[1]<0.1?d[1].toFixed(3):d[1].toFixed(2),px+ww/2,ly(d[1])-6,C.ink,MONO9,'center'); });
+  frame(x,L,T,R,B);
+  // top-right: the tallest bars are on the left, so this corner is always free
+  txt(x,'HADRONIC: 69.3%',R-10,T+18,C.ink,MONO,'right');
+  x.strokeStyle=C.ink; x.setLineDash([3,3]); x.beginPath();
+  x.moveTo(L,ly(0.024)); x.lineTo(R,ly(0.024)); x.stroke(); x.setLineDash([]);
+  // stop short of the s̄s bar so the annotation never lands on its value label
+  txtUp(x,'s̄s — 2.4×10⁻⁴, and known only as well as m_s',
+        L+bwid*7-8,ly(0.024)-6,bwid*7-16,C.sq,MONO,'right',13,true);
+};
+FIG.sigma=function(x,w,h){
+  const L=54,T=TAGH+14,R=w-58,B=h-34, E0=215,E1=380;
+  ticks(x,L,T,R,B,E0,E1,0,1.15,5,4,v=>v.toFixed(0),v=>v.toFixed(1));
+  const px=E=>L+(R-L)*(E-E0)/(E1-E0);
+  let mx=0; const pts=[];
+  for(let E=E0;E<=E1;E+=1){ const sg=sigZH(E*E)*SIGNORM, lu=lumRel(E), pr=sg*lu;
+    pts.push([E,sg,lu,pr]); if(pr>mx) mx=pr; }
+  const sMax=250, py=(v,m)=>B-(B-T)*Math.min(v/m,1.13);
+  function curve(k,m,col,dash){ x.strokeStyle=col; x.lineWidth=1.8; x.setLineDash(dash||[]);
+    x.beginPath(); pts.forEach((p,i)=>{ const X=px(p[0]),Y=py(p[k],m); i?x.lineTo(X,Y):x.moveTo(X,Y);}); x.stroke(); x.setLineDash([]); }
+  curve(1,sMax,C.e240); curve(2,1.0,C.faint,[4,3]); curve(3,mx,C.e365);
+  frame(x,L,T,R,B);
+  // peak markers
+  let best=pts.reduce((a,b)=>b[3]>a[3]?b:a), bestS=pts.reduce((a,b)=>b[1]>a[1]?b:a);
+  x.strokeStyle=C.e365; x.setLineDash([2,3]); x.beginPath(); x.moveTo(px(best[0]),T); x.lineTo(px(best[0]),B); x.stroke();
+  x.strokeStyle=C.e240; x.beginPath(); x.moveTo(px(bestS[0]),T); x.lineTo(px(bestS[0]),B); x.stroke(); x.setLineDash([]);
+  txt(x,'L·σ max — '+best[0].toFixed(0)+' GeV',px(best[0])+6,T+16,C.e365,MONO);
+  txt(x,'σ max — '+bestS[0].toFixed(0),px(bestS[0])+6,T+34,C.e240,MONO);
+  txt(x,'σ(ZH)  [right: 0–250 fb]',L+10,B-12,C.e240,MONO);
+  txt(x,'relative luminosity',L+10,B-28,C.faint,MONO);
+  txt(x,'√s [GeV]',(L+R)/2,h-6,C.faint,MONO9,'center');
+  [[240,C.e240],[365,C.e365]].forEach(m=>{ x.fillStyle=m[1]; x.beginPath(); x.arc(px(m[0]),B,3.5,0,7); x.fill();
+    txt(x,m[0]+' GeV run',px(m[0]),T-8,m[1],MONO,'center'); });
+};
+FIG.recoil=function(x,w,h){
+  const L=20,T=20,R=w-20,B=h-20;
+  // side-by-side needs ~180px for the event diagram plus a usable plot; below
+  // that the peak goes underneath instead of being dropped altogether
+  const stack=(R-L)<340;
+  // pushed right in the stacked layout so the ℓ⁺ label clears the figure tag
+  const ip=stack?[L+130,T+92]:[L+118,T+118];
+  x.strokeStyle=C.faint; x.lineWidth=1.4;
+  x.beginPath(); x.moveTo(L+18,ip[1]); x.lineTo(ip[0]-14,ip[1]); x.stroke();
+  x.beginPath(); x.moveTo(ip[0]+14,ip[1]); x.lineTo(ip[0]+120,ip[1]); x.stroke();
+  txt(x,'e⁻',L+18,ip[1]-8,C.muted,MONO); txt(x,'e⁺',ip[0]+104,ip[1]-8,C.muted,MONO);
+  x.fillStyle=C.ink; x.beginPath(); x.arc(ip[0],ip[1],4,0,7); x.fill();
+  // leptons
+  x.strokeStyle=C.e240; x.lineWidth=2;
+  [[-52,-72],[-70,42]].forEach((d,i)=>{ x.beginPath(); x.moveTo(ip[0],ip[1]); x.lineTo(ip[0]+d[0],ip[1]+d[1]); x.stroke();
+    txt(x,i?'ℓ⁻':'ℓ⁺',ip[0]+d[0]-16,ip[1]+d[1]+(i?12:-4),C.e240,MONO); });
+  // jets
+  x.strokeStyle=C.cq; x.lineWidth=1.2;
+  for(let k=0;k<9;k++){ const a=-0.42+k*0.105; x.beginPath(); x.moveTo(ip[0],ip[1]);
+    x.lineTo(ip[0]+Math.cos(a)*(72+Math.random()*18), ip[1]+Math.sin(a)*(72+Math.random()*18)); x.stroke(); }
+  txt(x,'X — anything',ip[0]+96,ip[1]+18,C.cq,MONO);
+  if(stack) txt(x,'Z → ℓℓ · measured',R-8,T+16,C.e240,MONO,'right');
+  else txt(x,'Z → ℓℓ · measured',L+18,T+16,C.e240,MONO);
+  txtVec(x,'pᵢ = (√s, 0)  known exactly',L+18,stack?ip[1]+78:B-6,C.faint,MONO,[0,10]);
+  // peak — beside the event diagram when there is room, underneath it otherwise
+  const pL=stack?L+34:ip[0]+180, pR=R-16,
+        pT=stack?ip[1]+94:T+24, pB=stack?B-30:B-34;
+  if(pR-pL>140){
+    ticks(x,pL,pT,pR,pB,120,140,0,1.1,4,3,v=>v.toFixed(0),()=>'');
+    const px=v=>pL+(pR-pL)*(v-120)/20;
+    x.fillStyle='rgba(155,156,159,.30)'; x.beginPath(); x.moveTo(pL,pB);
+    for(let v=120;v<=140;v+=0.25){ x.lineTo(px(v), pB-(pB-pT)*0.16*(1+0.02*(140-v))); }
+    x.lineTo(pR,pB); x.fill();
+    x.strokeStyle=C.e240; x.lineWidth=2; x.beginPath();
+    for(let v=120;v<=140;v+=0.15){ const g=Math.exp(-0.5*Math.pow((v-125.1)/0.55,2))+0.22*Math.exp(-0.5*Math.pow((v-127.5)/2.6,2));
+      const Y=pB-(pB-pT)*(0.16+0.80*g); if(v===120) x.moveTo(px(v),Y); else x.lineTo(px(v),Y); }
+    x.stroke(); frame(x,pL,pT,pR,pB);
+    txtMath(x,'m_{recoil} [GeV]',(pL+pR)/2,pB+26,C.faint,MONO9,'center');
+    txt(x,'ZZ, Z/γ*',pL+8,pB-14,C.muted,MONO9);
+    txt(x,'ZH',px(125.1)+8,pT+14,C.e240,MONO);
+    txt(x,'ISR tail',px(129),pT+52,C.faint,MONO9);
+  }
+};
+FIG.tagvec=function(x,w,h){
+  const F=['b','c','s','u','d','g','τ'];
+  const sets=[ ['a b-jet',[0.91,0.055,0.004,0.003,0.004,0.021,0.003],C.bq],
+               ['a c-jet',[0.06,0.78,0.03,0.02,0.02,0.08,0.01],C.cq],
+               ['an s-jet',[0.01,0.05,0.55,0.11,0.14,0.13,0.01],C.sq],
+               ['a gluon jet',[0.03,0.06,0.09,0.07,0.08,0.66,0.01],C.gq] ];
+  const NOTE='u and d are indistinguishable — both networks output ≈ 0.5 each when a light jet appears';
+  const nl=wrapLines(x,NOTE,w-8,MONO9).length;
+  const L=44,T=TAGH+18,R=w-20,B=h-16-nl*12, cw=(R-L)/sets.length;
+  sets.forEach((s,i)=>{ const x0=L+cw*i+8, x1=L+cw*(i+1)-14;
+    txt(x,s[0],x0,T-10,s[2],MONO);
+    const bw2=(x1-x0)/7;
+    s[1].forEach((v,k)=>{ const px=x0+bw2*k+bw2*0.15, ww=bw2*0.7;
+      const hh=(B-T-16)*v; x.fillStyle=s[2]; x.globalAlpha=0.22+0.75*v;
+      x.fillRect(px,B-16-hh,ww,hh); x.globalAlpha=1;
+      txt(x,F[k],px+ww/2,B-4,C.faint,MONO9,'center'); });
+    x.strokeStyle=C.rule; x.strokeRect(x0-.5,T-.5,x1-x0+1,B-T-15); });
+  txt(x,'Σ = 1',L-8,T+8,C.faint,MONO9,'right');
+  txtUp(x,NOTE,4,h-6,w-8,C.faint,MONO9,'left',12);
+};
+FIG.cats=function(x,w,h){
+  const rows=['H→b̄b','H→c̄c','H→s̄s','H→gg','H→ττ','ZZ','WW','Z(qq̄)'];
+  const cols=['B-like','C-like','S-like','G-like'];
+  const M=[[97.6,0.3,0.0,2.0],[0.2,96.6,0.7,2.5],[0.1,1.0,89.6,9.3],[2.0,3.3,7.2,87.6],
+           [0.9,65.6,27.6,5.9],[21.4,21.3,35.5,21.8],[9.9,44.5,24.5,21.1],[48.2,26.4,14.9,10.6]];
+  const ANNO=['the partition cannot bias the result — a bad partition only costs variance.',
+              'then subdivide each column by max K into L / M / H purity, giving 12 fitted categories from 4.'];
+  const ANNOW=200, GAP=22;
+  // only hold width back for the annotation column if it can actually be read
+  // there; otherwise give the whole canvas to the matrix
+  const L=86, wide=w>=L+300+ANNOW+GAP;
+  const T=TAGH+16,R=wide?Math.min(w-ANNOW-GAP,L+400):w-16,B=h-30;
+  const cw=(R-L)/cols.length, rh=(B-T)/rows.length;
+  M.forEach((r,i)=>r.forEach((v,j)=>{ const t=Math.pow(v/100,0.55), a=0.06+0.86*t;
+    x.fillStyle=hexA(C.bq,a);
+    x.fillRect(L+cw*j,T+rh*i,cw-1,rh-1);
+    txt(x,v.toFixed(1),L+cw*j+cw/2,T+rh*i+rh/2+3.5,inkOn(C.bq,a),MONO9,'center'); }));
+  rows.forEach((r,i)=>txt(x,r,L-8,T+rh*i+rh/2+3.5,i<5?C.ink:C.muted,MONO9,'right'));
+  cols.forEach((c,j)=>txt(x,c,L+cw*j+cw/2,T-9,C.muted,MONO9,'center'));
+  txt(x,'row-normalised %, from the note\'s Fig. 19',L,B+18,C.faint,MONO9);
+  if(wide){
+    const tx=R+GAP, aw=w-tx-8;
+    txt(x,'orthogonal by construction',tx,T+16,C.ink,MONO);
+    let yy=T+40;
+    ANNO.forEach(s=>{ yy+=txtDown(x,s,tx,yy,aw,C.muted,SERIF,'left',17)*17+10; });
+  }
+};
+FIG.templates=function(x,w,h){
+  const NOTE='Different Z decays give different discriminants. The νν̄ channel needs two dimensions because its background is 200× the signal.';
+  const nl=wrapLines(x,NOTE,w-8,MONO9).length;
+  // two lines of head-room so a long panel title can wrap instead of running
+  // into its neighbour
+  const L=44,T=TAGH+24,R=w-20,B=h-28-nl*12, cw=(R-L)/3;
+  const panels=[
+    ['Z→ℓℓ : m_{recoil}','120','140', v=>0.13+0.87*Math.exp(-0.5*Math.pow((v-0.26)/0.045,2)), C.e240],
+    ['Z→νν̄ : m_{vis} ⊗ m_{miss}','70','150', null, C.sq],
+    ['Z→qq : m_{jj}(H) vs m_{rec}','60','150', v=>0.10+0.70*Math.exp(-0.5*Math.pow((v-0.55)/0.10,2))+0.30*Math.exp(-0.5*Math.pow((v-0.22)/0.07,2)), C.cq]];
+  panels.forEach((p,i)=>{ const x0=L+cw*i+6, x1=L+cw*(i+1)-14;
+    txtUp(x,p[0],x0,T-10,x1-x0,p[4],MONO9,'left',12);
+    x.strokeStyle=C.rule; x.strokeRect(x0-.5,T-.5,x1-x0+1,B-T);
+    if(i===1){ // 2D
+      for(let a=0;a<26;a++) for(let b2=0;b2<20;b2++){
+        const u=a/25,v2=b2/19;
+        const sig=Math.exp(-0.5*Math.pow((u-0.68)/0.09,2)-0.5*Math.pow((v2-0.55)/0.10,2));
+        const bg=0.30*Math.exp(-0.5*Math.pow((v2-0.30)/0.16,2))+0.16;
+        const t=Math.min(1,sig*0.95+bg*0.55);
+        x.fillStyle='rgba(63,122,91,'+(0.05+0.9*t)+')';
+        x.fillRect(x0+(x1-x0)*a/26, T+(B-T)*(1-(b2+1)/20), (x1-x0)/26+0.6,(B-T)/20+0.6); }
+      // corners of the map are the palest cells — white was invisible there
+      txtMath(x,'m_{vis} →',x1-10,B-8,C.ink,MONO9,'right');
+      txtMath(x,'↑ m_{miss}',x0+6,T+14,C.ink,MONO9);
+    } else {
+      x.fillStyle=p[4]; x.globalAlpha=0.18;
+      x.beginPath(); x.moveTo(x0,B);
+      for(let u=0;u<=1;u+=0.01) x.lineTo(x0+(x1-x0)*u, B-(B-T)*p[3](u)); x.lineTo(x1,B); x.fill(); x.globalAlpha=1;
+      x.strokeStyle=p[4]; x.lineWidth=1.8; x.beginPath();
+      for(let u=0;u<=1;u+=0.005){ const Y=B-(B-T)*p[3](u); u?x.lineTo(x0+(x1-x0)*u,Y):x.moveTo(x0,Y); } x.stroke();
+    }
+    txt(x,p[1],x0,B+15,C.faint,MONO9); txt(x,p[2],x1,B+15,C.faint,MONO9,'right'); });
+  txtUp(x,NOTE,4,h-6,w-8,C.faint,MONO9,'left',12);
+};
+FIG.info=function(x,w,h){
+  const cats=[['b̄b low',3702.9,5392.3],['b̄b mid',6885.3,8586.0],['b̄b high',48179.9,50911.5],
+              ['c̄c low',557.8,3596.9],['c̄c mid',635.2,1910.1],['c̄c high',1768.8,2736.9],
+              ['gg low',1071.0,2541.5],['gg mid',1779.3,2780.0],['gg high',4428.7,4905.9],
+              ['s̄s low',6.3,3751.8],['s̄s high',17.1,1678.2]];
+  const FOOT='δμ = 1/√Σ  →  b̄b 0.43%,  c̄c 2.6%,  gg 1.3%,  s̄s 230%   (counting only)';
+  const L=54,T=TAGH+16,R=w-20;
+  const bwid=(R-L)/cats.length;
+  // category names split onto two lines when the columns get tight
+  x.font=MONO9;
+  const twoLine=cats.some(c=>x.measureText(c[0]).width>bwid-4);
+  const fl=wrapLines(x,FOOT,w-8,MONO9).length;
+  const B=h-6-(fl-1)*12-16-(twoLine?23:13);
+  const vals=cats.map(c=>c[1]*c[1]/c[2]);
+  const mx=Math.max(...vals);
+  ticks(x,L,T,R,B,0,1,1,1e5,1,5,()=>'',v=>v>=1000?(v/1000).toFixed(0)+'k':v.toFixed(0),true);
+  const ly=v=>B-(B-T)*(Math.log10(Math.max(v,1))-0)/(5-0);
+  cats.forEach((c,i)=>{ const col=i<3?C.bq:i<6?C.cq:i<9?C.gq:C.sq;
+    const px=L+bwid*i+bwid*0.18, ww=bwid*0.64, v=vals[i];
+    x.fillStyle=col; x.globalAlpha=0.85; x.fillRect(px,ly(v),ww,B-ly(v)); x.globalAlpha=1;
+    if(twoLine){ const sp=c[0].lastIndexOf(' ');
+      txt(x,c[0].slice(0,sp),px+ww/2,B+13,C.muted,MONO9,'center');
+      txt(x,c[0].slice(sp+1),px+ww/2,B+23,C.muted,MONO9,'center'); }
+    else txt(x,c[0],px+ww/2,B+13,C.muted,MONO9,'center');
+    txt(x,(100*c[1]/c[2]).toFixed(0)+'%',px+ww/2,ly(v)-6,C.faint,MONO9,'center'); });
+  frame(x,L,T,R,B);
+  // above the frame: the b̄b high bar reaches the top of the plot, so there is
+  // no room for this inside it
+  txtMath(x,'S^2/(S+B) per category  ·  label = purity',L+12,T-8,C.ink,MONO);
+  txtUp(x,FOOT,4,h-6,w-8,C.faint,MONO9,'left',12);
+};
+FIG.final=function(x,w,h){
+  const D=[['b̄b',4.4,0.21],['c̄c',100,1.56],['gg',null,0.85],['s̄s',null,89],['WW',null,0.95],['ZZ',null,6.24],['ττ',null,2.46]];
+  const FOOT='and none of the blue bars contains an experimental systematic uncertainty';
+  const L=54,T=TAGH+14,R=w-20;
+  const fl=wrapLines(x,FOOT,w-8,MONO9).length;
+  const B=h-6-(fl-1)*12-16-13;
+  ticks(x,L,T,R,B,0,1,0.1,1000,1,4,()=>'',v=>v>=1?v.toFixed(0)+'%':v.toFixed(1)+'%',true);
+  const ly=v=>B-(B-T)*(Math.log10(v)-Math.log10(0.1))/4;
+  const bwid=(R-L)/D.length;
+  D.forEach((d,i)=>{ const px=L+bwid*i+bwid*0.12, ww=bwid*0.76;
+    if(d[1]!==null){ x.fillStyle=C.faint; x.globalAlpha=0.35;
+      x.fillRect(px,ly(d[1]),ww*0.46,B-ly(d[1])); x.globalAlpha=1;
+      txt(x,d[1].toFixed(1),px+ww*0.23,ly(d[1])-5,C.faint,MONO9,'center'); }
+    else txt(x,'—',px+ww*0.23,B-8,C.faint,MONO9,'center');
+    x.fillStyle=C.e240; x.fillRect(px+ww*0.52,ly(d[2]),ww*0.46,B-ly(d[2]));
+    txt(x,d[2]<1?d[2].toFixed(2):d[2].toFixed(0),px+ww*0.75,ly(d[2])-5,C.e240,MONO9,'center');
+    txt(x,d[0],px+ww/2,B+13,C.muted,MONO,'center'); });
+  frame(x,L,T,R,B);
+  let ly2=T+16;
+  ly2+=txtDown(x,'grey — HL-LHC projection (3 ab⁻¹, ATLAS+CMS)',L+10,ly2,R-L-20,C.faint,MONO,'left',16)*16;
+  txtDown(x,'blue — FCC-ee combined, this note',L+10,ly2,R-L-20,C.e240,MONO,'left',16);
+  txtUp(x,FOOT,4,h-6,w-8,C.warn,MONO9,'left',12);
+};
+FIG.chain=function(x,w,h){
+  const boxes=[['σ_{ZH}','recoil mass\nZ(ℓℓ) counting','∝ κ_Z^2',C.e240],
+               ['B(XX)','(σ×B)/σ','absolute',C.cq],
+               ['Γ_H','Γ_{ZZ} / B(ZZ)','no invisible\nassumption',C.sq],
+               ['κ_f','√(Γ_H·B_{ff})','the answer',C.gq]];
+  const FOOT='The only step a hadron collider cannot take is the first one.';
+  const L=24,T=TAGH+22,R=w-24;
+  const fl=wrapLines(x,FOOT,w-2*L,SERIF).length;
+  const B=h-34-(fl-1)*17;
+  // four across needs ~150px per box; below that they fold into 2×2 rather
+  // than shrinking until the text spills over the borders
+  const cols=(R-L-3*36)/4>=118?4:2, rows=4/cols;
+  const gapX=cols===4?36:30, gapY=18;
+  const bw2=(R-L-(cols-1)*gapX)/cols, bh=((B-T)-(rows-1)*gapY)/rows;
+  boxes.forEach((b,i)=>{ const cx=i%cols, cy=Math.floor(i/cols);
+    const x0=L+cx*(bw2+gapX), y0=T+cy*(bh+gapY);
+    x.fillStyle=C.panel; x.fillRect(x0,y0,bw2,bh);
+    x.strokeStyle=b[3]; x.lineWidth=1.4; x.strokeRect(x0+.5,y0+.5,bw2-1,bh-1);
+    txtMath(x,b[0],x0+14,y0+26,b[3],'17px ui-monospace, Menlo, monospace');
+    let yy=y0+50;
+    b[1].split('\n').forEach(s=>{ yy+=txtDown(x,s,x0+14,yy,bw2-24,C.ink,SERIF,'left',17)*17; });
+    let yf=y0+bh-10-(b[2].split('\n').length-1)*15;
+    b[2].split('\n').forEach((s,k)=>txtMath(x,s,x0+14,yf+k*15,C.muted,MONO9));
+    if(cx<cols-1){ x.strokeStyle=C.faint; x.lineWidth=1.4; const y=y0+bh/2, xe=x0+bw2+gapX-8;
+      x.beginPath(); x.moveTo(x0+bw2+6,y); x.lineTo(xe,y); x.stroke();
+      x.beginPath(); x.moveTo(xe,y); x.lineTo(xe-6,y-4); x.lineTo(xe-6,y+4); x.closePath(); x.fillStyle=C.faint; x.fill(); } });
+  txtUp(x,FOOT,L,h-14,w-2*L,C.muted,SERIF,'left',17);
+  txt(x,'MODEL-INDEPENDENT COUPLING EXTRACTION',L+40,T-18,C.faint,MONO);
+};
+
+/* =================================================================
+   2 · KINEMATICS
+   ================================================================= */
+let kmode='recoil';
+$$('[data-kmode]').forEach(b=>b.addEventListener('click',()=>{
+  kmode=b.dataset.kmode;
+  $$('[data-kmode]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  ['recoil','alpha','fourjet'].forEach(m=>$('#k-'+m).hidden=(m!==kmode));
+  drawKin(); }));
+function drawKin(){ if(kmode==='recoil') runRecoil(); else if(kmode==='alpha') runAlpha(); else runFourjet(); }
+draws.kin=drawKin;
+
+/* ---- recoil ---- */
+let rS=240, rLep='mu';
+$$('[data-rs]').forEach(b=>b.addEventListener('click',()=>{ rS=+b.dataset.rs;
+  $$('[data-rs]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); runRecoil(); }));
+$$('[data-lep]').forEach(b=>b.addEventListener('click',()=>{ rLep=b.dataset.lep;
+  $$('[data-lep]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); runRecoil(); }));
+['s_bes','s_res','s_isr','s_bkg'].forEach(id=>$('#'+id).addEventListener('input',runRecoil));
+$('#rerun').addEventListener('click',runRecoil);
+
+function recoilSample(N,sqrtS,besGeV,aRes,isr,lep){
+  const out=[]; const s=sqrtS*sqrtS;
+  for(let n=0;n<N;n++){
+    let se=sqrtS + gauss()*besGeV*Math.SQRT2;
+    if(isr>0 && Math.random()<0.34*isr){ se -= 0.15 + 17*Math.pow(Math.random(),4.2); }
+    if(se<mH+mZ+2) { n--; continue; }
+    let mz=bw(mZ,GZ); if(mz<60||mz>120) mz=mZ;
+    const EZ=(se*se+mz*mz-mH*mH)/(2*se);
+    if(EZ<mz){ n--; continue; }
+    const pZ=Math.sqrt(EZ*EZ-mz*mz), be=pZ/EZ, g=EZ/mz;
+    const d=randDir(), bv=[be*d[0],be*d[1],be*d[2]];
+    const tb=twoBody(mz,0,0,bv,g);
+    const P=[tb[0],tb[1]].map(v=>{
+      let p=Math.hypot(v[1][0],v[1][1],v[1][2]);
+      if(lep==='e' && Math.random()<0.22) p*=(1-0.35*Math.pow(Math.random(),1.6));
+      const sg=Math.hypot(aRes*p, 0.0012);
+      const f=1+gauss()*sg;
+      return [v[1][0]*f*p/Math.max(p,1e-9), [v[1][0]/ (Math.hypot(v[1][0],v[1][1],v[1][2])||1)*p*f,
+             v[1][1]/(Math.hypot(v[1][0],v[1][1],v[1][2])||1)*p*f,
+             v[1][2]/(Math.hypot(v[1][0],v[1][1],v[1][2])||1)*p*f]]; });
+    const p1=P[0][1], p2=P[1][1];
+    const m1=Math.hypot(p1[0],p1[1],p1[2]), m2=Math.hypot(p2[0],p2[1],p2[2]);
+    const Ell=m1+m2;
+    const cosd=(p1[0]*p2[0]+p1[1]*p2[1]+p1[2]*p2[2])/(m1*m2);
+    const mll2=2*m1*m2*(1-cosd);
+    if(mll2<81*81||mll2>101*101) continue;
+    const m2r=s-2*sqrtS*Ell+mll2;
+    if(m2r>0) out.push(Math.sqrt(m2r));
+  }
+  return out; }
+function coreSigma(a){ const c=a.filter(v=>Math.abs(v-125.11)<2.5);
+  if(c.length<50) return NaN; const b=c.sort((p,q)=>p-q);
+  return (quantile(b,0.8413)-quantile(b,0.1587))/2; }
+
+function runRecoil(){
+  const bes=+$('#s_bes').value/1000, aRes=(+$('#s_res').value)*1e-6, isr=+$('#s_isr').value/100,
+        bkgL=+$('#s_bkg').value/100;
+  $('#v_bes').textContent=(bes*1000).toFixed(0)+' MeV';
+  $('#v_res').textContent=(aRes*1e5).toFixed(1)+'e-5';
+  $('#v_isr').textContent=isr===0?'off':(isr*100).toFixed(0)+'%';
+  $('#v_bkg').textContent=(bkgL*100).toFixed(0)+'%';
+  const full=recoilSample(26000,rS,bes,aRes,isr,rLep);
+  const besOnly=recoilSample(11000,rS,bes,0,0,'mu');
+  const trkOnly=recoilSample(11000,rS,0,aRes,0,rLep);
+  const sF=coreSigma(full), sB=coreSigma(besOnly), sT=coreSigma(trkOnly);
+  $('#rr_sig').textContent=isFinite(sF)?(sF*1000).toFixed(0)+' MeV':'—';
+  $('#rr_bes').textContent=isFinite(sB)?(sB*1000).toFixed(0)+' MeV':'—';
+  $('#rr_trk').textContent=isFinite(sT)?(sT*1000).toFixed(0)+' MeV':'—';
+  // histogram
+  const NB=80, lo=120, hi=140, hs=new Float64Array(NB), hb=new Float64Array(NB);
+  let inWin=0;
+  full.forEach(v=>{ if(v>=lo&&v<hi){ hs[Math.floor((v-lo)/(hi-lo)*NB)]++; inWin++; } });
+  const sigTot = rS===240?150000:22000;
+  const sc = inWin>0 ? sigTot/full.length : 0;
+  for(let i=0;i<NB;i++) hs[i]*=sc;
+  const bTot=(rS===240?160000:52000)*bkgL;
+  for(let i=0;i<NB;i++){ const v=lo+(i+0.5)*(hi-lo)/NB;
+    hb[i]=bTot/NB*(1+0.035*(v-130)) + (rS===240?0:0); }
+  // S/B in +-2 sigma
+  let S=0,Bk=0; const pk=125.1;
+  for(let i=0;i<NB;i++){ const v=lo+(i+0.5)*(hi-lo)/NB;
+    if(Math.abs(v-pk)<2*Math.max(sF,0.05)){ S+=hs[i]; Bk+=hb[i]; } }
+  $('#rr_sb').textContent=Bk>0?(S/Bk).toFixed(2):'—';
+  const g=cvs('recoilc'); if(!g) return; const x=g.x,w=g.w,h=g.h;
+  const L=64,T=TAGH+14,R=w-18,B=h-34;
+  let mx=0; for(let i=0;i<NB;i++) mx=Math.max(mx,hs[i]+hb[i]);
+  ticks(x,L,T,R,B,lo,hi,0,mx*1.12,5,4,v=>v.toFixed(0),v=>v>=1000?(v/1000).toFixed(0)+'k':v.toFixed(0));
+  const px=v=>L+(R-L)*(v-lo)/(hi-lo), py=v=>B-(B-T)*v/(mx*1.12);
+  x.fillStyle='rgba(155,156,159,.45)'; x.beginPath(); x.moveTo(L,B);
+  for(let i=0;i<NB;i++){ const X=px(lo+i*(hi-lo)/NB); x.lineTo(X,py(hb[i])); x.lineTo(px(lo+(i+1)*(hi-lo)/NB),py(hb[i])); }
+  x.lineTo(R,B); x.fill();
+  x.fillStyle='rgba(46,78,126,.55)'; x.beginPath(); x.moveTo(L,B);
+  for(let i=0;i<NB;i++){ const X=px(lo+i*(hi-lo)/NB); x.lineTo(X,py(hb[i]+hs[i])); x.lineTo(px(lo+(i+1)*(hi-lo)/NB),py(hb[i]+hs[i])); }
+  x.lineTo(R,B); x.fill();
+  x.strokeStyle=C.e240; x.lineWidth=1.4; x.beginPath();
+  for(let i=0;i<NB;i++){ const X=px(lo+i*(hi-lo)/NB); if(i===0) x.moveTo(X,py(hb[i]+hs[i])); else x.lineTo(X,py(hb[i]+hs[i]));
+    x.lineTo(px(lo+(i+1)*(hi-lo)/NB),py(hb[i]+hs[i])); } x.stroke();
+  frame(x,L,T,R,B);
+  txtMath(x,'m_{recoil} [GeV]',(L+R)/2,h-6,C.faint,MONO9,'center');
+  ylab(x,'events / 0.25 GeV',T,B);
+  txt(x,'√s = '+rS+' GeV · Z → '+(rLep==='mu'?'μμ':'ee'),L+12,T+16,C.ink,MONO);
+  x.strokeStyle=C.ink; x.setLineDash([2,3]); x.beginPath(); x.moveTo(px(125.1),T); x.lineTo(px(125.1),B); x.stroke(); x.setLineDash([]);
+  // live equation
+  const Ell=(rS*rS+mZ*mZ-mH*mH)/(2*rS);
+  const c1=rS/mH, c2=(rS-Ell)/mH;
+  $('#recoileq').innerHTML='⟨E<sub>ℓℓ</sub>⟩ = <b>'+Ell.toFixed(2)+' GeV</b> &nbsp;·&nbsp; ∂m/∂E<sub>ℓℓ</sub> = <b>−'+c1.toFixed(2)+
+    '</b> &nbsp;·&nbsp; ∂m/∂√s = <b>'+c2.toFixed(2)+'</b><br>predicted beam contribution = '+c2.toFixed(2)+' × √2 × '+
+    (bes*1000).toFixed(0)+' MeV = <b>'+(c2*Math.SQRT2*bes*1000).toFixed(0)+' MeV</b> &nbsp;(measured '+
+    (isFinite(sB)?(sB*1000).toFixed(0):'—')+' MeV)';
+  const q=Math.hypot(sB,sT);
+  $('#recoilstat').innerHTML='quadrature of the two components: '+(q*1000).toFixed(0)+
+    ' MeV<br>full sample: '+(sF*1000).toFixed(0)+' MeV — the excess is the ISR tail, which is not Gaussian and is why the note fits a template rather than a Gaussian.';
+}
+
+/* ---- alpha ---- */
+let aPt=[135.2,125.0];
+['s_jes','s_jer','s_jang'].forEach(id=>$('#'+id).addEventListener('input',runAlpha));
+$('#a_reset').addEventListener('click',()=>{aPt=[135.2,125.0];runAlpha();});
+function alphaOf(E,m,s){ const D=E*E*s-m*m*(s-mZ*mZ); if(D<0||m<=0) return NaN;
+  return (E*Math.sqrt(s)-Math.sqrt(D))/(m*m); }
+/* single source of truth for the map's plot box and axis ranges — the drawing
+   code and the drag handler both read it, so they cannot drift apart */
+function alphaGeo(w,h){
+  // measured here rather than read from the TAGH global: the drag handler runs
+  // long after the last cvs() call, which may have been for another canvas
+  const L=58,T=tagH(document.getElementById('alphac'))+12,R=w-64,B=h-34,
+        E0=90,E1=180,M0=40,M1=170;
+  return {L,T,R,B,E0,E1,M0,M1,
+    px:E=>L+(R-L)*(E-E0)/(E1-E0),
+    py:m=>B-(B-T)*(m-M0)/(M1-M0)}; }
+function runAlpha(){
+  const jes=+$('#s_jes').value/1000, jer=+$('#s_jer').value/1000, ang=+$('#s_jang').value/1000;
+  $('#v_jes').textContent=jes.toFixed(3);
+  $('#v_jer').textContent=(jer*100).toFixed(1)+'%';
+  $('#v_jang').textContent=(ang*1000).toFixed(0)+' mrad';
+  const s=240*240;
+  const g=cvs('alphac'); if(!g) return; const x=g.x,w=g.w,h=g.h;
+  const G=alphaGeo(w,h);
+  const L=G.L,T=G.T,R=G.R,B=G.B,E0=G.E0,E1=G.E1,M0=G.M0,M1=G.M1;
+  const px=G.px, py=G.py;
+  const NX=Math.max(40,Math.floor((R-L)/4)), NY=Math.max(30,Math.floor((B-T)/4));
+  for(let i=0;i<NX;i++) for(let j=0;j<NY;j++){
+    const E=E0+(E1-E0)*(i+0.5)/NX, m=M0+(M1-M0)*(j+0.5)/NY;
+    const a=alphaOf(E,m,s); const mv=a*m;
+    let col;
+    if(!isFinite(a)||a<0) col='#EDEBE4';
+    else { const t=Math.max(0,Math.min(1,(mv-70)/110));
+      col='rgb('+Math.round(252-160*t)+','+Math.round(250-130*t)+','+Math.round(240-80*t)+')'; }
+    x.fillStyle=col; x.fillRect(px(E)-0.5,py(m)-(B-T)/NY-0.5,(R-L)/NX+1,(B-T)/NY+1); }
+  // contours
+  [100,125,150].forEach(target=>{
+    x.strokeStyle=target===125?C.cq:C.faint; x.lineWidth=target===125?2:1; x.setLineDash(target===125?[]:[3,3]);
+    x.beginPath(); let started=false;
+    for(let i=0;i<=200;i++){ const E=E0+(E1-E0)*i/200;
+      // solve m such that alpha*m = target  -> invert numerically
+      let loM=1,hiM=E; for(let k=0;k<40;k++){ const mid=(loM+hiM)/2; const a=alphaOf(E,mid,s);
+        if(!isFinite(a)||a*mid<target) loM=mid; else hiM=mid; }
+      const m=(loM+hiM)/2;
+      if(m>M0&&m<M1&&m<E){ const X=px(E),Y=py(m); started?x.lineTo(X,Y):(x.moveTo(X,Y),started=true); } }
+    x.stroke(); x.setLineDash([]); });
+  // forbidden region m>E
+  x.fillStyle='rgba(23,24,27,.06)'; x.beginPath(); x.moveTo(px(E0),py(E0));
+  for(let E=E0;E<=E1;E+=2) x.lineTo(px(E),py(Math.min(E,M1)));
+  x.lineTo(px(E1),py(M1)); x.lineTo(px(E0),py(M1)); x.fill();
+  frame(x,L,T,R,B);
+  ticks(x,L,T,R,B,E0,E1,M0,M1,5,5,v=>v.toFixed(0),v=>v.toFixed(0));
+  txtMath(x,'E_{jj} [GeV]',(L+R)/2,h-6,C.faint,MONO9,'center');
+  ylab(x,'m_{jj}',T,B);
+  txtMath(x,'m_{jj} > E_{jj} — unphysical',px(100),py(140),C.faint,MONO9);
+  // the m_vis = 125 contour leaves the top of the box, so keep its label inside
+  txtHalo(x,'m_{vis} = 125',px(E1)-6,Math.max(T+14,py(alphaInvM(E1,125,s))-8),C.cq,MONO9,'right');
+  // probe
+  const a=alphaOf(aPt[0],aPt[1],s), mv=a*aPt[1];
+  x.fillStyle=C.ink; x.beginPath(); x.arc(px(aPt[0]),py(aPt[1]),5,0,7); x.fill();
+  x.strokeStyle='#fff'; x.lineWidth=1.4; x.beginPath(); x.arc(px(aPt[0]),py(aPt[1]),5,0,7); x.stroke();
+  const D=aPt[0]*aPt[0]*s-aPt[1]*aPt[1]*(s-mZ*mZ);
+  const ap=(aPt[0]*Math.sqrt(s)+Math.sqrt(D))/(aPt[1]*aPt[1]);
+  $('#alphaeq').innerHTML='E<sub>jj</sub> = <b>'+aPt[0].toFixed(1)+'</b>, m<sub>jj</sub> = <b>'+aPt[1].toFixed(1)+
+    '</b> &nbsp;→&nbsp; Δ = '+(D/1e6).toFixed(1)+'×10⁶ &nbsp;·&nbsp; α₋ = <b>'+a.toFixed(4)+
+    '</b> &nbsp;·&nbsp; α₊ = '+ap.toFixed(3)+'<br>m<sub>vis</sub> = α₋·m<sub>jj</sub> = <b>'+mv.toFixed(2)+
+    ' GeV</b> &nbsp;· the discarded root would give m<sub>vis</sub> = '+(ap*aPt[1]).toFixed(0)+' GeV';
+  $('#alphastat').innerHTML='α scales the dijet four-momentum until the recoil is exactly on the Z pole. α &lt; 1 means the jets were measured too high.';
+  // colour key
+  if(w-R>44){ for(let j=0;j<60;j++){ const t=j/59;
+      x.fillStyle='rgb('+Math.round(252-160*t)+','+Math.round(250-130*t)+','+Math.round(240-80*t)+')';
+      x.fillRect(R+14,B-(B-T)*(j+1)/60,16,(B-T)/60+1); }
+    x.strokeStyle=C.rule; x.strokeRect(R+13.5,T+.5,17,B-T);
+    txt(x,'180',R+34,T+6,C.faint,MONO9); txt(x,'70',R+34,B,C.faint,MONO9);
+    txtMath(x,'m_{vis}',R+14,T-8,C.faint,MONO9); }
+  // histograms
+  const N=14000, raw=[], vis=[];
+  const EH=(240*240+mH*mH-mZ*mZ)/(2*240), pH=Math.sqrt(EH*EH-mH*mH), gH=EH/mH, beH=pH/EH;
+  for(let n=0;n<N;n++){
+    const d=randDir(), bv=[beH*d[0],beH*d[1],beH*d[2]];
+    const tb=twoBody(mH,0,0,bv,gH);
+    let E=0,P=[0,0,0];
+    tb.forEach(v=>{ let e=v[0]; const pm=Math.hypot(v[1][0],v[1][1],v[1][2]);
+      let dir=[v[1][0]/pm,v[1][1]/pm,v[1][2]/pm];
+      dir=smearDir(dir,ang);
+      e*= (1+gauss()*jer*Math.sqrt(50/Math.max(e,5)))*jes;
+      E+=e; P[0]+=e*dir[0]; P[1]+=e*dir[1]; P[2]+=e*dir[2]; });
+    const m2=E*E-(P[0]*P[0]+P[1]*P[1]+P[2]*P[2]); if(m2<=0) continue;
+    const m=Math.sqrt(m2); raw.push(m);
+    const al=alphaOf(E,m,s); if(isFinite(al)) vis.push(al*m); }
+  hist2(cvs('alphah1'),raw,90,165,'raw m_{jj}',C.bq,rawStats(raw));
+  hist2(cvs('alphah2'),vis,90,165,'m_{vis} = α·m_{jj}',C.cq,rawStats(vis));
+}
+function alphaInvM(E,target,s){ let lo=1,hi=E; for(let k=0;k<40;k++){ const mid=(lo+hi)/2;
+  const a=alphaOf(E,mid,s); if(!isFinite(a)||a*mid<target) lo=mid; else hi=mid; } return (lo+hi)/2; }
+function rawStats(a){ if(!a.length) return ''; const b=a.slice().sort((p,q)=>p-q);
+  const med=quantile(b,0.5), sg=(quantile(b,0.8413)-quantile(b,0.1587))/2;
+  return 'peak '+med.toFixed(1)+'  σ '+sg.toFixed(1); }
+function hist2(g,arr,lo,hi,label,col,sub){
+  if(!g) return; const x=g.x,w=g.w,h=g.h; const NB=60, H=new Float64Array(NB);
+  arr.forEach(v=>{ if(v>=lo&&v<hi) H[Math.floor((v-lo)/(hi-lo)*NB)]++; });
+  const L=40,T=24,R=w-12,B=h-24; let mx=0; for(let i=0;i<NB;i++) mx=Math.max(mx,H[i]);
+  if(mx<=0) mx=1;
+  const px=v=>L+(R-L)*(v-lo)/(hi-lo), py=v=>B-(B-T)*v/(mx*1.15);
+  x.fillStyle=col; x.globalAlpha=0.5; x.beginPath(); x.moveTo(L,B);
+  for(let i=0;i<NB;i++){ x.lineTo(px(lo+i*(hi-lo)/NB),py(H[i])); x.lineTo(px(lo+(i+1)*(hi-lo)/NB),py(H[i])); }
+  x.lineTo(R,B); x.fill(); x.globalAlpha=1;
+  x.strokeStyle=C.rule; x.strokeRect(L+.5,T+.5,R-L,B-T);
+  x.strokeStyle=C.ink; x.setLineDash([2,3]); x.beginPath(); x.moveTo(px(125.1),T); x.lineTo(px(125.1),B); x.stroke(); x.setLineDash([]);
+  txtMath(x,label,L,T-8,col,MONO9);
+  txt(x,sub,R,T-8,C.faint,MONO9,'right');
+  txt(x,lo.toFixed(0),L,B+13,C.faint,MONO9); txt(x,hi.toFixed(0),R,B+13,C.faint,MONO9,'right');
+  txt(x,'125',px(125.1),B+13,C.ink,MONO9,'center');
+}
+(function(){ const c=document.getElementById('alphac'); if(!c) return;
+  let drag=false;
+  function upd(ev){ const r=c.getBoundingClientRect();
+    const G=alphaGeo(r.width,r.height);
+    const t=ev.touches&&ev.touches[0];
+    const mx=(t?t.clientX:ev.clientX)-r.left;
+    const my=(t?t.clientY:ev.clientY)-r.top;
+    let E=G.E0+(G.E1-G.E0)*(mx-G.L)/(G.R-G.L), m=G.M0+(G.M1-G.M0)*(G.B-my)/(G.B-G.T);
+    E=Math.max(G.E0+1,Math.min(G.E1-1,E));
+    // keep the marker both inside the drawn box (m ≥ M0) and physical (m < E)
+    m=Math.max(G.M0,Math.min(Math.min(G.M1-1,E-0.5),m));
+    aPt=[E,m]; runAlpha(); }
+  c.addEventListener('mousedown',e=>{drag=true;upd(e);});
+  window.addEventListener('mousemove',e=>{if(drag)upd(e);});
+  window.addEventListener('mouseup',()=>drag=false);
+  c.addEventListener('touchstart',e=>{drag=true;upd(e);e.preventDefault();},{passive:false});
+  c.addEventListener('touchmove',e=>{if(drag){upd(e);e.preventDefault();}},{passive:false});
+  window.addEventListener('touchend',()=>drag=false);
+  window.addEventListener('touchcancel',()=>drag=false);
+})();
+
+/* ---- four jet ---- */
+let pairMode='chi2';
+$$('[data-pair]').forEach(b=>b.addEventListener('click',()=>{ pairMode=b.dataset.pair;
+  $$('[data-pair]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); runFourjet(); }));
+['s_fjer','s_fang','s_chi'].forEach(id=>$('#'+id).addEventListener('input',runFourjet));
+$('#fj_run').addEventListener('click',runFourjet);
+function runFourjet(){
+  const jer=+$('#s_fjer').value/1000, ang=+$('#s_fang').value/1000, chicut=+$('#s_chi').value;
+  $('#v_fjer').textContent=(jer*100).toFixed(1)+'%';
+  $('#v_fang').textContent=(ang*1000).toFixed(0)+' mrad';
+  $('#v_chi').textContent=chicut.toFixed(0);
+  const S=240, s=S*S;
+  const EZ=(s+mZ*mZ-mH*mH)/(2*S), pB=Math.sqrt(EZ*EZ-mZ*mZ), EH=S-EZ;
+  const N=18000, mHraw=[], mHfit=[], chis=[]; let mis=0, pass=0, tot=0, evDisplay=null;
+  for(let n=0;n<N;n++){
+    const d=randDir();
+    const bvZ=[pB/EZ*d[0],pB/EZ*d[1],pB/EZ*d[2]], gZ=EZ/mZ;
+    const bvH=[-pB/EH*d[0],-pB/EH*d[1],-pB/EH*d[2]], gH=EH/mH;
+    const jz=twoBody(mZ,0,0,bvZ,gZ), jh=twoBody(mH,0,0,bvH,gH);
+    const truth=[0,0,1,1]; // 0 = from Z, 1 = from H
+    const jets=[jz[0],jz[1],jh[0],jh[1]].map(v=>{
+      const pm=Math.hypot(v[1][0],v[1][1],v[1][2]);
+      let dir=smearDir([v[1][0]/pm,v[1][1]/pm,v[1][2]/pm],ang);
+      const Em=v[0]*(1+gauss()*jer*Math.sqrt(50/Math.max(v[0],5)));
+      return {E:Em,Et:v[0],dir:dir}; });
+    // constrained fit
+    const M=[[1,1,1,1],
+             jets.map(j=>j.dir[0]), jets.map(j=>j.dir[1]), jets.map(j=>j.dir[2])];
+    let Ef=solve4(M,[S,0,0,0]);
+    let ok = Ef && Ef.every(e=>e>2&&e<S);
+    let chi=0;
+    if(ok){ for(let i=0;i<4;i++){ const sg=jets[i].E*jer*Math.sqrt(50/Math.max(jets[i].E,5));
+        chi+=Math.pow((Ef[i]-jets[i].E)/Math.max(sg,0.3),2); } }
+    else { Ef=jets.map(j=>j.E); chi=999; }
+    tot++;
+    if(chi<chicut) pass++;
+    function mass(E,a,b2){ const ca=jets[a].dir, cb=jets[b2].dir;
+      const cd=ca[0]*cb[0]+ca[1]*cb[1]+ca[2]*cb[2];
+      return Math.sqrt(Math.max(0,2*E[a]*E[b2]*(1-cd))); }
+    const P=[[0,1,2,3],[0,2,1,3],[0,3,1,2]];
+    function pick(E){
+      if(pairMode==='flav'){
+        // b-scores: jets 2,3 are the true b-jets
+        const sc=jets.map((j,i)=>(truth[i]===1?0.85:0.15)+0.25*Math.random());
+        const idx=[0,1,2,3].sort((a,b2)=>sc[b2]-sc[a]);
+        const hp=[idx[0],idx[1]].sort(), zp=[idx[2],idx[3]].sort();
+        return [zp[0],zp[1],hp[0],hp[1]]; }
+      let best=null,bc=1e18;
+      P.forEach(p=>{ for(const o of [[p[0],p[1],p[2],p[3]],[p[2],p[3],p[0],p[1]]]){
+        const c1=mass(E,o[0],o[1])-mZ, c2=mass(E,o[2],o[3])-mH;
+        const v=c1*c1+c2*c2; if(v<bc){bc=v;best=o;} } });
+      return best; }
+    const selR=pick(jets.map(j=>j.E)), selF=pick(Ef);
+    if(!(truth[selF[2]]===1&&truth[selF[3]]===1)) mis++;
+    mHraw.push(mass(jets.map(j=>j.E),selR[2],selR[3]));
+    if(chi<chicut) mHfit.push(mass(Ef,selF[2],selF[3]));
+    chis.push(Math.min(chi,120));
+    if(n===0) evDisplay={jets,Ef};
+  }
+  const sr=(a=>{const b2=a.slice().sort((p,q)=>p-q);return (quantile(b2,0.8413)-quantile(b2,0.1587))/2;})(mHraw);
+  const sf=(a=>{ if(a.length<50) return NaN; const b2=a.slice().sort((p,q)=>p-q);return (quantile(b2,0.8413)-quantile(b2,0.1587))/2;})(mHfit);
+  $('#fj_raw').textContent=sr.toFixed(2)+' GeV';
+  $('#fj_fit').textContent=isFinite(sf)?sf.toFixed(2)+' GeV':'—';
+  $('#fj_mis').textContent=(100*mis/tot).toFixed(1)+'%';
+  $('#fj_eff').textContent=(100*pass/tot).toFixed(1)+'%';
+  $('#fjstat').innerHTML= isFinite(sf)&&sf<sr
+    ? 'The fit improves the Higgs mass resolution by ×'+(sr/sf).toFixed(2)+'. It is using jet directions and √s, not calorimeter energies.'
+    : 'The fit is now <b>worse</b> than the raw measurement — angular errors have overtaken energy errors, and the linear system is amplifying them.';
+  const g=cvs('fjc'); if(!g) return; const x=g.x,w=g.w,h=g.h;
+  const L=64,T=TAGH+14,R=w-18,B=h-34, lo=80,hi=170,NB=90;
+  const Hr=new Float64Array(NB), Hf=new Float64Array(NB);
+  mHraw.forEach(v=>{if(v>=lo&&v<hi)Hr[Math.floor((v-lo)/(hi-lo)*NB)]++;});
+  mHfit.forEach(v=>{if(v>=lo&&v<hi)Hf[Math.floor((v-lo)/(hi-lo)*NB)]++;});
+  let mx=0; for(let i=0;i<NB;i++) mx=Math.max(mx,Hr[i],Hf[i]);
+  ticks(x,L,T,R,B,lo,hi,0,mx*1.15,6,4,v=>v.toFixed(0),v=>v.toFixed(0));
+  const px=v=>L+(R-L)*(v-lo)/(hi-lo), py=v=>B-(B-T)*v/(mx*1.15);
+  function poly(H,col,fill){ x.strokeStyle=col; x.lineWidth=1.7;
+    if(fill){ x.fillStyle=col; x.globalAlpha=0.16; x.beginPath(); x.moveTo(L,B);
+      for(let i=0;i<NB;i++){x.lineTo(px(lo+i*(hi-lo)/NB),py(H[i]));x.lineTo(px(lo+(i+1)*(hi-lo)/NB),py(H[i]));}
+      x.lineTo(R,B); x.fill(); x.globalAlpha=1; }
+    x.beginPath(); for(let i=0;i<NB;i++){ const X=px(lo+i*(hi-lo)/NB);
+      i?x.lineTo(X,py(H[i])):x.moveTo(X,py(H[i])); x.lineTo(px(lo+(i+1)*(hi-lo)/NB),py(H[i])); } x.stroke(); }
+  poly(Hr,C.bkg,true); poly(Hf,C.cq,true);
+  frame(x,L,T,R,B);
+  x.strokeStyle=C.ink; x.setLineDash([2,3]); x.beginPath(); x.moveTo(px(mH),T); x.lineTo(px(mH),B); x.stroke(); x.setLineDash([]);
+  txtMath(x,'m_{jj} of the H candidate [GeV]',(L+R)/2,h-6,C.faint,MONO9,'center');
+  let fy=T+16;
+  fy+=txtDown(x,'raw jet energies — σ = '+sr.toFixed(2),L+12,fy,R-L-20,C.bkg,MONO,'left',16)*16;
+  txtDown(x,'after the 4×4 constraint — σ = '+(isFinite(sf)?sf.toFixed(2):'—'),L+12,fy,R-L-20,C.cq,MONO,'left',16);
+  // chi2
+  const g2=cvs('fjchi'); if(g2){ const y=g2.x, w2=g2.w,h2=g2.h;
+    const L2=50,T2=22,R2=w2-14,B2=h2-24, NB2=60, Hc=new Float64Array(NB2);
+    chis.forEach(v=>{ if(v>=0&&v<120) Hc[Math.floor(v/120*NB2)]++; });
+    let m2=0; for(let i=0;i<NB2;i++) m2=Math.max(m2,Hc[i]);
+    const pxc=v=>L2+(R2-L2)*v/120, pyc=v=>B2-(B2-T2)*v/(m2*1.12);
+    y.fillStyle=C.sq; y.globalAlpha=0.4; y.beginPath(); y.moveTo(L2,B2);
+    for(let i=0;i<NB2;i++){ y.lineTo(pxc(i*2),pyc(Hc[i])); y.lineTo(pxc((i+1)*2),pyc(Hc[i])); }
+    y.lineTo(R2,B2); y.fill(); y.globalAlpha=1;
+    y.strokeStyle=C.rule; y.strokeRect(L2+.5,T2+.5,R2-L2,B2-T2);
+    y.strokeStyle=C.warn; y.lineWidth=1.5; y.beginPath(); y.moveTo(pxc(chicut),T2); y.lineTo(pxc(chicut),B2); y.stroke();
+    txt(y,'χ² of the constrained fit',L2,T2-8,C.sq,MONO9);
+    txt(y,'cut at '+chicut,pxc(chicut)+6,T2+12,C.warn,MONO9);
+    txt(y,'0',L2,B2+13,C.faint,MONO9); txt(y,'120',R2,B2+13,C.faint,MONO9,'right'); }
+}
+
+/* =================================================================
+   3 · TAGGER & CATEGORIES
+   ================================================================= */
+const FLAV=['b','c','s','g','τ','u','d'];
+const SIM=[
+ [1.00,0.30,0.06,0.12,0.04,0.03,0.03],
+ [0.28,1.00,0.18,0.16,0.08,0.10,0.10],
+ [0.05,0.16,1.00,0.30,0.04,0.45,0.50],
+ [0.14,0.18,0.28,1.00,0.04,0.22,0.22],
+ [0.03,0.06,0.06,0.04,1.00,0.10,0.10],
+ [0.04,0.12,0.40,0.22,0.06,1.00,0.60],
+ [0.04,0.12,0.45,0.22,0.06,0.60,1.00]];
+const ZFLAV=[[0,0.216],[1,0.166],[2,0.223],[6,0.223],[5,0.172]]; // b,c,s,d,u fractions of hadronic Z
+function sampleZ(){ const r=Math.random(); let a=0; for(const f of ZFLAV){ a+=f[1]; if(r<a) return f[0]; } return 5; }
+function sampleW(){ return Math.random()<0.5?[1,2]:[5,6]; }
+/* Yields are the note's Table 8 ν̄νH selection, multiplied by the fraction of each
+   process that the note's network leaves in the *signal* categories rather than in its
+   five dedicated background categories (read off Table 9). That factor stands in for the
+   kinematic discrimination — m_vis, m_miss, d23, d34, polar angle — which this
+   flavour-only toy does not model. Without it, 32 million Z(qq̄) events swamp everything. */
+const PROCS=[
+ {n:'H→b̄b',   y:250915*0.977, sig:0, f:()=>[0,0]},
+ {n:'H→c̄c',   y:13177*0.96,  sig:1, f:()=>[1,1]},
+ {n:'H→gg',    y:37910*0.96,  sig:2, f:()=>[3,3]},
+ {n:'H→s̄s',   y:111*0.96,    sig:3, f:()=>[2,2]},
+ {n:'H→WW',    y:66372*0.60,  sig:4, f:()=>sampleW()},
+ {n:'H→ZZ',    y:9267*0.85,   sig:5, f:()=>[sampleZ(),sampleZ()]},
+ {n:'H→ττ',    y:14043*0.42,  sig:6, f:()=>[4,4]},
+ {n:'qq̄H',    y:31523*0.31,  sig:-1,f:()=>[sampleZ(),sampleZ()]},
+ {n:'ν_eν̄_eZ',y:227512*0.0135,sig:-1,f:()=>[sampleZ(),sampleZ()]},
+ {n:'Z/γ*(qq̄)',y:32021097*0.0130,sig:-1,f:()=>[sampleZ(),sampleZ()]},
+ {n:'ZZ',      y:10402375*0.0440,sig:-1,f:()=>[sampleZ(),sampleZ()]},
+ {n:'WW',      y:3288059*0.0620, sig:-1,f:()=>sampleW()}];
+const CATN=['B','C','S','G','O'];
+const PURB={0:[1.1,1.9],1:[1.0,1.8],2:[1.1,1.7],3:[1.2,1.5],4:[1.0,1.6]};
+let catMode='argmax', toyResult=null;
+$$('[data-cat]').forEach(b=>b.addEventListener('click',()=>{ catMode=b.dataset.cat;
+  $$('[data-cat]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); runTag(); }));
+['s_Ab','s_Ac','s_As','s_Ag','s_lumiT'].forEach(id=>$('#'+id).addEventListener('input',runTag));
+$('#tg_run').addEventListener('click',runTag);
+$('#tg_paper').addEventListener('click',()=>{ $('#s_Ab').value=60;$('#s_Ac').value=44;$('#s_As').value=26;$('#s_Ag').value=34; runTag(); });
+$('#tg_lhc').addEventListener('click',()=>{ $('#s_Ab').value=42;$('#s_Ac').value=16;$('#s_As').value=0;$('#s_Ag').value=8; runTag(); });
+
+function jetScores(f,A){ const l=new Array(7); let mx=-1e9;
+  for(let k=0;k<7;k++){ l[k]=A[f]*SIM[f][k]+gauss(); if(l[k]>mx) mx=l[k]; }
+  let sum=0; const o=new Array(7);
+  for(let k=0;k<7;k++){ o[k]=Math.exp(l[k]-mx); sum+=o[k]; }
+  for(let k=0;k<7;k++) o[k]/=sum; return o; }
+
+function runTag(){
+  const A=[+$('#s_Ab').value/10,+$('#s_Ac').value/10,+$('#s_As').value/10,+$('#s_Ag').value/10,6.0,1.5,1.5];
+  $('#v_Ab').textContent=A[0].toFixed(1); $('#v_Ac').textContent=A[1].toFixed(1);
+  $('#v_As').textContent=A[2].toFixed(1); $('#v_Ag').textContent=A[3].toFixed(1);
+  const lum=+$('#s_lumiT').value/10; $('#v_lumiT').textContent=lum.toFixed(1)+' ab⁻¹';
+  const lscale=lum/10.8;
+  const NCAT = catMode==='argmax'?5:15;
+  const catName = catMode==='argmax'?CATN.slice():
+    [].concat(...CATN.map(c=>['L','M','H'].map(p=>c+p)));
+  const M=PROCS.map(()=>new Float64Array(NCAT));
+  const NEV=2600;
+  const kdist={}; [0,1,2,3].forEach(i=>kdist[i]=new Float64Array(40));
+  PROCS.forEach((p,pi)=>{
+    const wgt=p.y*lscale/NEV;
+    for(let n=0;n<NEV;n++){
+      const fl=p.f(); const s1=jetScores(fl[0],A), s2=jetScores(fl[1],A);
+      let best=0,bv=-1; const K=new Array(7);
+      for(let k=0;k<7;k++){ K[k]=s1[k]+s2[k]; if(K[k]>bv){bv=K[k];best=k;} }
+      const cat=best<4?best:4;
+      let ci=cat;
+      if(catMode!=='argmax'){ const b2=PURB[cat]; const sub=bv<b2[0]?0:(bv<b2[1]?1:2); ci=cat*3+sub; }
+      M[pi][ci]+=wgt;
+      if(pi<4){ const bin=Math.min(39,Math.floor(K[pi===2?3:(pi===3?2:pi)]/2*40)); kdist[pi][bin]+=wgt; }
+    } });
+  toyResult={M,catName,NCAT};
+  // purities
+  const tot=new Float64Array(NCAT); M.forEach(r=>{for(let i=0;i<NCAT;i++) tot[i]+=r[i];});
+  function pur(sigIdx,catIdx){ let s=0,t=0;
+    for(let i=0;i<NCAT;i++){ const base=catMode==='argmax'?i:Math.floor(i/3);
+      if(base===catIdx){ s+=M[sigIdx][i]; t+=tot[i]; } }
+    return t>0?100*s/t:0; }
+  $('#tg_pb').textContent=pur(0,0).toFixed(1)+'%';
+  $('#tg_pc').textContent=pur(1,1).toFixed(2)+'%';
+  $('#tg_ps').textContent=pur(3,2).toFixed(4)+'%';
+  $('#tg_pg').textContent=pur(2,3).toFixed(2)+'%';
+  // heatmap: row-normalised over base categories
+  const g=cvs('tgc'); if(!g) return; const x=g.x,w=g.w,h=g.h;
+  const ANNOW=150, GAP=18;
+  // hold width back for the yield column only when it can be read there
+  const L=104, wide=w>=L+280+ANNOW+GAP;
+  const T=TAGH+16,R=wide?Math.min(w-ANNOW-GAP,L+430):w-14,B=h-24;
+  const cw=(R-L)/5, rh=(B-T)/PROCS.length;
+  PROCS.forEach((p,i)=>{ const row=new Array(5).fill(0);
+    for(let j=0;j<NCAT;j++){ const base=catMode==='argmax'?j:Math.floor(j/3); row[base]+=M[i][j]; }
+    const rt=row.reduce((a,b2)=>a+b2,0)||1;
+    row.forEach((v,j)=>{ const t=Math.pow(v/rt,0.5), a=0.05+0.9*t;
+      const col=[C.bq,C.cq,C.sq,C.gq,C.bkg][j];
+      x.fillStyle=hexA(col,a); x.fillRect(L+cw*j,T+rh*i,cw-1,rh-1);
+      txt(x,(100*v/rt).toFixed(t>0.02?1:2),L+cw*j+cw/2,T+rh*i+rh/2+3.5,inkOn(col,a),MONO9,'center'); });
+    txt(x,p.n,L-8,T+rh*i+rh/2+3.5,p.sig>=0?C.ink:C.muted,MONO9,'right'); });
+  ['B-like','C-like','S-like','G-like','other'].forEach((c,j)=>
+    txt(x,c,L+cw*j+cw/2,T-10,C.muted,MONO9,'center'));
+  if(wide){ const tx=R+GAP;
+    txt(x,'yields at '+lum.toFixed(1)+' ab⁻¹',tx,T+14,C.ink,MONO9);
+    let yy=T+34;
+    for(let j=0;j<5;j++){ let s=0;
+      for(let i=0;i<NCAT;i++){ const base=catMode==='argmax'?i:Math.floor(i/3); if(base===j) s+=tot[i]; }
+      txt(x,CATN[j]+'  '+fmtN(s),tx,yy,C.muted,MONO9); yy+=17; }
+    txt(x,NCAT+' fitted categories',tx,yy+12,C.faint,MONO9); }
+  // K distributions
+  const g2=cvs('tgk'); if(g2){ const y=g2.x,w2=g2.w,h2=g2.h;
+    const L2=52,T2=22,R2=w2-14,B2=h2-24;
+    const cols=[C.bq,C.cq,C.gq,C.sq];
+    let mx=1; [0,1,2,3].forEach(i=>{for(let k=0;k<40;k++) mx=Math.max(mx,kdist[i][k]);});
+    const py=v=>B2-(B2-T2)*(Math.log10(Math.max(v,1))/Math.log10(mx*1.4));
+    [0,1,2,3].forEach(i=>{ y.strokeStyle=cols[i]; y.lineWidth=1.5; y.beginPath();
+      for(let k=0;k<40;k++){ const X=L2+(R2-L2)*k/40; k?y.lineTo(X,py(kdist[i][k])):y.moveTo(X,py(kdist[i][k]));
+        y.lineTo(L2+(R2-L2)*(k+1)/40,py(kdist[i][k])); } y.stroke(); });
+    y.strokeStyle=C.rule; y.strokeRect(L2+.5,T2+.5,R2-L2,B2-T2);
+    txt(y,'own-flavour K-score, log scale   0 → 2',L2,T2-8,C.faint,MONO9);
+    // top-left: the curves all rise towards the right, so the key sat on them
+    ['H→b̄b : K_b','H→c̄c : K_c','H→gg : K_g','H→s̄s : K_s'].forEach((s,i)=>
+      txtMath(y,s,L2+8,T2+14+i*15,cols[i],MONO9)); }
+  const sPur=pur(3,2);
+  $('#tgstat').innerHTML='S-like category purity for H→s̄s: <b>'+sPur.toFixed(4)+'%</b> — i.e. about '+
+    fmtN(1/Math.max(sPur/100,1e-12))+' events must be counted to net one strange Higgs decay.'+
+    (catMode==='argmax'?'<br>Switch on L/M/H to see the purity redistribute.':'');
+  if(fitSrc==='toy') runFisher();
+}
+function hexA(hex,a){ const r=parseInt(hex.slice(1,3),16),g2=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g2+','+b+','+a+')'; }
+function fmtN(v){ if(v>=1e6) return (v/1e6).toFixed(1)+'M'; if(v>=1e3) return (v/1e3).toFixed(1)+'k'; return v.toFixed(0); }
+draws.tag=runTag;
+
+/* =================================================================
+   4 · THE LIKELIHOOD
+   ================================================================= */
+const POI=['b̄b','c̄c','gg','s̄s','WW','ZZ','ττ'];
+const PAPER_LL=[0.60,3.47,1.93,223,1.49,7.65,2.54];
+const PAPER_NN=[0.35,2.06,1.01,99.31,1.28,11.35,10.58];
+// Table 4 of the note: 21 categories x (7 signals + 3 backgrounds)
+const T4=[
+['b̄b low',3702.9,0.7,41.3,0.0,6.1,63.4,0.0,1571.7,5.2,1.1],
+['b̄b mid',6885.3,0.5,51.0,0.0,4.8,51.1,0.0,1591.5,1.9,0.0],
+['b̄b high',48179.9,0.7,28.0,0.0,1.9,26.8,0.0,2670.3,3.8,0.0],
+['c̄c low',63.7,557.8,103.7,0.0,304.3,73.0,0.0,2438.8,55.6,0.0],
+['c̄c mid',17.4,635.2,21.8,0.0,21.5,8.6,0.0,1197.7,8.1,0.0],
+['c̄c high',5.5,1768.8,7.4,0.0,2.4,1.9,0.0,950.5,0.5,0.0],
+['gg low',239.3,15.3,1071.0,0.7,477.9,63.6,0.0,671.9,1.9,0.0],
+['gg mid',145.8,9.0,1779.3,0.5,316.3,42.6,0.0,486.6,0.0,0.0],
+['gg high',41.2,4.5,4428.7,0.3,156.7,20.9,0.0,253.5,0.0,0.0],
+['s̄s low',0.6,12.7,325.6,6.3,125.7,67.7,0.0,3196.4,16.6,0.0],
+['s̄s high',0.3,4.4,55.0,17.1,5.5,5.9,0.0,1590.0,0.0,0.0],
+['HWW low',39.8,63.5,153.6,0.1,8649.6,171.0,1.6,1384.6,370.4,30.5],
+['HWW mid',1.2,0.7,1.3,0.0,1017.1,3.4,0.0,32.7,23.8,0.0],
+['HWW high',0.8,0.2,0.3,0.0,1138.0,2.0,0.0,17.5,23.8,0.0],
+['HZZ low',1818.9,24.1,117.8,0.1,581.7,723.4,2.2,4045.7,645.7,1.1],
+['HZZ mid',26.0,0.1,2.7,0.0,28.6,135.4,0.0,81.5,32.8,1.1],
+['HZZ high',2.9,0.0,0.3,0.0,17.5,235.1,0.0,50.4,24.2,0.0],
+['ττ',0.1,0.0,0.0,0.0,407.3,40.8,4739.1,2938.4,549.7,963.4],
+['ZZ',672.6,18.2,71.2,0.5,261.7,153.8,14.0,32522.8,102.2,119.8],
+['WW',0.1,0.3,0.0,0.0,28.4,7.2,0.1,144.8,2712.7,263.0],
+['Z/γ*',0.0,0.0,0.0,0.0,4.1,0.4,6.1,322.5,1661.4,68786.2]];
+let fitSrc='paper', poiOn=[true,true,true,true,true,true,true], fmode='fisher';
+$$('[data-fmode]').forEach(b=>b.addEventListener('click',()=>{ fmode=b.dataset.fmode;
+  $$('[data-fmode]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false'));
+  $('#f-fisher').hidden=fmode!=='fisher'; $('#f-combine').hidden=fmode!=='combine';
+  drawFit(); }));
+$$('[data-src]').forEach(b=>b.addEventListener('click',()=>{ fitSrc=b.dataset.src;
+  $$('[data-src]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); runFisher(); }));
+['s_lumi','s_mc','s_sys'].forEach(id=>$('#'+id).addEventListener('input',runFisher));
+POI.forEach((p,i)=>{ const b=document.createElement('button'); b.textContent=p;
+  b.setAttribute('aria-pressed','true');
+  b.addEventListener('click',()=>{ poiOn[i]=!poiOn[i]; b.setAttribute('aria-pressed',poiOn[i]?'true':'false'); runFisher(); });
+  $('#poibtns').appendChild(b); });
+function drawFit(){ if(fmode==='fisher') runFisher(); else runCombine(); }
+draws.fit=drawFit;
+
+function buildMatrix(){
+  const lum=+$('#s_lumi').value/10, k=lum/10.8;
+  if(fitSrc==='paper'){
+    return { names:T4.map(r=>r[0]),
+      S:T4.map(r=>r.slice(1,8).map(v=>v*k)),
+      B:T4.map(r=>(r[8]+r[9]+r[10])*k), ref:PAPER_LL, tag:'ℓℓH, note Table 4' };
+  }
+  if(!toyResult) runTag();
+  const M=toyResult.M, NC=toyResult.NCAT, kk=1;
+  const S=[],B=[];
+  for(let i=0;i<NC;i++){ const row=new Array(7).fill(0); let b=0;
+    PROCS.forEach((p,pi)=>{ if(p.sig>=0) row[p.sig]+=M[pi][i]; else b+=M[pi][i]; });
+    S.push(row); B.push(b); }
+  return { names:toyResult.catName, S,B, ref:PAPER_NN, tag:'ν̄νH, live toy' };
+}
+function runFisher(){
+  const lum=+$('#s_lumi').value/10; $('#v_lumi').textContent=lum.toFixed(1)+' ab⁻¹';
+  const mcf=+$('#s_mc').value; $('#v_mc').textContent=mcf===0?'∞ (off)':mcf+'×';
+  const sys=+$('#s_sys').value/10; $('#v_sys').textContent=sys.toFixed(1)+'%';
+  const D=buildMatrix();
+  const idx=[]; for(let a=0;a<7;a++) if(poiOn[a]) idx.push(a);
+  const n=idx.length;
+  const F=Array.from({length:n},()=>new Array(n).fill(0));
+  const diag=new Array(7).fill(0);
+  const infoPerCat=[];
+  for(let i=0;i<D.S.length;i++){
+    let T=D.B[i]; for(let a=0;a<7;a++) T+=D.S[i][a];
+    let V=T; if(mcf>0) V+=T/mcf; V+=Math.pow(sys/100*D.B[i],2);
+    if(V<=0) continue;
+    for(let a=0;a<n;a++) for(let b=0;b<n;b++) F[a][b]+=D.S[i][idx[a]]*D.S[i][idx[b]]/V;
+    for(let a=0;a<7;a++) diag[a]+=D.S[i][a]*D.S[i][a]/V;
+    infoPerCat.push(D.S[i][0]*D.S[i][0]/V);
+  }
+  const Cv=inv(F);
+  const dmu=new Array(7).fill(NaN), dmuD=new Array(7).fill(NaN);
+  for(let a=0;a<7;a++) dmuD[a]=diag[a]>0?100/Math.sqrt(diag[a]):NaN;
+  let singular=false;
+  if(Cv) idx.forEach((a,ai)=>{ const v=Cv[ai][ai]>0?100*Math.sqrt(Cv[ai][ai]):NaN;
+    if(!isFinite(v)||v>5000){ singular=true; } else dmu[a]=v; });
+  else singular=true;
+  ['bb','cc','gg','ss'].forEach((k,i)=>{ const v=dmu[i];
+    $('#fr_'+k).textContent=isFinite(v)?(v<10?v.toFixed(2):v.toFixed(0))+'%':(poiOn[i]?'∞':'fixed'); });
+  if(singular && D.S.length<n){
+    $('#fitstat').innerHTML=D.tag+' · <b>'+D.S.length+' categories, '+n+' free signal strengths</b><br>'+
+      'The Fisher matrix is singular: a counting experiment with N bins can determine at most N rates. Switch on the L/M/H purity subdivision in the tagger panel, or fix some signal strengths to the SM. This is the reason the note subdivides at all.';
+    return; }
+  $('#fitstat').innerHTML=D.tag+' · '+D.S.length+' categories<br>'+
+    (n<7?('<b>'+(7-n)+' signal strength'+(7-n>1?'s':'')+' fixed to the SM</b> — the blue bars barely move, which is the note\'s own claim that the seven measurements are almost independent.'):
+     'All seven floating at once. Blue and grey coincide: the categories are pure enough that the μ are effectively uncorrelated. The gap to the red rule is <b>not</b> correlation — try the MC-statistics slider.');
+  const g=cvs('fitc'); if(!g) return; const x=g.x,w=g.w,h=g.h;
+  const L=58,T=TAGH+14,R=w-16,B=h-42;
+  ticks(x,L,T,R,B,0,1,0.1,1000,1,4,()=>'',v=>v>=1?v.toFixed(0)+'%':v.toFixed(1)+'%',true);
+  const ly=v=>B-(B-T)*Math.max(0,Math.min(1,(Math.log10(Math.max(v,0.1))-Math.log10(0.1))/4));
+  const bwid=(R-L)/7;
+  POI.forEach((p,i)=>{ const x0=L+bwid*i+bwid*0.10, ww=bwid*0.80;
+    // diagonal ghost
+    if(isFinite(dmuD[i])){ x.fillStyle=hexA(C.faint,0.30); x.fillRect(x0,ly(dmuD[i]),ww,B-ly(dmuD[i])); }
+    if(isFinite(dmu[i])){ const Yb=ly(dmu[i]);
+      x.fillStyle=hexA(C.e240,0.85); x.fillRect(x0+ww*0.14,Yb,ww*0.72,B-Yb);
+      const lab=dmu[i]<10?dmu[i].toFixed(2):dmu[i].toFixed(0);
+      // inside the bar where it fits: above it the label lands on the note's
+      // red rule, and for tall bars on the legend
+      if(B-Yb>26) txt(x,lab,x0+ww/2,Yb+13,'#fff',MONO9,'center');
+      else txtHalo(x,lab,x0+ww/2,Yb-5,C.e240,MONO9,'center'); }
+    else txt(x,'fixed',x0+ww/2,B-8,C.faint,MONO9,'center');
+    // note marker
+    const r=D.ref[i]; const Y=ly(r);
+    x.strokeStyle=C.warn; x.lineWidth=2; x.beginPath(); x.moveTo(x0,Y); x.lineTo(x0+ww,Y); x.stroke();
+    txt(x,p,x0+ww/2,B+15,C.muted,MONO,'center'); });
+  frame(x,L,T,R,B);
+  let lgy=T+15;
+  [['blue — Fisher, this configuration',C.e240],
+   ['grey — same but ignoring correlations between the μ',C.faint],
+   ['red rule — the note\'s published value',C.warn]].forEach(l=>{
+    wrapLines(x,l[0],R-L-20,MONO9).forEach(s=>{ txtHalo(x,s,L+10,lgy,l[1],MONO9); lgy+=15; }); });
+  ylab(x,'δμ  [%, log]',T,B);
+  // correlation matrix
+  const g2=cvs('fitcorr'); if(g2&&Cv){ const y=g2.x,w2=g2.w,h2=g2.h;
+    const ANNOW=190, GAP=20, L2=72, T2=26, B2=h2-22;
+    // the matrix gets the whole canvas when the note beside it would not fit,
+    // which is also what makes the cells wide enough to carry their numbers
+    const wide=w2>=L2+7*34+ANNOW+GAP;
+    const R2=wide?Math.min(w2-ANNOW-GAP,L2+300):w2-16;
+    const cw=(R2-L2)/n, rh=(B2-T2)/n;
+    for(let a=0;a<n;a++) for(let b=0;b<n;b++){
+      const r=Cv[a][b]/Math.sqrt(Cv[a][a]*Cv[b][b]);
+      const t=Math.min(1,Math.abs(r)), al=0.05+0.9*Math.pow(t,0.7), hx=r>=0?C.bq:C.warn;
+      y.fillStyle=hexA(hx,al);
+      y.fillRect(L2+cw*b,T2+rh*a,cw-1,rh-1);
+      if(cw>=32) txt(y,r.toFixed(2),L2+cw*b+cw/2,T2+rh*a+rh/2+3,inkOn(hx,al),MONO9,'center'); }
+    idx.forEach((a,ai)=>{ txt(y,POI[a],L2-6,T2+rh*ai+rh/2+3,C.muted,MONO9,'right');
+      txt(y,POI[a],L2+cw*ai+cw/2,T2-8,C.muted,MONO9,'center'); });
+    if(wide){ const tx=R2+GAP;
+      txt(y,'correlation of the',tx,T2+14,C.ink,MONO9);
+      txt(y,'fitted signal strengths',tx,T2+30,C.ink,MONO9);
+      let yy=T2+52;
+      ['Negative entries mean the two decays are competing for the same events — the tagger cannot fully separate them, so the fit trades one against the other.',
+       'Blue: shared background.'].forEach(s=>{
+        yy+=txtDown(y,s,tx,yy,w2-tx-8,C.muted,MONO9,'left',15)*15+10; }); } }
+}
+
+/* ---- combination ---- */
+const CHAN=[['Z→ℓℓ',[0.60,3.47,1.93,220,1.49,7.65,2.54],true],
+            ['Z→qq',[0.32,3.52,3.07,410,8.74,50,110],true],
+            ['Z→νν̄ (I)',[0.35,2.06,1.01,100,1.28,11.4,10.6],true],
+            ['Z→νν̄ (II)',[0.33,2.27,0.94,140,1.89,19.8,21.8],false]];
+CHAN.forEach((c,i)=>{ const b=document.createElement('button'); b.textContent=c[0];
+  b.setAttribute('aria-pressed',c[2]?'true':'false');
+  b.addEventListener('click',()=>{ c[2]=!c[2]; b.setAttribute('aria-pressed',c[2]?'true':'false'); runCombine(); });
+  $('#chanbtns').appendChild(b); });
+['s_corr','s_ip'].forEach(id=>$('#'+id).addEventListener('input',runCombine));
+function runCombine(){
+  const floor=+$('#s_corr').value/100, nip=+$('#s_ip').value;
+  $('#v_corr').textContent=floor.toFixed(2)+'%'; $('#v_ip').textContent=nip;
+  const lumFac=Math.pow(1.7,Math.log2(4/nip));
+  const scale=Math.sqrt(lumFac);
+  const out=new Array(7).fill(NaN), uncorr=new Array(7).fill(NaN);
+  for(let a=0;a<7;a++){ let sum=0,any=false;
+    CHAN.forEach(c=>{ if(!c[2]) return; any=true; const d=c[1][a]*scale; sum+=1/(d*d); });
+    if(any){ uncorr[a]=1/Math.sqrt(sum); out[a]=Math.hypot(uncorr[a],floor); } }
+  const REF=[0.21,1.56,0.85,89,0.95,6.24,2.46];
+  const g=cvs('combc'); if(!g) return; const x=g.x,w=g.w,h=g.h;
+  const L=58,T=TAGH+14,R=w-16,B=h-42;
+  ticks(x,L,T,R,B,0,1,0.1,1000,1,4,()=>'',v=>v>=1?v.toFixed(0)+'%':v.toFixed(1)+'%',true);
+  const ly=v=>B-(B-T)*Math.max(0,Math.min(1,(Math.log10(Math.max(v,0.1))-Math.log10(0.1))/4));
+  const bwid=(R-L)/7;
+  POI.forEach((p,i)=>{ const x0=L+bwid*i+bwid*0.12, ww=bwid*0.76;
+    if(isFinite(uncorr[i])){ x.fillStyle=hexA(C.faint,0.35); x.fillRect(x0,ly(uncorr[i]),ww,B-ly(uncorr[i])); }
+    if(isFinite(out[i])){ const Yb=ly(out[i]);
+      x.fillStyle=hexA(C.e240,0.85); x.fillRect(x0+ww*0.16,Yb,ww*0.68,B-Yb);
+      const lab=out[i]<10?out[i].toFixed(2):out[i].toFixed(0);
+      if(B-Yb>26) txt(x,lab,x0+ww/2,Yb+13,'#fff',MONO9,'center');
+      else txtHalo(x,lab,x0+ww/2,Yb-5,C.e240,MONO9,'center'); }
+    const Y=ly(REF[i]); x.strokeStyle=C.warn; x.lineWidth=2;
+    x.beginPath(); x.moveTo(x0,Y); x.lineTo(x0+ww,Y); x.stroke();
+    txt(x,p,x0+ww/2,B+15,C.muted,MONO,'center'); });
+  frame(x,L,T,R,B);
+  let cy=T+15;
+  wrapLines(x,'grey — quadrature only · blue — with the correlated floor · red — note, combined (I)',
+            R-L-20,MONO9).forEach(s=>{ txtHalo(x,s,L+10,cy,C.muted,MONO9); cy+=15; });
+  const bb=out[0];
+  $('#combeq').innerHTML='1/δ² = Σ 1/δ<sub>i</sub>² gives <b>'+(isFinite(uncorr[0])?uncorr[0].toFixed(3):'—')+
+    '%</b> on b̄b; adding a fully correlated '+floor.toFixed(2)+'% in quadrature gives <b>'+
+    (isFinite(bb)?bb.toFixed(3):'—')+'%</b>.<br>Luminosity factor for '+nip+' IP'+(nip>1?'s':'')+
+    ': ×'+(1/lumFac).toFixed(2)+' → uncertainties scale by ×'+scale.toFixed(2)+'.';
+  $('#combstat').innerHTML= floor>0.15 && isFinite(bb) && bb>1.4*uncorr[0]
+    ? '<b>The combination has saturated.</b> Adding a fourth channel now changes nothing — you are limited by a systematic every channel shares.'
+    : 'All channels statistically independent and systematic-free — the regime the note assumes.';
+}
+
+/* =================================================================
+   5 · ZH vs VBF
+   ================================================================= */
+let mRun='240';
+$$('[data-ms]').forEach(b=>b.addEventListener('click',()=>{ mRun=b.dataset.ms;
+  $$('[data-ms]').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); runMode(); }));
+['s_kz','s_kw','s_sep'].forEach(id=>$('#'+id).addEventListener('input',runMode));
+
+// effective backgrounds tuned so that kappa=1 reproduces the note's quoted precisions
+const RUNS={
+ '240':{L:10800, sZH:40.1, sVBF:6.1, sInt:-0.9, Beff:657000},
+ '365':{L:3000,  sZH:29.2, sVBF:29.2, sInt:-2.2, Beff:120000}};
+const BRbb=0.5824;
+function regions(run,kz,kw,sep){
+  const R=RUNS[run];
+  const nZH=R.sZH*R.L*BRbb*kz*kz;
+  const nVB=R.sVBF*R.L*BRbb*kw*kw;
+  const nIn=R.sInt*R.L*BRbb*kz*kw;
+  // separation: fraction of ZH kept in region 1 (m_miss ~ m_Z) and of VBF in region 1
+  const p=0.55+0.42*sep, q=0.50-0.36*sep;
+  const B1=R.Beff*0.72, B2=R.Beff*0.28;
+  return [{S:[nZH*p, nVB*q, nIn*Math.sqrt(p*q)], B:B1},
+          {S:[nZH*(1-p), nVB*(1-q), nIn*Math.sqrt((1-p)*(1-q))], B:B2}];
+}
+function runMode(){
+  const kz=+$('#s_kz').value/1000, kw=+$('#s_kw').value/1000, sep=+$('#s_sep').value/100;
+  $('#v_kz').textContent=kz.toFixed(3); $('#v_kw').textContent=kw.toFixed(3);
+  $('#v_sep').textContent=sep===1?'nominal':(sep<1?'degraded':'improved');
+  const runs = mRun==='both'?['240','365']:[mRun];
+  // Fisher in (kz,kw)
+  let F=[[0,0],[0,0]];
+  let totZH=0,totVB=0;
+  runs.forEach(r=>{ const regs=regions(r,kz,kw,sep);
+    regs.forEach(g2=>{ const N=g2.S[0]+g2.S[1]+g2.S[2]+g2.B;
+      const dz=2*g2.S[0]/kz + g2.S[2]/kz;
+      const dw=2*g2.S[1]/kw + g2.S[2]/kw;
+      F[0][0]+=dz*dz/N; F[0][1]+=dz*dw/N; F[1][0]+=dz*dw/N; F[1][1]+=dw*dw/N;
+      totZH+=g2.S[0]; totVB+=g2.S[1]; }); });
+  const Cv=inv(F);
+  const dkz=Cv?Math.sqrt(Cv[0][0]):NaN, dkw=Cv?Math.sqrt(Cv[1][1]):NaN;
+  const rho=Cv?Cv[0][1]/Math.sqrt(Cv[0][0]*Cv[1][1]):0;
+  const R0=RUNS[runs[0]];
+  $('#mo_zh').textContent=(RUNS[mRun==='both'?'240':mRun].sZH*kz*kz).toFixed(1)+' fb';
+  $('#mo_vbf').textContent=(RUNS[mRun==='both'?'240':mRun].sVBF*kw*kw).toFixed(1)+' fb';
+  $('#mo_dkz').textContent=isFinite(dkz)?(100*dkz).toFixed(2)+'%':'—';
+  $('#mo_dkw').textContent=isFinite(dkw)?(100*dkw).toFixed(2)+'%':'—';
+  $('#modestat').innerHTML='ρ(κ<sub>Z</sub>, κ<sub>W</sub>) = <b>'+rho.toFixed(2)+'</b><br>'+
+    (Math.abs(rho)>0.7?'Strongly degenerate: with this separation the two production modes are not being told apart, and only the combination κ_Z²+ακ_W² is measured.'
+                      :'The two modes are separated well enough that both couplings are individually constrained.');
+  // contours
+  const g=cvs('modec'); if(!g) return; const x=g.x,w=g.w,h=g.h;
+  const L=64,T=TAGH+14,R=w-18,B=h-38;
+  const span=Math.max(dkz,dkw)*4.2 || 0.02;
+  const c0=[kz,kw];
+  const px=v=>L+(R-L)*(v-(c0[1]-span))/(2*span);   // x axis = kappa_W
+  const py=v=>B-(B-T)*(v-(c0[0]-span))/(2*span);   // y axis = kappa_Z
+  ticks(x,L,T,R,B,c0[1]-span,c0[1]+span,c0[0]-span,c0[0]+span,4,4,v=>v.toFixed(3),v=>v.toFixed(3));
+  if(Cv){
+    const a=F[0][0],b=F[0][1],c=F[1][1];
+    [[2.30,'68%',C.e240],[5.99,'95%',C.faint]].forEach(lv=>{
+      x.strokeStyle=lv[2]; x.lineWidth=lv[0]<3?2:1.2; x.setLineDash(lv[0]<3?[]:[4,3]);
+      x.beginPath();
+      for(let t=0;t<=360;t+=2){
+        const th=t*Math.PI/180;
+        // parametrise unit circle in whitened space via eigen decomposition of F
+        const tr=a+c, det=a*c-b*b;
+        const l1=(tr+Math.sqrt(Math.max(0,tr*tr-4*det)))/2, l2=(tr-Math.sqrt(Math.max(0,tr*tr-4*det)))/2;
+        let v1=[b, l1-a]; if(Math.hypot(v1[0],v1[1])<1e-12) v1=[1,0];
+        const n1=Math.hypot(v1[0],v1[1]); v1=[v1[0]/n1,v1[1]/n1];
+        const v2=[-v1[1],v1[0]];
+        const r1=Math.sqrt(lv[0]/Math.max(l1,1e-30)), r2=Math.sqrt(lv[0]/Math.max(l2,1e-30));
+        const dz=r1*Math.cos(th)*v1[0]+r2*Math.sin(th)*v2[0];
+        const dw=r1*Math.cos(th)*v1[1]+r2*Math.sin(th)*v2[1];
+        const X=px(c0[1]+dw), Y=py(c0[0]+dz);
+        t===0?x.moveTo(X,Y):x.lineTo(X,Y); }
+      x.closePath(); x.stroke(); x.setLineDash([]); });
+  }
+  x.fillStyle=C.ink; x.beginPath(); x.arc(px(kw),py(kz),3.5,0,7); x.fill();
+  // SM point
+  if(Math.abs(1-kw)<span&&Math.abs(1-kz)<span){ x.strokeStyle=C.warn; x.lineWidth=1.4;
+    x.beginPath(); x.moveTo(px(1)-6,py(1)); x.lineTo(px(1)+6,py(1));
+    x.moveTo(px(1),py(1)-6); x.lineTo(px(1),py(1)+6); x.stroke();
+    txt(x,'SM',px(1)+9,py(1)-6,C.warn,MONO9); }
+  frame(x,L,T,R,B);
+  txtMath(x,'κ_W',(L+R)/2,h-6,C.faint,MONO9,'center');
+  ylab(x,'κ_Z',T,B);
+  txt(x,(mRun==='both'?'240 + 365 GeV':mRun+' GeV')+'  ·  ν̄νH(b̄b) only',L+12,T+16,C.ink,MONO);
+  txtMath(x,'δκ_Z = '+(100*dkz).toFixed(2)+'%   δκ_W = '+(100*dkw).toFixed(2)+'%',L+12,T+32,C.e240,MONO9);
+  // missing mass shapes
+  const g2=cvs('modem'); if(g2){ const y=g2.x,w2=g2.w,h2=g2.h;
+    const CAP='m_miss [GeV] — the only handle separating the two production modes';
+    const L2=52,R2=w2-14,B2=h2-24;
+    const T2=22+(wrapLines(y,CAP,w2-L2-4,MONO9).length-1)*12;
+    const hiE = (mRun==='365')?365:240;
+    const px2=v=>L2+(R2-L2)*(v-60)/(hiE-60);
+    const wid=2.6/Math.max(sep,0.25);
+    let mx=0; const zh=[],vb=[];
+    for(let v=60;v<=hiE;v+=1){
+      const z=Math.exp(-0.5*Math.pow((v-91.2)/wid,2));
+      const b2=0.14*Math.exp(-0.5*Math.pow((v-91.2)/(wid*1.4),2))+0.9*Math.pow(Math.max(0,(v-95)/(hiE-95)),1.4);
+      zh.push([v,z]); vb.push([v,b2]); mx=Math.max(mx,z,b2); }
+    const py2=v=>B2-(B2-T2)*v/(mx*1.12);
+    [[zh,C.bq],[vb,C.cq]].forEach(sset=>{ y.strokeStyle=sset[1]; y.lineWidth=1.8; y.fillStyle=sset[1];
+      y.globalAlpha=0.16; y.beginPath(); y.moveTo(L2,B2);
+      sset[0].forEach(p=>y.lineTo(px2(p[0]),py2(p[1]))); y.lineTo(R2,B2); y.fill(); y.globalAlpha=1;
+      y.beginPath(); sset[0].forEach((p,i)=>i?y.lineTo(px2(p[0]),py2(p[1])):y.moveTo(px2(p[0]),py2(p[1]))); y.stroke(); });
+    y.strokeStyle=C.rule; y.strokeRect(L2+.5,T2+.5,R2-L2,B2-T2);
+    txtUp(y,CAP,L2,T2-8,w2-L2-4,C.faint,MONO9,'left',12);
+    txt(y,'60',L2,B2+13,C.faint,MONO9); txt(y,String(hiE),R2,B2+13,C.faint,MONO9,'right');
+    txtMath(y,'m_Z',px2(91.2),B2+13,C.ink,MONO9,'center'); }
+}
+draws.mode=runMode;
+draws.ref=function(){};
+
+/* =================================================================
+   BOOT
+   ================================================================= */
+drawWalk();
+runTag();
+runFisher();
+})();
+</script>
+</body>
+</html>

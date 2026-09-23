@@ -7,6 +7,16 @@ status: "current"
 image: "/assets/images/counterfactual_ablation_framework.svg"
 order: 7
 tags: ["AI4Science", "Machine Learning", "Representation Learning", "History of Science"]
+links:
+  - type: "paper"
+    text: "arXiv:2609.14917"
+    url: "https://arxiv.org/html/2609.14917v1"
+  - type: "link"
+    text: "Companion website"
+    url: "https://mapping-innovation-lab.github.io/geometric-signatures-companion-website/"
+  - type: "code"
+    text: "Code"
+    url: "https://github.com/Mapping-Innovation-Lab/geometric-signatures"
 ---
 
 ## Geometric Signatures of Conceptual Reorganization
@@ -29,4 +39,4 @@ The immediate contribution is retrospective: establishing that historically reco
 
 ---
 
-*With A. Schwartzman (SLAC Physics), C. Chafe (Stanford Music), and T. A. Ryckman (Stanford Philosophy). Manuscript in preparation.*
+*With A. Schwartzman (SLAC Physics), C. Chafe (Stanford Music), and T. A. Ryckman (Stanford Philosophy). Preprint: [arXiv:2609.14917](https://arxiv.org/html/2609.14917v1). Interactive results on the [companion website](https://mapping-innovation-lab.github.io/geometric-signatures-companion-website/).*

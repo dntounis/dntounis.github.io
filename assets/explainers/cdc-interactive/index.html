@@ -1,0 +1,1189 @@
+<title>SLD Central Drift Chamber — Interactive</title>
+<style>
+  /* Single-theme instrument display (deliberate: HEP event displays are
+     dark-screen instruments). Geometry: SLD Design Report SLAC-273 Table 5.3;
+     cell after Fig. 5.14; stereo angle as built (+/-41 mrad, SLAC-PUB-6656).
+     Educational companion to the benchmark oracle — NOT part of the graded
+     task. */
+  :root {
+    color-scheme: dark;
+    --bg: #0C1118;
+    --panel: #131C27;
+    --panel-2: #0F1720;
+    --line: #23303F;
+    --ink: #8CA2B5;
+    --ink-strong: #C8D6E2;
+    --ink-dim: #5A6E80;
+    --gold: #D9A441;
+    --cyan: #6BD9E8;
+    --orange: #F08A3C;
+    --red: #E06C5B;
+    --slA: #5B7C99;
+    --slU: #4E9E7F;
+    --slV: #9A6FB0;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --serif: Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--mono); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 22px;
+           border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+  h1 { font-family: var(--serif); font-style: italic; font-weight: 400;
+       font-size: 1.7rem; color: var(--ink-strong); text-wrap: balance; }
+  h1 .num { color: var(--gold); font-style: normal; }
+  .sub { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+         color: var(--ink-dim); }
+
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 14px; }
+  nav button { font: 0.76rem var(--mono); letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--ink); background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 3px; padding: 8px 14px;
+    cursor: pointer; }
+  nav button[aria-selected="true"] { color: #101318; background: var(--gold);
+    border-color: var(--gold); }
+  nav button:focus-visible, .ctl button:focus-visible, .seg button:focus-visible,
+  input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+  .stage { display: grid; grid-template-columns: 1fr 280px; gap: 14px; }
+  @media (max-width: 860px) { .stage { grid-template-columns: 1fr; } }
+  .canvasbox { background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 4px; position: relative; align-self: start; }
+  canvas { display: block; width: 100%; height: auto; border-radius: 4px; }
+
+  aside { display: flex; flex-direction: column; gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; padding: 12px 14px; }
+  .card h2 { font: italic 400 1.02rem var(--serif); color: var(--ink-strong);
+    margin-bottom: 8px; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px;
+    font-size: 0.73rem; font-variant-numeric: tabular-nums; }
+  .kv dt { color: var(--ink-dim); }
+  .kv dd { color: var(--ink-strong); text-align: right; }
+  .kv dd.hot { color: var(--gold); }
+  .legend { display: flex; flex-direction: column; gap: 6px; font-size: 0.73rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block;
+        flex: none; }
+  .note { font-size: 0.71rem; line-height: 1.6; color: var(--ink-dim); }
+  .note em, .note b { color: var(--ink); font-style: normal; font-weight: 400; }
+  .note + .note { margin-top: 6px; }
+
+  .clock { font: 1.5rem var(--mono); color: var(--gold);
+    font-variant-numeric: tabular-nums; }
+  .clockbar { height: 4px; background: var(--panel-2); border-radius: 2px;
+    margin-top: 6px; overflow: hidden; }
+  .clockbar i { display: block; height: 100%; background: var(--gold);
+    width: 0%; }
+  .minicv { width: 100%; height: auto; background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 3px; margin-top: 4px; }
+
+  .ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+    margin-top: 12px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; padding: 10px 14px; font-size: 0.74rem; }
+  .ctl label { display: inline-flex; align-items: center; gap: 8px;
+    color: var(--ink); }
+  .ctl input[type="range"] { width: 120px; accent-color: var(--gold); }
+  .ctl button { font: 0.74rem var(--mono); letter-spacing: 0.05em;
+    color: var(--ink-strong); background: var(--panel-2);
+    border: 1px solid var(--ink-dim); border-radius: 3px; padding: 6px 14px;
+    cursor: pointer; }
+  .ctl button:hover { border-color: var(--gold); color: var(--gold); }
+  .ctl output { color: var(--gold); font-variant-numeric: tabular-nums; }
+  .seg { display: inline-flex; border: 1px solid var(--ink-dim);
+    border-radius: 3px; overflow: hidden; }
+  .seg button { font: 0.74rem var(--mono); color: var(--ink);
+    background: var(--panel-2); border: 0; padding: 6px 14px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--gold); color: #101318; }
+  .view { display: none; } .view.active { display: block; }
+  footer { margin-top: 18px; font-size: 0.7rem; color: var(--ink-dim);
+    line-height: 1.6; max-width: 78ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>SLD Central Drift Chamber <span class="num">&mdash;</span> ionization, drift &amp; readout</h1>
+    <div class="sub">Geometry: SLAC-Report-273 (1984) Table 5.3 &middot; cell after Fig.&nbsp;5.14 &middot; stereo &plusmn;41 mrad as built &middot; not part of the graded benchmark</div>
+  </header>
+
+  <nav role="tablist">
+    <button id="tab-det"  role="tab" aria-selected="true">1 &middot; Detector r&ndash;&phi;</button>
+    <button id="tab-cell" role="tab" aria-selected="false">2 &middot; Drift cell: axial vs stereo</button>
+    <button id="tab-cdiv" role="tab" aria-selected="false">3 &middot; Charge division &rarr; z</button>
+    <button id="tab-time" role="tab" aria-selected="false">4 &middot; Drift timing &rarr; r&ndash;&phi;</button>
+  </nav>
+
+  <!-- ================= VIEW 1 : detector ================= -->
+  <section class="view active" id="view-det">
+    <div class="stage">
+      <div class="canvasbox"><canvas id="cv-det" width="880" height="880"></canvas></div>
+      <aside>
+        <div class="card">
+          <h2>Drift clock</h2>
+          <div class="clock" id="det-clock">0.000 &mu;s</div>
+          <div class="clockbar"><i id="det-bar"></i></div>
+          <p class="note" style="margin-top:8px">The particles cross the whole
+          chamber in ~3 ns; the ionization they leave needs up to
+          <em>3.7&nbsp;&mu;s</em> to drift the 29.5 mm half-cell at
+          <em>7.9 &mu;m/ns</em>. Replay is slowed ~10<sup>5</sup>&times; so the
+          two time scales are visible: tracks flash, then hits latch
+          one by one as their charge arrives at a wire.</p>
+        </div>
+        <div class="card">
+          <h2>TDC spectrum (live)</h2>
+          <canvas id="cv-tdc" class="minicv" width="252" height="90"></canvas>
+          <p class="note" style="margin-top:6px">Arrival times of all latched
+          hits. It fills <em>flat</em> because the drift velocity is constant
+          in the CO&#8322; gas &mdash; this is exactly the spectrum a real
+          chamber integrates to calibrate its time&rarr;distance relation.</p>
+        </div>
+        <div class="card">
+          <h2>One cell, magnified</h2>
+          <canvas id="cv-inset" class="minicv" width="252" height="110"></canvas>
+          <dl class="kv" id="det-inset-kv"></dl>
+        </div>
+        <div class="card legend">
+          <span><i class="sw" style="background:var(--slA)"></i> A &mdash; axial superlayer (measures r&ndash;&phi; only)</span>
+          <span><i class="sw" style="background:var(--slU)"></i> U &mdash; stereo +41 mrad</span>
+          <span><i class="sw" style="background:var(--slV)"></i> V &mdash; stereo &minus;41 mrad</span>
+          <span><i class="sw" style="background:linear-gradient(90deg,var(--cyan),var(--orange))"></i> hit color = drift distance (short&rarr;long)</span>
+        </div>
+        <div class="card note" id="det-stereo-note">
+          <b>Stereo shift</b>: with the exaggeration toggle on, U hits displace
+          one way in &phi; and V hits the other, by
+          &delta;&phi; = tan(41 mrad)&middot;tan&lambda; (&lambda; = track dip
+          angle). Axial hits don&rsquo;t move. Measuring that U/V split is how
+          the chamber gets z along the track &mdash; the real shift is ~40&times;
+          smaller than drawn.
+        </div>
+      </aside>
+    </div>
+    <div class="ctl">
+      <button id="btn-event">New event</button>
+      <button id="btn-pause-det">Pause</button>
+      <label>tracks <input type="range" id="rng-ntrk" min="2" max="24" value="10">
+        <output id="out-ntrk">10</output></label>
+      <label>replay speed <input type="range" id="rng-spd" min="1" max="10" value="4">
+        <output id="out-spd">4</output></label>
+      <label>stereo shift &times;40 <input type="checkbox" id="chk-stereo"></label>
+    </div>
+  </section>
+
+  <!-- ================= VIEW 2 : cell, axial vs stereo ================= -->
+  <section class="view" id="view-cell">
+    <div class="stage">
+      <div class="canvasbox"><canvas id="cv-cell" width="880" height="700"></canvas></div>
+      <aside>
+        <div class="card">
+          <h2>Cell readout</h2>
+          <dl class="kv" id="cell-info"></dl>
+        </div>
+        <div class="card note">
+          <b>Axial (A) cell</b>: wires strung parallel to the beam. The wire
+          sits at the same &phi; for every z &mdash; a hit gives a precise
+          r&ndash;&phi; point but carries <em>no z information</em> from the
+          drift time alone.
+        </div>
+        <div class="card note">
+          <b>Stereo (U/V) cell</b>: the whole cell is strung skewed by
+          &plusmn;41 mrad, so its transverse position slides by
+          <em>z&middot;tan(41 mrad) &asymp; 41 &mu;m per mm of z</em> &mdash;
+          &plusmn;37 mm at the endplates, more than half a cell width. Move the
+          z slider: the cell (solid) slides past its z = 0 outline (dashed)
+          while the track stays put, so the <em>measured drift distance
+          changes with z</em>. Comparing stereo and axial measurements of the
+          same track solves for z.
+        </div>
+        <div class="card legend">
+          <span><i class="sw" style="background:var(--gold)"></i> sense wires (8 per cell, 5 mm pitch)</span>
+          <span><i class="sw" style="background:var(--ink-dim)"></i> guard / field wires</span>
+          <span><i class="sw" style="background:var(--cyan)"></i> drifting electron clusters (~48/cm)</span>
+          <span><i class="sw" style="background:var(--orange)"></i> avalanche (gain ~2&times;10<sup>5</sup>)</span>
+        </div>
+        <div class="card note">
+          The two waveforms below the cell are the two ends of the hit wire
+          &mdash; same pulses, different sizes. Tab 3 dissects why.
+        </div>
+      </aside>
+    </div>
+    <div class="ctl">
+      <span class="seg" role="group" aria-label="cell type">
+        <button id="seg-axial" aria-pressed="true">Axial (A)</button>
+        <button id="seg-stereo" aria-pressed="false">Stereo (U)</button>
+      </span>
+      <button id="btn-track">New track</button>
+      <button id="btn-pause-cell">Pause</button>
+      <label>track angle <input type="range" id="rng-ang" min="-35" max="35" value="12">
+        <output id="out-ang">12&deg;</output></label>
+      <label>z of this section <input type="range" id="rng-zsec" min="-500" max="500" value="0">
+        <output id="out-zsec">0.00 m</output></label>
+    </div>
+  </section>
+
+  <!-- ================= VIEW 3 : charge division ================= -->
+  <section class="view" id="view-cdiv">
+    <div class="stage">
+      <div class="canvasbox"><canvas id="cv-cdiv" width="880" height="560"></canvas></div>
+      <aside>
+        <div class="card">
+          <h2>Estimator</h2>
+          <dl class="kv" id="cdiv-info"></dl>
+        </div>
+        <div class="card note">
+          <b>Why the ratio measures z.</b> The avalanche injects charge Q at
+          position z on a resistive wire (tungsten, 337.5 &Omega; over 1.8 m,
+          terminated by 30 &Omega; preamps: &rho; = R<sub>in</sub>/R<sub>w</sub>
+          = 0.089). The wire is a current divider: each end receives charge in
+          inverse proportion to the resistance it sees, so
+          Q<sub>R</sub>/Q = (z/L + &rho;)/(1 + 2&rho;) &mdash; <em>linear in
+          z</em>. Invert it and you have ẑ.
+        </div>
+        <div class="card note">
+          <b>Why the pulse shapes differ.</b> Both ends see the <em>same</em>
+          avalanche current, so to first order the pulses are copies scaled by
+          the division ratio &mdash; the areas carry the z information. Second
+          order: the wire is an RC line, so the pulse reaching the <em>far</em>
+          end is slightly dispersed (slower rise, lower peak, same area).
+          That is why SLD divides <em>integrated charge</em>, which ignores
+          dispersion, rather than pulse heights.
+        </div>
+        <div class="card note">
+          <b>What limits it.</b> Johnson noise of the wire itself:
+          &sigma;<sub>Q</sub> &asymp; 3.3 fC per end (0.45 &mu;s gate) on a
+          0.67 pC hit &rarr; &sigma;<sub>z</sub> &asymp; 7.4 mm = 0.41% of the
+          wire &mdash; the benchmark tool&rsquo;s number. Fire a burst to see
+          the scatter build that band.
+        </div>
+      </aside>
+    </div>
+    <div class="ctl">
+      <button id="btn-fire">Fire avalanche</button>
+      <button id="btn-burst">Fire &times;60 (noise)</button>
+      <button id="btn-cdiv-clear">Clear</button>
+      <label>true z <input type="range" id="rng-cz" min="3" max="97" value="30">
+        <output id="out-cz">0.54 m</output></label>
+      <label>noise <input type="checkbox" id="chk-noise" checked></label>
+    </div>
+  </section>
+
+  <!-- ================= VIEW 4 : timing ================= -->
+  <section class="view" id="view-time">
+    <div class="stage">
+      <div class="canvasbox"><canvas id="cv-time" width="880" height="640"></canvas></div>
+      <aside>
+        <div class="card">
+          <h2>TDC readout</h2>
+          <dl class="kv" id="time-info"></dl>
+        </div>
+        <div class="card note">
+          <b>Where t<sub>0</sub> comes from.</b> The SLC delivers beam
+          crossings at known times, so the accelerator itself provides the
+          start signal. The chamber measures the <em>stop</em>: the waveform
+          sampler (200 MHz, 5 ns bins) watches each wire and marks when the
+          summed pulse first crosses threshold (~3 electrons).
+        </div>
+        <div class="card note">
+          <b>Time &rarr; distance.</b> In this gas v<sub>d</sub> is constant,
+          so d&circ; = v<sub>d</sub>&middot;(t<sub>stop</sub> &minus;
+          t<sub>0</sub>). What smears it: the first cluster isn&rsquo;t exactly
+          at the point of closest approach (ionization statistics, ~48
+          clusters/cm), diffusion adds &sigma; = 68&radic;d &mu;m, and the 5 ns
+          sampling contributes ~10&ndash;13 &mu;m. Fire repeatedly and watch
+          the residual strip build up a &sigma; of a few tens of &mu;m &mdash;
+          the 100 &mu;m budget of the real chamber includes alignment and
+          field distortions on top.
+        </div>
+        <div class="card note">
+          <b>Left&ndash;right ambiguity.</b> A drift time alone cannot tell
+          which side of the wire the track passed (dashed mirror track). SLD
+          resolves it with the staggered guard wires, the 5&deg; cell tilt,
+          and the track fit across 8 wires.
+        </div>
+      </aside>
+    </div>
+    <div class="ctl">
+      <button id="btn-fireT">Fire track</button>
+      <button id="btn-autoT">Auto &times;30</button>
+      <button id="btn-clearT">Clear residuals</button>
+      <label>impact parameter d <input type="range" id="rng-d" min="3" max="28" value="12">
+        <output id="out-d">12 mm</output></label>
+    </div>
+  </section>
+
+  <footer>
+    Educational visualization accompanying the drift-chamber benchmark oracle.
+    Layer radii and cell counts are the 1984 design values (SLAC-273 Table
+    5.3), which carried through to the as-built chamber (sense-wire radii
+    0.24&ndash;0.96 m); operating point as built (v<sub>d</sub> = 7.9
+    &mu;m/ns at 0.9 kV/cm, stereo &plusmn;41 mrad, B = 0.6 T,
+    SLAC-PUB-6656); charge-division constants from the benchmark&rsquo;s
+    charge-division tool. Wire counts, stagger and tilt follow Fig. 5.14
+    qualitatively; drift trajectories are illustrative (cf. Figs.
+    5.16&ndash;5.17), not the oracle&rsquo;s transport solution.
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ---------------- shared ---------------- */
+const TAU = Math.PI * 2;
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = { gold: css("--gold"), cyan: css("--cyan"), orange: css("--orange"),
+            red: css("--red"), ink: css("--ink"), dim: css("--ink-dim"),
+            line: css("--line"), strong: css("--ink-strong"),
+            panel: css("--panel"), A: css("--slA"), U: css("--slU"),
+            V: css("--slV"), mono: css("--mono") };
+const VDRIFT = 7.9e-3;            // mm/ns, as built
+const HALF_CELL = 29.5;           // mm
+const T_MAX_NS = HALF_CELL / VDRIFT;          // 3734 ns
+const ALPHA_ST = 0.041;           // stereo angle, rad (as built)
+const WIRE_L = 1800;              // mm
+const RHO = 30 / 337.5;           // termination / wire resistance
+function mulberry(seed) {
+  let a = seed >>> 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function gauss(rnd) {
+  return Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(TAU * rnd());
+}
+function lerpColor(f) {           // cyan -> orange by drift fraction
+  const a = [107, 217, 232], b = [240, 138, 60];
+  const c = a.map((v, i) => Math.round(v + (b[i] - v) * f));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+/* pulse shape: fast rise, 1/t-ish ion tail (bins) */
+function pulseShape(k, w) {
+  w = w || 1;
+  const kr = k / w;
+  return kr < 3 ? (kr + 1) / 3 / w : 1 / (1 + (kr - 3) / 5) / w;
+}
+/* tabs */
+const views = { "tab-det": "view-det", "tab-cell": "view-cell",
+                "tab-cdiv": "view-cdiv", "tab-time": "view-time" };
+let activeView = "view-det";
+for (const [tid, vid] of Object.entries(views)) {
+  document.getElementById(tid).addEventListener("click", () => {
+    activeView = vid;
+    for (const [t2, v2] of Object.entries(views)) {
+      document.getElementById(t2).setAttribute("aria-selected", t2 === tid);
+      document.getElementById(v2).classList.toggle("active", v2 === vid);
+    }
+  });
+}
+
+/* ================= VIEW 1 : detector r-phi ================= */
+const V1 = (() => {
+  const SL = [   // SLAC-273 Table 5.3: type, R_i, R_o, N cells
+    ["A", 236.9, 286.71, 28], ["U", 314.6, 364.41, 36], ["V", 388.6, 438.41, 44],
+    ["A", 462.6, 512.41, 52], ["U", 538.6, 588.41, 60], ["V", 612.6, 662.41, 68],
+    ["A", 687.6, 737.41, 76], ["U", 763.1, 812.91, 84], ["V", 837.6, 887.41, 92],
+    ["A", 912.6, 962.41, 100]];
+  const TILT = 5 * Math.PI / 180, B_T = 0.6;
+  const cv = document.getElementById("cv-det"), ctx = cv.getContext("2d");
+  const tdcCv = document.getElementById("cv-tdc"), tdcCtx = tdcCv.getContext("2d");
+  const insCv = document.getElementById("cv-inset"), insCtx = insCv.getContext("2d");
+  const SC = cv.width / 2 / 1060, cx = cv.width / 2, cy = cv.height / 2;
+  const SWEEP = 260;                       // ns of clock spent on track sweep
+
+  let seed = 12345, nTrk = 10, speed = 4, paused = reduceMotion;
+  let tracks = [], hits = [], tClock = 0, hover = -1, exagStereo = false;
+  let demoHit = null;
+
+  function makeEvent() {
+    const rnd = mulberry(seed);
+    tracks = []; hits = []; tClock = 0; demoHit = null;
+    for (let i = 0; i < nTrk; i++) {
+      const phi0 = rnd() * TAU;
+      const pT = 0.25 + rnd() * rnd() * 4.0;
+      const q = rnd() < 0.5 ? -1 : 1;
+      const Rc = pT / (0.3 * B_T) * 1000;
+      const lam = (rnd() - 0.5) * 1.4;     // dip angle, rad
+      tracks.push({ phi0, Rc, q });
+      const dphiSt = Math.tan(ALPHA_ST) * Math.tan(lam);  // stereo phi shift
+      for (let s = 0; s < SL.length; s++) {
+        const [ty, ri, ro] = SL[s];
+        for (let w = 0; w < 8; w++) {
+          const r = ri + (w + 0.5) / 8 * (ro - ri);
+          if (r >= 2 * Rc) continue;
+          const phi = phi0 + q * Math.asin(r / (2 * Rc));
+          const drift = rnd() * HALF_CELL;
+          const sgn = ty === "U" ? 1 : ty === "V" ? -1 : 0;
+          hits.push({ r, phi, dphi: sgn * dphiSt, ty,
+                      drift, tOn: drift / VDRIFT });
+        }
+      }
+    }
+    // demo hit for the inset: a mid-radius, long-drift hit
+    demoHit = hits.find(h => h.drift > 18 && h.r > 500 && h.r < 750) ||
+              hits[Math.floor(hits.length / 2)] || null;
+  }
+
+  function ring(r0, r1, color, alpha) {
+    ctx.beginPath(); ctx.arc(cx, cy, r1 * SC, 0, TAU);
+    ctx.arc(cx, cy, r0 * SC, 0, TAU, true);
+    ctx.fillStyle = color; ctx.globalAlpha = alpha; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  cv.addEventListener("mousemove", e => {
+    const b = cv.getBoundingClientRect();
+    const mx = (e.clientX - b.left) * cv.width / b.width - cx;
+    const my = (e.clientY - b.top) * cv.height / b.height - cy;
+    const r = Math.hypot(mx, my) / SC;
+    hover = SL.findIndex(([, ri, ro]) => r >= ri && r <= ro);
+  });
+  cv.addEventListener("mouseleave", () => { hover = -1; });
+
+  function draw(dt) {
+    if (!paused) tClock += dt * speed * 1.4;
+    const total = SWEEP + T_MAX_NS + 900;
+    if (tClock > total) tClock = 0;
+    const tDrift = Math.max(0, tClock - SWEEP);   // ns since ionization
+    document.getElementById("det-clock").innerHTML =
+      (tDrift / 1000).toFixed(3) + " &mu;s";
+    document.getElementById("det-bar").style.width =
+      Math.min(100, tDrift / T_MAX_NS * 100) + "%";
+
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ring(200, 210, C.ink, 0.55); ring(990, 1000, C.ink, 0.55);
+    SL.forEach(([ty, ri, ro, n], s) => {
+      ring(ri, ro, C[ty], s === hover ? 0.42 : 0.15);
+      ctx.strokeStyle = C[ty]; ctx.globalAlpha = s === hover ? 0.7 : 0.22;
+      ctx.lineWidth = 1;
+      const dSpoke = TILT * (ro - ri) / ((ro + ri) / 2);
+      for (let k = 0; k < n; k++) {
+        const a = k / n * TAU;
+        ctx.beginPath();
+        ctx.moveTo(cx + ri * SC * Math.cos(a), cy + ri * SC * Math.sin(a));
+        ctx.lineTo(cx + ro * SC * Math.cos(a + dSpoke),
+                   cy + ro * SC * Math.sin(a + dSpoke));
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      if (s === hover) {
+        ctx.fillStyle = C.strong; ctx.font = "12px " + C.mono;
+        ctx.fillText(`SL${s + 1} (${ty})  R ${ri.toFixed(0)}-${ro.toFixed(0)} mm`
+          + `  ${n} cells  ${n * 8} wires`, 14, 22);
+      }
+    });
+
+    // tracks sweep out during the first SWEEP ns
+    const grow = Math.min(1, tClock / SWEEP);
+    for (const tr of tracks) {
+      ctx.beginPath();
+      for (let i = 0; i <= 90; i++) {
+        const rMax = Math.min(1000, 2 * tr.Rc * 0.999) * grow;
+        const r = rMax * i / 90;
+        const phi = tr.phi0 + tr.q * Math.asin(r / (2 * tr.Rc));
+        const X = cx + r * SC * Math.cos(phi), Y = cy + r * SC * Math.sin(phi);
+        i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      }
+      ctx.strokeStyle = C.strong; ctx.globalAlpha = 0.42; ctx.lineWidth = 1.1;
+      ctx.stroke(); ctx.globalAlpha = 1;
+    }
+
+    // hits latch after their drift time; color encodes drift distance
+    const exag = exagStereo ? 40 : 0;
+    for (const h of hits) {
+      if (tDrift < h.tOn) continue;
+      const phi = h.phi + h.dphi * exag;
+      const px = cx + h.r * SC * Math.cos(phi);
+      const py = cy + h.r * SC * Math.sin(phi);
+      const age = tDrift - h.tOn;
+      ctx.beginPath(); ctx.arc(px, py, 2.4, 0, TAU);
+      ctx.fillStyle = lerpColor(h.drift / HALF_CELL);
+      ctx.globalAlpha = Math.max(0.45, 1 - age / 4000 * 0.4); ctx.fill();
+      if (age < 220) {              // latch flash
+        ctx.beginPath(); ctx.arc(px, py, 3 + age / 28, 0, TAU);
+        ctx.strokeStyle = C.strong; ctx.globalAlpha = 1 - age / 220;
+        ctx.lineWidth = 1; ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // beam flash
+    if (tClock < 160) {
+      ctx.beginPath(); ctx.arc(cx, cy, 5 + tClock / 12, 0, TAU);
+      ctx.strokeStyle = C.gold; ctx.globalAlpha = 1 - tClock / 160;
+      ctx.lineWidth = 1.5; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+
+    drawTDC(tDrift);
+    drawInset(tDrift);
+  }
+
+  function drawTDC(tDrift) {
+    const W = tdcCv.width, H = tdcCv.height, NB = 28;
+    tdcCtx.clearRect(0, 0, W, H);
+    const bins = new Array(NB).fill(0);
+    let nLatched = 0;
+    for (const h of hits) if (tDrift >= h.tOn) {
+      bins[Math.min(NB - 1, Math.floor(h.tOn / T_MAX_NS * NB))]++; nLatched++;
+    }
+    const peak = Math.max(4, ...bins);
+    tdcCtx.fillStyle = C.cyan;
+    for (let i = 0; i < NB; i++) {
+      const bh = bins[i] / peak * (H - 24);
+      tdcCtx.fillRect(6 + i * (W - 12) / NB, H - 14 - bh,
+                      (W - 12) / NB - 1.5, bh);
+    }
+    tdcCtx.fillStyle = C.dim; tdcCtx.font = "10px " + C.mono;
+    tdcCtx.fillText("0", 6, H - 3);
+    tdcCtx.fillText("3.7 us", W - 42, H - 3);
+    tdcCtx.fillText(nLatched + " hits", 6, 11);
+  }
+
+  function drawInset(tDrift) {
+    const W = insCv.width, H = insCv.height;
+    insCtx.clearRect(0, 0, W, H);
+    if (!demoHit) return;
+    const h = demoHit;
+    const x0 = 34, x1 = W - 12, ymid = H / 2 - 8;
+    const sc = (x1 - x0) / HALF_CELL;          // mm -> px, wire at x0
+    insCtx.strokeStyle = C.line;
+    insCtx.strokeRect(x0 - 22, 8, x1 - x0 + 30, H - 34);
+    insCtx.beginPath(); insCtx.arc(x0, ymid, 3, 0, TAU);
+    insCtx.fillStyle = C.gold; insCtx.fill();
+    // track chord (vertical line at the ionization point)
+    insCtx.strokeStyle = C.strong; insCtx.globalAlpha = 0.5;
+    insCtx.beginPath();
+    insCtx.moveTo(x0 + h.drift * sc, 14); insCtx.lineTo(x0 + h.drift * sc, H - 30);
+    insCtx.stroke(); insCtx.globalAlpha = 1;
+    // drifting charge
+    const d = Math.max(0, h.drift - VDRIFT * tDrift);
+    if (tDrift > 0 && d > 0) {
+      insCtx.beginPath(); insCtx.arc(x0 + d * sc, ymid, 2.6, 0, TAU);
+      insCtx.fillStyle = C.cyan; insCtx.fill();
+    } else if (tDrift > 0 && tDrift - h.tOn < 400) {
+      insCtx.beginPath();
+      insCtx.arc(x0, ymid, 4 + (tDrift - h.tOn) / 40, 0, TAU);
+      insCtx.strokeStyle = C.orange;
+      insCtx.globalAlpha = Math.max(0, 1 - (tDrift - h.tOn) / 400);
+      insCtx.stroke(); insCtx.globalAlpha = 1;
+    }
+    insCtx.fillStyle = C.dim; insCtx.font = "10px " + C.mono;
+    insCtx.fillText("wire", x0 - 22, H - 8);
+    insCtx.fillText("29.5 mm", x1 - 46, H - 8);
+    const kv = document.getElementById("det-inset-kv");
+    kv.innerHTML =
+      `<dt>this hit: drift</dt><dd>${h.drift.toFixed(1)} mm</dd>` +
+      `<dt>arrives at</dt><dd>${(h.tOn / 1000).toFixed(2)} &mu;s</dd>` +
+      `<dt>remaining</dt><dd class="hot">${d.toFixed(1)} mm</dd>`;
+  }
+
+  document.getElementById("btn-event").addEventListener("click",
+    () => { seed = (seed * 1103515245 + 12345) >>> 0; makeEvent(); });
+  document.getElementById("btn-pause-det").addEventListener("click", e => {
+    paused = !paused; e.target.textContent = paused ? "Play" : "Pause"; });
+  document.getElementById("rng-ntrk").addEventListener("input", e => {
+    nTrk = +e.target.value;
+    document.getElementById("out-ntrk").value = nTrk; makeEvent(); });
+  document.getElementById("rng-spd").addEventListener("input", e => {
+    speed = +e.target.value; document.getElementById("out-spd").value = speed; });
+  document.getElementById("chk-stereo").addEventListener("change",
+    e => { exagStereo = e.target.checked; });
+  if (reduceMotion) document.getElementById("btn-pause-det").textContent = "Play";
+  makeEvent();
+  return { draw };
+})();
+
+/* ================= VIEW 2 : cell, axial vs stereo ================= */
+const V2 = (() => {
+  const cv = document.getElementById("cv-cell"), ctx = cv.getContext("2d");
+  const CW = 59, CH = 49.8;
+  const SIDE_H = 150;                       // side-view strip height
+  const CELL_TOP = SIDE_H + 12;
+  const SCC = Math.min(cv.width / (CW + 80), (cv.height - CELL_TOP - 190) / (CH + 8));
+  const ox = cv.width / 2, oy = CELL_TOP + (cv.height - CELL_TOP - 190) / 2;
+  const X = x => ox + x * SCC, Y = y => oy - y * SCC;
+
+  const senseY = [-17.5, -12.5, -7.5, -2.5, 2.5, 7.5, 12.5, 17.5];
+  const guards = [];
+  for (let i = 0; i < 11; i++) {
+    const gy = -25 + i * 5;
+    guards.push([i % 2 ? 3.5 : -3.5, gy], [i % 2 ? -3.5 : 3.5, gy]);
+  }
+  const fields = [];
+  for (let gx = -27.5; gx <= 27.5; gx += 5) fields.push([gx, CH / 2], [gx, -CH / 2]);
+  for (let gy = -19.9; gy <= 19.9; gy += 5) fields.push([-CW / 2, gy], [CW / 2, gy]);
+  const N_CLUS_PER_MM = 4.79;
+
+  let stereo = false, zSec = 0;             // mm, section position along wire
+  let ang = 12, paused = reduceMotion, seed = 7;
+  let clusters = [], wavL = [], wavR = [], tCell = 0, trackAge = 0;
+  const uPos = () => (zSec + WIRE_L / 2) / WIRE_L;
+  const xoff = () => stereo ? zSec * Math.tan(ALPHA_ST) : 0;
+
+  function makeTrack() {
+    const rnd = mulberry(seed);
+    clusters = []; tCell = 0; trackAge = 0;
+    wavL = new Array(240).fill(0); wavR = new Array(240).fill(0);
+    const th = ang * Math.PI / 180;
+    const off = xoff();
+    const len = CH / Math.cos(th);
+    let s = 0;
+    while (true) {
+      s += -Math.log(1 - rnd()) / N_CLUS_PER_MM;
+      if (s > len) break;
+      const y = -CH / 2 + s * Math.cos(th);
+      const xLab = y * Math.tan(th);        // track fixed in the lab
+      const xCell = xLab - off;             // position in the (shifted) cell
+      if (Math.abs(xCell) > CW / 2 - 2) continue;
+      const ne = 1 + Math.floor(-1.6 * Math.log(1 - rnd()));
+      let wy = senseY[0];
+      for (const sy of senseY) if (Math.abs(sy - y) < Math.abs(wy - y)) wy = sy;
+      clusters.push({ x: xCell, y, y0: y, wy, ne, arrived: false, jx: 0,
+                      seedr: mulberry((seed * 97 + clusters.length) >>> 0) });
+    }
+    info();
+  }
+
+  function info() {
+    const u = uPos(), qr = (u + RHO) / (1 + 2 * RHO), ql = 1 - qr;
+    document.getElementById("cell-info").innerHTML =
+      `<dt>cell type</dt><dd class="hot">${stereo ? "stereo U (+41 mrad)" : "axial A"}</dd>` +
+      `<dt>section at z</dt><dd>${(zSec / 1000).toFixed(2)} m</dd>` +
+      `<dt>cell shift z&middot;tan&alpha;</dt><dd>${stereo ? xoff().toFixed(1) : "0.0"} mm</dd>` +
+      `<dt>at endplates</dt><dd>&plusmn;36.9 mm</dd>` +
+      `<dt>clusters</dt><dd>${clusters.length} (~48/cm)</dd>` +
+      `<dt>Q_R / Q_L (z)</dt><dd>${(qr / ql).toFixed(2)}</dd>`;
+  }
+
+  function step(dt) {
+    tCell += dt;
+    trackAge = Math.min(1, trackAge + dt / 500);
+    const v = VDRIFT * dt;                  // ~4 s per full half-cell drift
+    for (const c of clusters) {
+      if (c.arrived || trackAge < (c.y0 + CH / 2) / CH * 0.9) continue;
+      const r = c.seedr;
+      const dNear = Math.hypot(c.x, c.y - c.wy);
+      if (dNear < 6) {
+        const f = Math.max(0.4, dNear / 6);
+        c.x -= Math.sign(c.x) * v * f;
+        c.y += (c.wy - c.y) * v / Math.max(dNear, 0.5) * 0.9;
+      } else c.x -= Math.sign(c.x) * v;
+      c.jx = (r() - 0.5) * 0.5;
+      c.y += (r() - 0.5) * 0.14 * Math.sqrt(v);
+      if (Math.hypot(c.x, c.y - c.wy) < 0.45) {
+        c.arrived = true; c.flash = tCell;
+        const u = uPos(), qr = (u + RHO) / (1 + 2 * RHO), ql = 1 - qr;
+        const bin = Math.floor(wavL.length * 0.12 + tCell / 28) % wavL.length;
+        for (let k = 0; k < 46; k++) {
+          const b = (bin + k) % wavL.length;
+          wavL[b] += ql * c.ne * pulseShape(k);
+          wavR[b] += qr * c.ne * pulseShape(k);
+        }
+      }
+    }
+  }
+
+  function drawSideView() {
+    // side view: z along the wire (horizontal), transverse offset (vertical)
+    const m = 46, w = cv.width - 2 * m, y0 = 18, h = SIDE_H - 34;
+    const zx = z => m + (z + WIRE_L / 2) / WIRE_L * w;
+    const ty = off => y0 + h / 2 - off * (h / 2) / 40; // +-40 mm range
+    ctx.fillStyle = C.panel; ctx.fillRect(m - 34, 6, w + 62, SIDE_H - 12);
+    ctx.strokeStyle = C.line; ctx.strokeRect(m - 34, 6, w + 62, SIDE_H - 12);
+    // endplates
+    ctx.fillStyle = C.dim;
+    ctx.fillRect(zx(-WIRE_L / 2) - 4, y0, 4, h);
+    ctx.fillRect(zx(WIRE_L / 2), y0, 4, h);
+    ctx.font = "10px " + C.mono; ctx.fillStyle = C.dim;
+    ctx.fillText("endplate  z = -0.9 m", zx(-WIRE_L / 2) - 4, y0 + h + 12);
+    ctx.fillText("z = +0.9 m", zx(WIRE_L / 2) - 60, y0 + h + 12);
+    ctx.fillText("side view along the wire (transverse offset exact, not to scale in z)", m + w / 2 - 190, 16);
+    // axial wire (reference)
+    ctx.strokeStyle = stereo ? C.dim : C.gold; ctx.lineWidth = stereo ? 1 : 1.6;
+    ctx.beginPath(); ctx.moveTo(zx(-WIRE_L / 2), ty(0));
+    ctx.lineTo(zx(WIRE_L / 2), ty(0)); ctx.stroke();
+    // stereo wire
+    if (stereo) {
+      ctx.strokeStyle = C.gold; ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(zx(-WIRE_L / 2), ty(-WIRE_L / 2 * Math.tan(ALPHA_ST)));
+      ctx.lineTo(zx(WIRE_L / 2), ty(WIRE_L / 2 * Math.tan(ALPHA_ST)));
+      ctx.stroke();
+    }
+    // section cut
+    const zc = zx(zSec);
+    ctx.strokeStyle = C.cyan; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(zc, y0 - 4); ctx.lineTo(zc, y0 + h + 4); ctx.stroke();
+    ctx.setLineDash([]);
+    // intersection marker
+    const off = stereo ? zSec * Math.tan(ALPHA_ST) : 0;
+    ctx.beginPath(); ctx.arc(zc, ty(off), 3.4, 0, TAU);
+    ctx.fillStyle = C.orange; ctx.fill();
+    ctx.fillStyle = C.ink; ctx.font = "11px " + C.mono;
+    ctx.fillText((stereo ? "wire offset here: " + off.toFixed(1) + " mm"
+                         : "axial: offset 0 at every z"), zc + 8, ty(off) - 6);
+  }
+
+  function draw(dt) {
+    if (!paused) step(dt);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    drawSideView();
+
+    const off = xoff() * SCC;               // px shift of the whole cell
+    // z=0 outline (dashed) when shifted
+    if (Math.abs(off) > 1) {
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = C.dim; ctx.lineWidth = 1;
+      ctx.strokeRect(X(-CW / 2), Y(CH / 2), CW * SCC, CH * SCC);
+      ctx.setLineDash([]);
+    }
+    // cell (shifted by off)
+    ctx.save(); ctx.translate(off, 0);
+    ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+    ctx.strokeRect(X(-CW / 2), Y(CH / 2), CW * SCC, CH * SCC);
+    ctx.fillStyle = C.dim;
+    for (const [gx, gy] of fields.concat(guards)) {
+      ctx.beginPath(); ctx.arc(X(gx), Y(gy), 1.6, 0, TAU); ctx.fill();
+    }
+    for (const sy of senseY) {
+      ctx.beginPath(); ctx.arc(X(0), Y(sy), 2.6, 0, TAU);
+      ctx.fillStyle = C.gold; ctx.fill();
+    }
+    ctx.restore();
+
+    // track: fixed in the lab (not shifted)
+    const th = ang * Math.PI / 180;
+    const yTop = -CH / 2 + trackAge * CH;
+    ctx.beginPath();
+    ctx.moveTo(X(-CH / 2 * Math.tan(th)), Y(-CH / 2));
+    ctx.lineTo(X(yTop * Math.tan(th)), Y(yTop));
+    ctx.strokeStyle = C.strong; ctx.globalAlpha = 0.65; ctx.lineWidth = 1.4;
+    ctx.stroke(); ctx.globalAlpha = 1;
+
+    // clusters live in the cell frame -> draw shifted
+    ctx.save(); ctx.translate(off, 0);
+    for (const c of clusters) {
+      if (trackAge < (c.y0 + CH / 2) / CH * 0.9) continue;
+      if (!c.arrived) {
+        ctx.beginPath();
+        ctx.arc(X(c.x + c.jx), Y(c.y), 1.4 + c.ne * 0.25, 0, TAU);
+        ctx.fillStyle = C.cyan; ctx.globalAlpha = 0.85; ctx.fill();
+        ctx.globalAlpha = 1;
+      } else if (tCell - c.flash < 260) {
+        const a = 1 - (tCell - c.flash) / 260;
+        ctx.beginPath(); ctx.arc(X(0), Y(c.wy), 3 + (1 - a) * 9, 0, TAU);
+        ctx.strokeStyle = C.orange; ctx.globalAlpha = a; ctx.lineWidth = 1.6;
+        ctx.stroke(); ctx.globalAlpha = 1;
+      }
+    }
+    ctx.restore();
+
+    // measured-drift annotation: distance from track to (shifted) sense plane
+    const dMeas = Math.abs(0 - xoff());
+    ctx.fillStyle = C.dim; ctx.font = "11px " + C.mono;
+    ctx.fillText("track-to-sense-plane distance at cell mid-height: "
+      + (stereo ? dMeas.toFixed(1) : "0.0") + " mm"
+      + (stereo ? "  (changes with z!)" : "  (same at every z)"),
+      40, CELL_TOP + 16);
+
+    // ---- two-end waveforms ----
+    const wy0 = cv.height - 168, wh = 56, ww = cv.width - 70;
+    ctx.fillStyle = C.panel; ctx.fillRect(35, wy0 - 14, ww, 152);
+    ctx.strokeStyle = C.line; ctx.strokeRect(35, wy0 - 14, ww, 152);
+    const peak = Math.max(4, ...wavL, ...wavR);
+    [["LEFT end (Q_L)", wavL, wy0], ["RIGHT end (Q_R)", wavR, wy0 + 72]]
+      .forEach(([lab, wv, yb]) => {
+        ctx.fillStyle = C.dim; ctx.font = "11px " + C.mono;
+        ctx.fillText(lab, 44, yb - 2);
+        ctx.strokeStyle = C.cyan; ctx.lineWidth = 1.3; ctx.beginPath();
+        for (let i = 0; i < wv.length; i++) {
+          const px = 40 + i / wv.length * (ww - 10);
+          const py = yb + wh - wv[i] / peak * (wh - 6);
+          i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+      });
+    const sL = wavL.reduce((a, b) => a + b, 0), sR = wavR.reduce((a, b) => a + b, 0);
+    if (sL + sR > 0) {
+      const uHat = (1 + 2 * RHO) * sR / (sL + sR) - RHO;
+      ctx.fillStyle = C.gold;
+      ctx.fillText("charge division:  ẑ = " + ((uHat - 0.5) * 1.8).toFixed(2)
+        + " m   (true z " + (zSec / 1000).toFixed(2) + " m)  — see tab 3",
+        44, wy0 + 134);
+    }
+  }
+
+  document.getElementById("seg-axial").addEventListener("click", () => {
+    stereo = false; setSeg(); makeTrack(); });
+  document.getElementById("seg-stereo").addEventListener("click", () => {
+    stereo = true; setSeg(); makeTrack(); });
+  function setSeg() {
+    document.getElementById("seg-axial").setAttribute("aria-pressed", !stereo);
+    document.getElementById("seg-stereo").setAttribute("aria-pressed", stereo);
+  }
+  document.getElementById("btn-track").addEventListener("click",
+    () => { seed = (seed * 48271 + 11) >>> 0; makeTrack(); });
+  document.getElementById("btn-pause-cell").addEventListener("click", e => {
+    paused = !paused; e.target.textContent = paused ? "Play" : "Pause"; });
+  document.getElementById("rng-ang").addEventListener("input", e => {
+    ang = +e.target.value;
+    document.getElementById("out-ang").innerHTML = ang + "&deg;"; makeTrack(); });
+  document.getElementById("rng-zsec").addEventListener("input", e => {
+    zSec = +e.target.value;
+    document.getElementById("out-zsec").value = (zSec / 1000).toFixed(2) + " m";
+    makeTrack(); });
+  if (reduceMotion) document.getElementById("btn-pause-cell").textContent = "Play";
+  makeTrack();
+  return { draw };
+})();
+
+/* ================= VIEW 3 : charge division ================= */
+const V3 = (() => {
+  const cv = document.getElementById("cv-cdiv"), ctx = cv.getContext("2d");
+  const m = 60, wireY = 96;
+  const zx = zmm => m + zmm / WIRE_L * (cv.width - 2 * m);
+  const Q_PC = 0.67, SIGQ_FC = 3.28;        // from build_charge_division.py
+  let zTrue = 0.3 * WIRE_L;                 // mm from left end
+  let noise = true, anim = null, marks = [], rseed = 42;
+  let wavL = new Array(170).fill(0), wavR = new Array(170).fill(0);
+  let lastFire = null;
+
+  function shares(u) {
+    const qr = (u + RHO) / (1 + 2 * RHO);
+    return [1 - qr, qr];
+  }
+
+  function fire(instant) {
+    const rnd = mulberry(rseed = (rseed * 69069 + 1) >>> 0);
+    const u = zTrue / WIRE_L;
+    let [ql, qr] = shares(u);
+    if (noise) {
+      const s = SIGQ_FC / (Q_PC * 1000);    // noise / total charge
+      ql += gauss(rnd) * s; qr += gauss(rnd) * s;
+    }
+    const uHat = (1 + 2 * RHO) * qr / (ql + qr) - RHO;
+    marks.push(uHat * WIRE_L);
+    if (marks.length > 400) marks.shift();
+    lastFire = { ql, qr, uHat };
+    if (!instant) {
+      anim = { t: 0 };
+      wavL.fill(0); wavR.fill(0);
+      const wfar = 1.6, wnear = 1.0;        // RC dispersion of the far pulse
+      const wL = u < 0.5 ? wnear : wfar, wR = u < 0.5 ? wfar : wnear;
+      for (let k = 0; k < 70; k++) {
+        wavL[(20 + k) % wavL.length] += ql * pulseShape(k, wL);
+        wavR[(20 + k) % wavR.length] += qr * pulseShape(k, wR);
+      }
+    }
+    info();
+  }
+
+  function info() {
+    const el = document.getElementById("cdiv-info");
+    if (!lastFire) { el.innerHTML = "<dt>fire to start</dt><dd>&mdash;</dd>"; return; }
+    const { ql, qr, uHat } = lastFire;
+    const sd = marks.length > 2 ?
+      Math.sqrt(marks.reduce((a, z) => a + (z - zTrue) ** 2, 0) / marks.length) : null;
+    el.innerHTML =
+      `<dt>true z</dt><dd>${(zTrue / 1000).toFixed(3)} m</dd>` +
+      `<dt>Q_L</dt><dd>${(ql * Q_PC).toFixed(3)} pC</dd>` +
+      `<dt>Q_R</dt><dd>${(qr * Q_PC).toFixed(3)} pC</dd>` +
+      `<dt>Q_R/(Q_L+Q_R)</dt><dd>${(qr / (ql + qr)).toFixed(4)}</dd>` +
+      `<dt>ẑ = L[(1+2&rho;)f_R &minus; &rho;]</dt><dd class="hot">${(uHat * 1.8).toFixed(3)} m</dd>` +
+      `<dt>error</dt><dd>${((uHat * WIRE_L - zTrue)).toFixed(1)} mm</dd>` +
+      (sd ? `<dt>scatter (n=${marks.length})</dt><dd class="hot">&sigma; = ${sd.toFixed(1)} mm</dd>` : "") +
+      `<dt>tool prediction</dt><dd>7.4 mm (0.41%)</dd>`;
+  }
+
+  function draw(dt) {
+    if (anim) { anim.t += dt; if (anim.t > 2400) anim = null; }
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    // wire + endplates + preamps
+    ctx.fillStyle = C.dim;
+    ctx.fillRect(zx(0) - 8, wireY - 34, 5, 68);
+    ctx.fillRect(zx(WIRE_L) + 3, wireY - 34, 5, 68);
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(zx(0), wireY); ctx.lineTo(zx(WIRE_L), wireY);
+    ctx.stroke();
+    ctx.font = "11px " + C.mono; ctx.fillStyle = C.dim;
+    ctx.fillText("preamp L (30 Ω)", zx(0) - 8, wireY - 44);
+    ctx.fillText("preamp R (30 Ω)", zx(WIRE_L) - 82, wireY - 44);
+    ctx.fillText("tungsten wire: 337.5 Ω / 1.80 m", cv.width / 2 - 100, wireY - 44);
+    // ruler
+    ctx.fillStyle = C.dim;
+    for (let zm = 0; zm <= 1800; zm += 300) {
+      ctx.fillRect(zx(zm), wireY + 26, 1, 5);
+      ctx.fillText((zm / 1000).toFixed(1), zx(zm) - 8, wireY + 44);
+    }
+    ctx.fillText("z (m)", zx(1800) + 14, wireY + 44);
+
+    // avalanche position
+    ctx.beginPath(); ctx.arc(zx(zTrue), wireY, 4, 0, TAU);
+    ctx.fillStyle = C.orange; ctx.fill();
+    ctx.fillStyle = C.orange;
+    ctx.fillText("avalanche", zx(zTrue) - 28, wireY - 12);
+
+    // travelling charge blobs
+    if (anim) {
+      const f = Math.min(1, anim.t / 1100);
+      const [ql, qr] = lastFire ? [lastFire.ql, lastFire.qr] : shares(zTrue / WIRE_L);
+      const xL = zx(zTrue * (1 - f)), xR = zx(zTrue + (WIRE_L - zTrue) * f);
+      ctx.beginPath(); ctx.arc(xL, wireY, 2 + ql * 7, 0, TAU);
+      ctx.fillStyle = C.cyan; ctx.fill();
+      ctx.beginPath(); ctx.arc(xR, wireY, 2 + qr * 7, 0, TAU); ctx.fill();
+      if (f >= 1) { /* charge delivered; scopes already filled */ }
+    }
+
+    // z-hat marks (scatter) under the ruler
+    for (const zm of marks) {
+      ctx.fillStyle = C.cyan; ctx.globalAlpha = 0.4;
+      ctx.fillRect(zx(zm), wireY + 54, 1.4, 10);
+      ctx.globalAlpha = 1;
+    }
+    if (marks.length) {
+      ctx.fillStyle = C.dim;
+      ctx.fillText("ẑ estimates", zx(0), wireY + 63);
+      ctx.strokeStyle = C.orange;
+      ctx.beginPath(); ctx.moveTo(zx(zTrue), wireY + 52);
+      ctx.lineTo(zx(zTrue), wireY + 66); ctx.stroke();
+    }
+
+    // ---- two scopes ----
+    const sy = 232, sh = 118, sw = (cv.width - 3 * 40) / 2;
+    const peak = Math.max(0.02, ...wavL, ...wavR);
+    [["LEFT end", wavL, 40], ["RIGHT end", wavR, 80 + sw]].forEach(([lab, wv, x0]) => {
+      ctx.fillStyle = C.panel; ctx.fillRect(x0, sy, sw, sh + 46);
+      ctx.strokeStyle = C.line; ctx.strokeRect(x0, sy, sw, sh + 46);
+      ctx.fillStyle = C.dim; ctx.fillText(lab, x0 + 10, sy + 16);
+      // pulse
+      ctx.strokeStyle = C.cyan; ctx.lineWidth = 1.4; ctx.beginPath();
+      const nShow = anim ? Math.floor(wv.length * Math.min(1, anim.t / 1800)) : wv.length;
+      for (let i = 0; i < nShow; i++) {
+        const px = x0 + 8 + i / wv.length * (sw - 16);
+        const py = sy + sh + 8 - wv[i] / peak * (sh - 22);
+        i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      }
+      ctx.stroke();
+      // integrated-charge bar
+      const s = wv.reduce((a, b) => a + b, 0);
+      const sTot = wavL.reduce((a, b) => a + b, 0) + wavR.reduce((a, b) => a + b, 0);
+      if (sTot > 0) {
+        const frac = s / sTot;
+        ctx.fillStyle = C.gold;
+        ctx.fillRect(x0 + 10, sy + sh + 24, (sw - 20) * frac, 8);
+        ctx.strokeStyle = C.line;
+        ctx.strokeRect(x0 + 10, sy + sh + 24, sw - 20, 8);
+        ctx.fillStyle = C.ink;
+        ctx.fillText("∫ pulse = " + (frac * 100).toFixed(1) + "% of total charge",
+          x0 + 10, sy + sh + 44);
+      }
+    });
+    ctx.fillStyle = C.dim;
+    ctx.fillText("note the far-end pulse: slower rise, lower peak, SAME area — the wire is an RC line,",
+      40, sy + sh + 76);
+    ctx.fillText("so SLD compares integrated charges, which dispersion cannot change.",
+      40, sy + sh + 92);
+  }
+
+  document.getElementById("btn-fire").addEventListener("click", () => fire(false));
+  document.getElementById("btn-burst").addEventListener("click", () => {
+    for (let i = 0; i < 60; i++) fire(true); });
+  document.getElementById("btn-cdiv-clear").addEventListener("click", () => {
+    marks = []; lastFire = null; wavL.fill(0); wavR.fill(0); info(); });
+  document.getElementById("rng-cz").addEventListener("input", e => {
+    zTrue = +e.target.value / 100 * WIRE_L;
+    document.getElementById("out-cz").value = (zTrue / 1000).toFixed(2) + " m"; });
+  document.getElementById("chk-noise").addEventListener("change",
+    e => { noise = e.target.checked; });
+  fire(false);
+  return { draw };
+})();
+
+/* ================= VIEW 4 : drift timing ================= */
+const V4 = (() => {
+  const cv = document.getElementById("cv-time"), ctx = cv.getContext("2d");
+  const gx0 = 60, gw = cv.width - 120, gy0 = 26, gh = 300;
+  const wireX = gx0 + 60, wireYp = gy0 + gh / 2;
+  const MM = gw / 36;                      // px per mm (region 36 mm wide)
+  const N_CLUS_PER_MM = 4.79, SPAN = 6.2;  // collection span of one wire, mm
+  const BIN_NS = 5;
+  let dImp = 12, seed = 3, tNs = 0, running = false, autoLeft = 0;
+  let clus = [], tCross = null, resids = [];
+
+  function fireTrack() {
+    const rnd = mulberry(seed = (seed * 279470273 + 7) >>> 0);
+    clus = []; tNs = 0; tCross = null; running = true;
+    let y = -SPAN / 2;
+    while (y < SPAN / 2) {
+      y += -Math.log(1 - rnd()) / N_CLUS_PER_MM;
+      if (y >= SPAN / 2) break;
+      const ne = 1 + Math.floor(-1.6 * Math.log(1 - rnd()));
+      // arrival: path ~ hypot(d, 0.35 y) + diffusion jitter
+      const path = Math.hypot(dImp, 0.35 * y);
+      const sDiff = 0.068 * Math.sqrt(Math.max(0.5, dImp) / 10); // mm
+      const tArr = (path + gauss(rnd) * sDiff) / VDRIFT;
+      clus.push({ y, ne, tArr, path });
+    }
+  }
+
+  function threshCross() {
+    // running sum of electrons arrived by time t; threshold = 3 electrons
+    const evs = clus.slice().sort((a, b) => a.tArr - b.tArr);
+    let s = 0;
+    for (const e of evs) { s += e.ne; if (s >= 3) return e.tArr; }
+    return null;
+  }
+
+  function draw(dt) {
+    if (running) {
+      tNs += dt * 2.2;                     // slowed replay
+      const tc = threshCross();
+      if (tc !== null && tNs >= tc && tCross === null) {
+        tCross = Math.ceil(tc / BIN_NS) * BIN_NS;   // 5 ns quantization
+        const dHat = VDRIFT * tCross;
+        resids.push((dHat - dImp) * 1000);          // um
+        if (resids.length > 300) resids.shift();
+      }
+      if (tNs > dImp / VDRIFT + 900) {
+        running = false;
+        if (autoLeft > 0) { autoLeft--; fireTrack(); }
+      }
+    }
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    // ---- geometry panel ----
+    ctx.strokeStyle = C.line; ctx.strokeRect(gx0 - 20, gy0 - 12, gw + 40, gh + 24);
+    // wire
+    ctx.beginPath(); ctx.arc(wireX, wireYp, 3.4, 0, TAU);
+    ctx.fillStyle = C.gold; ctx.fill();
+    ctx.fillStyle = C.dim; ctx.font = "11px " + C.mono;
+    ctx.fillText("sense wire", wireX - 30, wireYp + 24);
+    // track + mirror
+    const tx = wireX + dImp * MM;
+    ctx.strokeStyle = C.strong; ctx.lineWidth = 1.4; ctx.globalAlpha = 0.7;
+    ctx.beginPath(); ctx.moveTo(tx, gy0 + 6); ctx.lineTo(tx, gy0 + gh - 6); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.setLineDash([5, 4]); ctx.strokeStyle = C.dim;
+    ctx.beginPath(); ctx.moveTo(wireX - dImp * MM, gy0 + 6);
+    ctx.lineTo(wireX - dImp * MM, gy0 + gh - 6); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = C.ink;
+    ctx.fillText("track (d = " + dImp + " mm)", tx + 6, gy0 + 20);
+    ctx.fillStyle = C.dim;
+    ctx.fillText("mirror solution (left-right ambiguity)", wireX - dImp * MM - 60, gy0 + gh - 10);
+    // isochrone: all points whose charge is arriving exactly now
+    const rIso = VDRIFT * tNs * MM;
+    if (running && rIso > 2 && rIso < gw) {
+      ctx.beginPath(); ctx.arc(wireX, wireYp, rIso, 0, TAU);
+      ctx.strokeStyle = C.cyan; ctx.globalAlpha = 0.35; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    // clusters: drift horizontally toward the wire
+    for (const c of clus) {
+      const py = wireYp + c.y * 24;
+      const remaining = Math.max(0, c.path - VDRIFT * tNs);
+      const frac = c.path > 0 ? remaining / c.path : 0;
+      const px = wireX + (tx - wireX) * frac;   // straight-in approximation
+      if (remaining > 0) {
+        ctx.beginPath(); ctx.arc(px, py, 1.5 + c.ne * 0.4, 0, TAU);
+        ctx.fillStyle = C.cyan; ctx.fill();
+      } else if (VDRIFT * tNs - c.path < 200) {
+        const a = 1 - (VDRIFT * tNs - c.path) / 200;
+        ctx.beginPath(); ctx.arc(wireX, wireYp, 3 + (1 - a) * 8, 0, TAU);
+        ctx.strokeStyle = C.orange; ctx.globalAlpha = a; ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // ---- scope + TDC panel ----
+    const sy = gy0 + gh + 40, sh = 110, sx = gx0 - 20, sw = gw + 40;
+    ctx.fillStyle = C.panel; ctx.fillRect(sx, sy, sw, sh);
+    ctx.strokeStyle = C.line; ctx.strokeRect(sx, sy, sw, sh);
+    ctx.fillStyle = C.dim;
+    ctx.fillText("wire signal (5 ns bins)   t0 = beam crossing", sx + 10, sy + 14);
+    const tSpan = HALF_CELL / VDRIFT * 1.02;
+    const txp = t => sx + 8 + t / tSpan * (sw - 16);
+    // 5-ns sampling ticks (sparse)
+    ctx.fillStyle = C.line;
+    for (let t = 0; t < tSpan; t += 250) ctx.fillRect(txp(t), sy + sh - 8, 1, 5);
+    // summed waveform up to now
+    ctx.strokeStyle = C.cyan; ctx.lineWidth = 1.3; ctx.beginPath();
+    let started = false;
+    for (let t = 0; t <= Math.min(tNs, tSpan); t += tSpan / 420) {
+      let a = 0;
+      for (const c of clus) if (t >= c.tArr)
+        a += c.ne * pulseShape((t - c.tArr) / 14);
+      const py = sy + sh - 12 - Math.min(1, a / 10) * (sh - 34);
+      started ? ctx.lineTo(txp(t), py) : ctx.moveTo(txp(t), py);
+      started = true;
+    }
+    ctx.stroke();
+    // threshold line
+    const thY = sy + sh - 12 - (3 / 10) * (sh - 34);
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = C.red;
+    ctx.beginPath(); ctx.moveTo(sx + 8, thY); ctx.lineTo(sx + sw - 8, thY);
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = C.red; ctx.fillText("threshold (~3 e)", sx + sw - 118, thY - 4);
+    // TDC stop marker
+    if (tCross !== null) {
+      ctx.strokeStyle = C.gold;
+      ctx.beginPath(); ctx.moveTo(txp(tCross), sy + 18);
+      ctx.lineTo(txp(tCross), sy + sh - 8); ctx.stroke();
+      ctx.fillStyle = C.gold;
+      ctx.fillText("TDC stop", txp(tCross) + 4, sy + 28);
+    }
+
+    // ---- residual strip ----
+    const ry = sy + sh + 26;
+    ctx.fillStyle = C.dim;
+    ctx.fillText("residuals  d̂ - d  (±300 μm window):", gx0 - 20, ry - 6);
+    ctx.strokeStyle = C.line;
+    ctx.strokeRect(gx0 - 20, ry, gw + 40, 26);
+    ctx.fillStyle = C.line;
+    ctx.fillRect(gx0 - 20 + (gw + 40) / 2, ry, 1, 26);
+    for (const r of resids) {
+      const px = gx0 - 20 + (gw + 40) * (0.5 + Math.max(-300, Math.min(300, r)) / 600);
+      ctx.fillStyle = C.cyan; ctx.globalAlpha = 0.5;
+      ctx.fillRect(px, ry + 3, 1.4, 20); ctx.globalAlpha = 1;
+    }
+
+    // readouts
+    const el = document.getElementById("time-info");
+    const dHat = tCross !== null ? VDRIFT * tCross : null;
+    const mean = resids.length ? resids.reduce((a, b) => a + b, 0) / resids.length : 0;
+    const sd = resids.length > 2 ? Math.sqrt(
+      resids.reduce((a, r) => a + (r - mean) ** 2, 0) / resids.length) : null;
+    el.innerHTML =
+      `<dt>t (drift clock)</dt><dd>${Math.round(tNs)} ns</dd>` +
+      `<dt>true d</dt><dd>${dImp.toFixed(1)} mm</dd>` +
+      `<dt>TDC stop</dt><dd>${tCross !== null ? tCross + " ns" : "&mdash;"}</dd>` +
+      `<dt>d&circ; = v_d &middot; t</dt><dd class="hot">${dHat !== null ? dHat.toFixed(2) + " mm" : "&mdash;"}</dd>` +
+      `<dt>residual</dt><dd>${dHat !== null ? ((dHat - dImp) * 1000).toFixed(0) + " μm" : "&mdash;"}</dd>` +
+      (sd !== null ? `<dt>&sigma; over ${resids.length} tracks</dt><dd class="hot">${sd.toFixed(0)} μm</dd>` : "") +
+      `<dt>diffusion @ d</dt><dd>${(68 * Math.sqrt(dImp / 10)).toFixed(0)} μm</dd>`;
+  }
+
+  document.getElementById("btn-fireT").addEventListener("click",
+    () => { autoLeft = 0; fireTrack(); });
+  document.getElementById("btn-autoT").addEventListener("click",
+    () => { autoLeft = 29; fireTrack(); });
+  document.getElementById("btn-clearT").addEventListener("click",
+    () => { resids = []; });
+  document.getElementById("rng-d").addEventListener("input", e => {
+    dImp = +e.target.value;
+    document.getElementById("out-d").value = dImp + " mm";
+    resids = []; fireTrack(); });
+  fireTrack(); if (reduceMotion) running = false;
+  return { draw };
+})();
+
+/* ---------------- main loop ---------------- */
+const DRAWERS = { "view-det": V1, "view-cell": V2,
+                  "view-cdiv": V3, "view-time": V4 };
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(50, now - last); last = now;
+  DRAWERS[activeView].draw(dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>

@@ -1,0 +1,30 @@
+<div class="explainers-container">
+  {% assign sorted_explainers = site.explainers | sort: "date" | reverse %}
+  <div class="projects-grid">
+    {% for exp in sorted_explainers %}
+      <article class="project-card">
+        <div class="project-card-body">
+          <div class="project-card-meta">
+            <span class="project-card-status">{{ exp.date | date: "%b %Y" }}</span>
+            {% if exp.tags and exp.tags.first %}
+            <span class="project-card-kicker">{{ exp.tags.first }}</span>
+            {% endif %}
+          </div>
+          <h3 class="project-card-title">
+            <a href="{{ exp.html_path | relative_url }}" target="_blank" rel="noopener">{{ exp.title }}</a>
+          </h3>
+          <p class="project-card-description">
+            {{ exp.summary | strip_html | truncate: 180 }}
+          </p>
+          {% if exp.tags %}
+          <div class="project-card-tags">
+            {% for tag in exp.tags %}
+            <span class="project-tag">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</div>
