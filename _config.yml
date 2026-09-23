@@ -154,7 +154,6 @@ defaults:
 # Navigation
 header_pages:
   - projects.md
-  - explainers.md
   - publications.md
   - talks.md
   - teaching.md

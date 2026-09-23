@@ -11,6 +11,9 @@ links:
   - type: "paper"
     text: "GuineaGrad (ICML 2026 AI4Physics)"
     url: "https://openreview.net/forum?id=jonYN1gCsu"
+  - type: "talk"
+    text: "GPX poster (US FCC Workshop 2026)"
+    url: "https://indico.slac.stanford.edu/event/10213/contributions/15915/"
 ---
 
 ## Differentiable and GPU-Accelerated Beam-Beam Simulation
@@ -27,4 +30,4 @@ Beam-beam interactions set the physics reach of every high-energy lepton collide
 
 ### Guinea-Pig X (GPX): a CUDA port for throughput
 
-**Guinea-Pig X** is a CUDA port of GUINEA-PIG. Across reference configurations for several colliders, it delivers roughly an order-of-magnitude end-to-end speedup, while maintaining statistical parity with the legacy code. *Manuscript in preparation.*
+**Guinea-Pig X** is a CUDA port of GUINEA-PIG. Across reference configurations for several colliders, it delivers roughly an order-of-magnitude end-to-end speedup, while maintaining statistical parity with the legacy code. First results were presented as a [poster at the US FCC Workshop 2026](https://indico.slac.stanford.edu/event/10213/contributions/15915/). *Manuscript in preparation.*
