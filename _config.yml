@@ -27,6 +27,7 @@ description: >-
   Research interests: High Energy Physics, Higgs Boson, Future Colliders, Machine Learning, Data Analysis
 author:
   name: Dimitris Ntounis
+  tagline: "Physicist · AI Researcher"
   bio: PhD Researcher in Particle Physics and Machine Learning at Stanford University
   email: dntounis@stanford.edu
   institution: Stanford University
@@ -169,6 +170,9 @@ academic_links:
 # Current CV only. Superseded versions live outside the repo in ../cv_archive/
 # so they are neither published nor indexed.
 cv_pdf: /assets/files/DN_CV_3March2026.pdf
+
+# Home-page "From the Blog" section (Substack feed).
+show_blog: false  # set true once the first Substack post is live
 
 
 google_analytics: G-5LN3L9EYD6

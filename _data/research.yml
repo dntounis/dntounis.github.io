@@ -1,0 +1,34 @@
+# Research areas shown on the home page (index.md, #research) as
+# Problem -> My approach -> Output cards. Rendered by _includes/research-cards.html.
+# `url` may be absolute or a site path; site paths open in the same tab.
+
+- name: "Higgs boson physics at the LHC"
+  problem: "Boosted Higgs bosons produced with a W or Z and decaying to b-quarks are buried under an enormous QCD multijet background in fully hadronic events."
+  approach: "Large-radius jet tagging with ML taggers, a data-driven background estimate, and careful statistical fits on petabyte-scale ATLAS data."
+  outputs:
+    - label: "Phys. Rev. Lett. 132, 131802 (2024)"
+      url: "https://doi.org/10.1103/PhysRevLett.132.131802"
+    - label: "Run 2 + 3 extended search (ongoing)"
+      url: "/projects/#extended-search-for-boosted-higgs-bosons-with-run-2-3-atlas-data"
+    - label: "ATLAS briefing: Jetting towards the Higgs boson"
+      url: "https://atlas.cern/Updates/Briefing/Jetting-Higgs-Boson"
+
+- name: "Next-generation colliders"
+  problem: "The beam-beam simulation codes that collider design depends on are slow and give no gradients, so luminosity and background studies are brute-force scans."
+  approach: "Reimplementing them to run on GPUs and be differentiable (GuineaGrad), and using them for luminosity and beam-induced background studies for C³."
+  outputs:
+    - label: "ICML 2026 AI4Physics workshop (GuineaGrad)"
+      url: "https://openreview.net/forum?id=jonYN1gCsu"
+    - label: "JINST 21, P02024 (2026)"
+      url: "https://doi.org/10.1088/1748-0221/21/02/P02024"
+    - label: "Phys. Rev. Accel. Beams 27, 061001 (2024)"
+      url: "https://doi.org/10.1103/PhysRevAccelBeams.27.061001"
+
+- name: "AI/ML for scientific discovery"
+  problem: "Detector designs for future colliders are fixed long before we know which choices actually limit physics reach, such as jet flavor tagging."
+  approach: "ML flavor taggers inside automated pipelines that score detector designs end to end, plus embedding-geometry methods that detect conceptual shifts in the scientific literature."
+  outputs:
+    - label: "arXiv:2501.16584 (2025)"
+      url: "https://arxiv.org/abs/2501.16584"
+    - label: "arXiv:2609.14917 (2026)"
+      url: "https://arxiv.org/abs/2609.14917"

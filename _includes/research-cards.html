@@ -1,0 +1,33 @@
+{%- comment -%}
+  Home page research areas as Problem -> My approach -> Output cards.
+  Data: _data/research.yml. Styles: "Research cards" in assets/css/main.css.
+  markdown="0" keeps kramdown from treating the indented markup as code,
+  since index.md wraps the section in markdown="1".
+{%- endcomment -%}
+<div class="research-cards" markdown="0">
+{%- for area in site.data.research %}
+  <article class="research-card">
+    <h2 class="research-card-title">{{ area.name }}</h2>
+    <div class="research-card-grid">
+      <div class="research-card-col research-card-problem">
+        <div class="research-label">Problem</div>
+        <p>{{ area.problem }}</p>
+      </div>
+      <div class="research-card-col research-card-approach">
+        <div class="research-label research-label--accent">My approach</div>
+        <p>{{ area.approach }}</p>
+      </div>
+    </div>
+    {%- if area.outputs %}
+    <div class="research-card-output">
+      <span class="research-label">Output</span>
+      {%- for out in area.outputs %}
+      {%- assign external = false -%}
+      {%- if out.url contains "://" -%}{%- assign external = true -%}{%- endif %}
+      <a class="research-pill" href="{% if external %}{{ out.url }}{% else %}{{ out.url | relative_url }}{% endif %}"{% if external %} target="_blank" rel="noopener"{% endif %}>{{ out.label }}</a>
+      {%- endfor %}
+    </div>
+    {%- endif %}
+  </article>
+{%- endfor %}
+</div>

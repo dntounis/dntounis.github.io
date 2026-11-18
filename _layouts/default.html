@@ -161,12 +161,8 @@
 
     <footer class="site-footer">
         <div class="footer-content">
-            <div class="footer-text">
-                &copy; {{ site.time | date: '%Y' }} {{ site.author.name }}, Powered by Jekyll
-            </div>
-            <div class="footer-update">
-                Site last updated {{ site.time | date: '%Y-%m-%d' }}
-            </div>
+            <span class="footer-text">&copy; {{ site.time | date: '%Y' }} {{ site.author.name }} · Built with Jekyll</span>
+            <span class="footer-update">Last updated <time datetime="{{ site.time | date: '%Y-%m-%d' }}">{{ site.time | date: '%-d %b %Y' }}</time></span>
         </div>
     </footer>
 

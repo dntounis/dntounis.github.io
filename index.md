@@ -45,11 +45,7 @@ My name is Dimitrios (but most people call me Dimitris) Ntounis [*/di-MEE-tris D
 
 My research lies at the intersection of experimental particle physics, accelerator science, and machine learning, driven by the fundamental question: *What are the building blocks of the Universe, and how do they interact?*
 
-**Higgs Boson Physics at the LHC**: I analyze petabyte-scale datasets from the <a href="https://atlas.cern/" target="_blank">ATLAS</a> detector at CERN's Large Hadron Collider (LHC) to probe the properties of the <a href="https://en.wikipedia.org/wiki/Higgs_boson" target="_blank">Higgs boson</a>—the particle intimately tied to the mechanism that gives fundamental particles their mass. My work focuses on measurements of Higgs production in association with vector bosons, using advanced statistical techniques to extract signals from challenging data-driven backgrounds.
-
-**Next-Generation Colliders**: Looking beyond the LHC, I contribute to the development of future electron-positron colliders designed to achieve unprecedented precision in Higgs, electroweak, and top quark measurements. My contributions include comprehensive studies of the beam dynamics, luminosity optimization, and beam-induced background characterization for the <a href="https://web.slac.stanford.edu/c3/" target="_blank">Cool Copper Collider (C³)</a>, a newly proposed US-led linear collider concept. More recently, I have been focused on broader work understanding the beam dynamics of electron-positron collisions, and accelerating beam-beam simulation tools.
-
-**AI/ML for Science Discovery**: I leverage state-of-the-art machine learning techniques to extract maximum physics insight from available data. This includes developing novel algorithms for particle identification that enhance our sensitivity to new physics signatures, creating automated pipelines for end-to-end detector optimization for future collider facilities, and using modern embedding models to quantify and predict scientific innovation.
+{% include research-cards.html %}
 </section>
 
 <section id="news" class="home-section" data-section-label="News" markdown="1">
@@ -770,6 +766,7 @@ My research lies at the intersection of experimental particle physics, accelerat
 </script>
 </section>
 
+{% if site.show_blog %}
 <section id="blog" class="home-section" data-section-label="Blog" markdown="1">
 <h1 class="cardinal-red-title">From the Blog</h1>
 
@@ -842,9 +839,4 @@ My research lies at the intersection of experimental particle physics, accelerat
 })();
 </script>
 </section>
-
-<div class="section-spacer"></div>
-
-<div class="contact-cta">
-    <p>Interested in collaborating or have questions? <a href="/contact/">Get in touch</a> or <a href="/contact/#schedule-meeting">schedule a meeting</a>.</p>
-</div>
+{% endif %}

@@ -14,6 +14,7 @@ layout: default
 
       <div class="author-info">
         <h2 class="author-name">{{ site.author.name }}</h2>
+        {% if site.author.tagline %}<p class="author-tagline">{{ site.author.tagline }}</p>{% endif %}
         <p class="author-bio">{{ site.author.bio }}</p>
       </div>
 
@@ -211,6 +212,22 @@ layout: default
   font-weight: 600;
   margin: 0 0 0.4rem 0;
   letter-spacing: -0.01em;
+}
+
+.author-tagline {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cardinal-red);
+  margin: 4px 0 8px 0;
+  line-height: 1.4;
+}
+
+/* #8C1515 is ~2:1 on the dark ground; use the site's dark-mode Cardinal Bloom. */
+[data-theme="dark"] .author-tagline {
+  color: #D4566B;
 }
 
 .author-bio {
