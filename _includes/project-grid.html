@@ -189,6 +189,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.MathJax) {
         MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
     }
+
+    // Deep link: /projects/#<project-slug> opens that project's dialog
+    // (used by the Output pills in the home page Research cards).
+    const slug = decodeURIComponent(window.location.hash.slice(1));
+    if (slug && document.getElementById(`${slug}-dialog`)) {
+        const card = document.querySelector(`[onclick*="'${slug}'"]`);
+        showProjectDialog(slug, { preventDefault() {}, target: card || document.body });
+    }
 });
 </script>
 
